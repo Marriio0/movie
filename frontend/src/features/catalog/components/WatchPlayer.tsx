@@ -2,7 +2,6 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
-  Cloud,
   Copy,
   Download,
   ExternalLink,
@@ -17,7 +16,6 @@ import {
   Sparkles,
   Subtitles,
   Tv,
-  Zap,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
@@ -29,6 +27,7 @@ import {
 } from '../lib/subtitles';
 import { fetchTorrentioStreams, type ParsedTorrentioStream } from '../lib/torrentio';
 import { cn } from '@/shared/lib/cn';
+import { usePwaInstall } from '@/shared/hooks/usePwaInstall';
 import { Badge } from '@/shared/ui/Badge';
 import { Button } from '@/shared/ui/Button';
 import { IconButton } from '@/shared/ui/IconButton';
@@ -45,6 +44,7 @@ type ViewMode = 'stream' | 'download' | 'torrentio';
 
 export function WatchPlayer({ details }: WatchPlayerProps) {
   const isSeries = details.mediaType === 'tv';
+  const { isInstallable, isInstalled, installApp } = usePwaInstall();
 
   // Active view mode: stream player, download center, or torrentio explorer
   const [viewMode, setViewMode] = useState<ViewMode>('stream');
@@ -235,15 +235,6 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
     return isSeries
       ? `${details.title}_S${currentSeason}E${currentEpisode}`
       : details.title;
-  }, [isSeries, details.title, currentSeason, currentEpisode]);
-
-  const downloadSearchTitle = useMemo(() => {
-    if (isSeries) {
-      const s = String(currentSeason).padStart(2, '0');
-      const e = String(currentEpisode).padStart(2, '0');
-      return `${details.title} S${s}E${e}`;
-    }
-    return details.title;
   }, [isSeries, details.title, currentSeason, currentEpisode]);
 
   const handleCopyMagnet = async (magnetLink: string, infoHash: string) => {
@@ -724,32 +715,46 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               </div>
             )}
 
-            {/* Clear explanation of how to download video to device */}
-            <div className="space-y-2 rounded-lg border border-line bg-surface-2 p-3 text-xs">
+            {/* Install App on Device Banner (PWA) */}
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-surface-2 p-3 text-xs">
+              <div className="flex items-center gap-2.5">
+                <Download className="size-4 shrink-0 text-emerald-400" />
+                <div>
+                  <p className="font-semibold text-fg">تثبيت تطبيق Marquee على جهازك</p>
+                  <p className="text-fg-muted">
+                    ثبّت الموقع كتطبيق أصلي على هاتفك أو حاسوبك لتشغيل وتنزيل الأفلام والمسلسلات مباشرة بدون متصفح
+                  </p>
+                </div>
+              </div>
+              {isInstallable ? (
+                <Button
+                  size="sm"
+                  onClick={installApp}
+                  className="h-7 bg-emerald-600 px-3 text-xs font-bold text-white hover:bg-emerald-700"
+                >
+                  <span>تثبيت التطبيق الآن</span>
+                </Button>
+              ) : isInstalled ? (
+                <span className="rounded bg-emerald-500/20 px-2.5 py-1 text-xs font-semibold text-emerald-400">
+                  ✓ التطبيق مثبت على جهازك
+                </span>
+              ) : null}
+            </div>
+
+            {/* Clear explanation of in-site direct download */}
+            <div className="space-y-1.5 rounded-lg border border-line bg-surface-2 p-3 text-xs">
               <div className="flex items-center gap-2 font-semibold text-fg">
                 <Info className="size-4 shrink-0 text-emerald-400" />
-                <span>طريقة تنزيل وتثبيت الفيديو لجهازك (الهاتف أو الحاسوب):</span>
+                <span>طرق تنزيل وتثبيت الفيديو مباشرة من الموقع:</span>
               </div>
               <p className="leading-relaxed text-fg-muted">
-                • <strong>تحميل MP4 سحابي مباشر (بدون أي برامج)</strong>: اضغط على الزر الأخضر{' '}
-                <strong className="text-emerald-400 font-bold">تحميل MP4 سحابي</strong> وسيبدأ تنزيل ملف الفيديو مباشرة في متصفحك أو تشغيله فورا.
+                • <strong>تحميل مباشر للملف (.torrent)</strong>: اضغط على الزر الأخضر لتنزيل ملف التورنت المباشر فوراً إلى جهازك.
               </p>
               <p className="leading-relaxed text-fg-muted">
-                • <strong>فتح في تطبيقات التحميل</strong>: إذا كان مثبت عندك برنامج تحميل (مثل{' '}
-                <strong>uTorrent</strong> أو <strong>BitTorrent</strong> أو <strong>1DM</strong> في الهاتف)، اضغط{' '}
-                <strong>فتح بالتطبيق</strong>.
+                • <strong>فتح بتطبيق التحميل</strong>: اضغط لفتح رابط التحميل مباشرة في تطبيق التنزيل بجهازك (مثل 1DM أو uTorrent).
               </p>
               <p className="leading-relaxed text-fg-muted">
-                • <strong>تحميل سحابي عالي السرعة</strong>: اضغط <strong>نسخ الرابط</strong> واستعمل خدمة التحميل المجانية{' '}
-                <a
-                  href="https://www.seedr.cc"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-semibold text-emerald-400 underline"
-                >
-                  Seedr.cc
-                </a>{' '}
-                لتنزيل الفيديو MP4 بأقصى سرعة ممكنة.
+                • <strong>نسخ الرابط</strong>: لنسخ رابط التحميل المباشر واستعماله في أي وقت.
               </p>
             </div>
 
@@ -784,41 +789,30 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                     </div>
 
                     <div className="space-y-1.5 pt-1">
-                      <a
-                        href={`https://webtor.io/show?magnet=${encodeURIComponent(downloadOptions.fhd.magnetLink)}`}
-                        target="_blank"
-                        rel="noreferrer"
+                      <Button
+                        type="button"
+                        onClick={() =>
+                          handleDownloadTorrentFile(
+                            downloadOptions.fhd!.stream.infoHash,
+                            downloadFilename,
+                          )
+                        }
                         className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-emerald-600 px-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700"
-                        title="تحميل مباشر كفيديو MP4 في المتصفح بدون أي برنامج"
+                        title="تحميل ملف التورنت المباشر لجهازك"
                       >
-                        <Zap className="size-3.5 fill-current text-yellow-300" />
-                        <span>تحميل MP4 سحابي</span>
-                      </a>
+                        <Download className="size-3.5" />
+                        <span>تحميل مباشر (.torrent)</span>
+                      </Button>
 
                       <div className="flex items-center gap-1">
                         <a
                           href={downloadOptions.fhd.magnetLink}
-                          className="flex h-6 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
-                          title="فتح في تطبيق uTorrent / BitTorrent / 1DM"
+                          className="flex h-7 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
+                          title="فتح في تطبيق التحميل بجهازك"
                         >
                           <ExternalLink className="size-2.5" />
-                          <span>بالتطبيق</span>
+                          <span>فتح بتطبيق التحميل</span>
                         </a>
-
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() =>
-                            handleDownloadTorrentFile(
-                              downloadOptions.fhd!.stream.infoHash,
-                              downloadFilename,
-                            )
-                          }
-                          className="h-6 px-1.5 text-[10px]"
-                          title="تحميل ملف .torrent"
-                        >
-                          <span>.torrent</span>
-                        </Button>
 
                         <Button
                           size="sm"
@@ -829,13 +823,19 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                               downloadOptions.fhd!.stream.infoHash,
                             )
                           }
-                          className="h-6 px-2 text-xs"
+                          className="h-7 px-2.5 text-xs"
                           title="نسخ رابط التحميل (Magnet)"
                         >
                           {copiedHash === downloadOptions.fhd.stream.infoHash ? (
-                            <Check className="size-3 text-emerald-400" />
+                            <div className="flex items-center gap-1 font-semibold text-emerald-400">
+                              <Check className="size-3" />
+                              <span>تم النسخ</span>
+                            </div>
                           ) : (
-                            <Copy className="size-3" />
+                            <div className="flex items-center gap-1">
+                              <Copy className="size-3" />
+                              <span>نسخ الرابط</span>
+                            </div>
                           )}
                         </Button>
                       </div>
@@ -864,41 +864,30 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                     </div>
 
                     <div className="space-y-1.5 pt-1">
-                      <a
-                        href={`https://webtor.io/show?magnet=${encodeURIComponent(downloadOptions.hd.magnetLink)}`}
-                        target="_blank"
-                        rel="noreferrer"
+                      <Button
+                        type="button"
+                        onClick={() =>
+                          handleDownloadTorrentFile(
+                            downloadOptions.hd!.stream.infoHash,
+                            downloadFilename,
+                          )
+                        }
                         className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-emerald-600 px-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700"
-                        title="تحميل مباشر كفيديو MP4 في المتصفح بدون أي برنامج"
+                        title="تحميل ملف التورنت المباشر لجهازك"
                       >
-                        <Zap className="size-3.5 fill-current text-yellow-300" />
-                        <span>تحميل MP4 سحابي</span>
-                      </a>
+                        <Download className="size-3.5" />
+                        <span>تحميل مباشر (.torrent)</span>
+                      </Button>
 
                       <div className="flex items-center gap-1">
                         <a
                           href={downloadOptions.hd.magnetLink}
-                          className="flex h-6 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
-                          title="فتح في تطبيق uTorrent / BitTorrent / 1DM"
+                          className="flex h-7 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
+                          title="فتح في تطبيق التحميل بجهازك"
                         >
                           <ExternalLink className="size-2.5" />
-                          <span>بالتطبيق</span>
+                          <span>فتح بتطبيق التحميل</span>
                         </a>
-
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() =>
-                            handleDownloadTorrentFile(
-                              downloadOptions.hd!.stream.infoHash,
-                              downloadFilename,
-                            )
-                          }
-                          className="h-6 px-1.5 text-[10px]"
-                          title="تحميل ملف .torrent"
-                        >
-                          <span>.torrent</span>
-                        </Button>
 
                         <Button
                           size="sm"
@@ -909,13 +898,19 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                               downloadOptions.hd!.stream.infoHash,
                             )
                           }
-                          className="h-6 px-2 text-xs"
+                          className="h-7 px-2.5 text-xs"
                           title="نسخ رابط التحميل (Magnet)"
                         >
                           {copiedHash === downloadOptions.hd.stream.infoHash ? (
-                            <Check className="size-3 text-emerald-400" />
+                            <div className="flex items-center gap-1 font-semibold text-emerald-400">
+                              <Check className="size-3" />
+                              <span>تم النسخ</span>
+                            </div>
                           ) : (
-                            <Copy className="size-3" />
+                            <div className="flex items-center gap-1">
+                              <Copy className="size-3" />
+                              <span>نسخ الرابط</span>
+                            </div>
                           )}
                         </Button>
                       </div>
@@ -946,25 +941,29 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                     </div>
 
                     <div className="space-y-1.5 pt-1">
-                      <a
-                        href={`https://webtor.io/show?magnet=${encodeURIComponent(downloadOptions.uhd.magnetLink)}`}
-                        target="_blank"
-                        rel="noreferrer"
+                      <Button
+                        type="button"
+                        onClick={() =>
+                          handleDownloadTorrentFile(
+                            downloadOptions.uhd!.stream.infoHash,
+                            downloadFilename,
+                          )
+                        }
                         className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-purple-600 px-2 text-xs font-bold text-white shadow-sm transition hover:bg-purple-700"
-                        title="تحميل 4K مباشر كفيديو MP4 في المتصفح"
+                        title="تحميل ملف التورنت المباشر لجهازك"
                       >
-                        <Zap className="size-3.5 fill-current text-yellow-300" />
-                        <span>تحميل 4K سحابي</span>
-                      </a>
+                        <Download className="size-3.5" />
+                        <span>تحميل مباشر (.torrent)</span>
+                      </Button>
 
                       <div className="flex items-center gap-1">
                         <a
                           href={downloadOptions.uhd.magnetLink}
-                          className="flex h-6 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
-                          title="فتح في تطبيق uTorrent / BitTorrent / 1DM"
+                          className="flex h-7 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
+                          title="فتح في تطبيق التحميل بجهازك"
                         >
                           <ExternalLink className="size-2.5" />
-                          <span>بالتطبيق</span>
+                          <span>فتح بتطبيق التحميل</span>
                         </a>
 
                         <Button
@@ -976,28 +975,19 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                               downloadFilename,
                             )
                           }
-                          className="h-6 px-1.5 text-[10px]"
-                          title="تحميل ملف .torrent"
-                        >
-                          <span>.torrent</span>
-                        </Button>
-
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() =>
-                            handleCopyMagnet(
-                              downloadOptions.uhd!.magnetLink,
-                              downloadOptions.uhd!.stream.infoHash,
-                            )
-                          }
-                          className="h-6 px-2 text-xs"
+                          className="h-7 px-2.5 text-xs"
                           title="نسخ رابط التحميل (Magnet)"
                         >
                           {copiedHash === downloadOptions.uhd.stream.infoHash ? (
-                            <Check className="size-3 text-emerald-400" />
+                            <div className="flex items-center gap-1 font-semibold text-emerald-400">
+                              <Check className="size-3" />
+                              <span>تم النسخ</span>
+                            </div>
                           ) : (
-                            <Copy className="size-3" />
+                            <div className="flex items-center gap-1">
+                              <Copy className="size-3" />
+                              <span>نسخ الرابط</span>
+                            </div>
                           )}
                         </Button>
                       </div>
@@ -1006,54 +996,11 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 )}
               </div>
             ) : (
-              <div className="space-y-3 rounded-lg border border-line bg-surface-2 p-4 text-xs">
-                <div className="flex items-center gap-2 text-fg">
-                  <Info className="size-4 shrink-0 text-amber-400" />
-                  <span className="font-semibold">
-                    روابط التنزيل المباشرة التلقائية غير متوفرة لهذا العنوان حالياً.
-                  </span>
-                </div>
-                <p className="text-fg-muted">
-                  يمكنك الاستمتاع بالمشاهدة الفورية بجودة عالية عبر المشغل في الأعلى، أو تنزيل الفيديو مباشرة عبر المصادر الموثوقة التالية:
-                </p>
-                <div className="flex flex-wrap items-center gap-2 pt-1">
-                  <a
-                    href={`https://1337x.to/search/${encodeURIComponent(downloadSearchTitle)}/1/`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-md bg-surface-3 px-3 py-1.5 font-medium text-fg ring-1 ring-line transition hover:bg-surface-1 hover:text-accent"
-                  >
-                    <ExternalLink className="size-3" />
-                    <span>تحميل من 1337x</span>
-                  </a>
-                  <a
-                    href={`https://yts.mx/browse-movies/${encodeURIComponent(details.title)}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-md bg-surface-3 px-3 py-1.5 font-medium text-fg ring-1 ring-line transition hover:bg-surface-1 hover:text-accent"
-                  >
-                    <ExternalLink className="size-3" />
-                    <span>تحميل من YTS</span>
-                  </a>
-                  <a
-                    href={`https://torrentgalaxy.to/torrents.php?search=${encodeURIComponent(downloadSearchTitle)}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-md bg-surface-3 px-3 py-1.5 font-medium text-fg ring-1 ring-line transition hover:bg-surface-1 hover:text-accent"
-                  >
-                    <ExternalLink className="size-3" />
-                    <span>تحميل من TorrentGalaxy</span>
-                  </a>
-                  <a
-                    href="https://www.seedr.cc"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 font-semibold text-white transition hover:bg-emerald-700"
-                  >
-                    <Cloud className="size-3" />
-                    <span>التحميل السحابي (Seedr.cc)</span>
-                  </a>
-                </div>
+              <div className="rounded-lg border border-line bg-surface-2 p-4 text-center text-xs text-fg-muted">
+                <span>
+                  روابط التنزيل المباشرة التلقائية غير متوفرة لهذا العنوان حالياً. يمكنك الاستمتاع
+                  بالمشاهدة المباشرة بجودة عالية عبر المشغل في الأعلى.
+                </span>
               </div>
             )}
 
