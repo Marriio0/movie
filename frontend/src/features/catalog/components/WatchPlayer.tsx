@@ -4,7 +4,6 @@ import {
   ChevronRight,
   Copy,
   Download,
-  ExternalLink,
   Info,
   Maximize2,
   Minimize2,
@@ -1537,6 +1536,16 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                             <>
                               <Button
                                 size="sm"
+                                onClick={() => handleWatchVideoNow()}
+                                className="h-8 gap-1.5 bg-purple-600 px-3 text-xs font-bold text-white shadow-sm hover:bg-purple-700"
+                                title="تشغيل في مشغل الموقع فوراً بدون أي برامج"
+                              >
+                                <Play className="size-3 fill-current" />
+                                <span>▶ تشغيل في الموقع</span>
+                              </Button>
+
+                              <Button
+                                size="sm"
                                 variant="secondary"
                                 onClick={() => handleCopyMagnet(s.magnetLink)}
                                 className={cn(
@@ -1545,22 +1554,11 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                                     ? 'bg-emerald-600 text-white'
                                     : 'bg-surface-3 text-fg hover:bg-surface-1',
                                 )}
-                                title="نسخ رابط Magnet لتحميله أو تشغيله"
+                                title="نسخ رابط Magnet"
                               >
                                 {isCopied ? <Check className="size-3 text-white" /> : <Copy className="size-3" />}
                                 <span>{isCopied ? 'تم النسخ ✔' : 'نسخ Magnet'}</span>
                               </Button>
-
-                              <a
-                                href={s.stremioLink}
-                                target="_blank"
-                                rel="noreferrer noopener"
-                                className="inline-flex h-8 items-center gap-1.5 rounded-md bg-purple-950/60 px-3 text-xs font-semibold text-purple-300 ring-1 ring-purple-500/40 hover:bg-purple-900/60 transition"
-                                title="فتح فـ Stremio"
-                              >
-                                <ExternalLink className="size-3" />
-                                <span>فتح فـ Stremio</span>
-                              </a>
                             </>
                           )}
                         </div>
@@ -1575,7 +1573,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
             <div className="flex items-center gap-2.5 rounded-lg border border-line bg-surface-2 p-3 text-xs text-fg-muted" dir="rtl">
               <Info className="size-4 shrink-0 text-purple-400" />
               <span>
-                سيرفرات تورنتيو تجلب ملفات الفيديو الأصلية بأعلى نقاوة (4K HDR / 1080p). يمكنك نسخ الرابط Magnet وتشغيله، أو فتح السيرفر بضغطة زر واحدة فـ Stremio، أو تفعيل Debrid لتشغيلها مباشرة في المتصفح بدون أي برامج.
+                سيرفرات تورنتيو تجلب ملفات الفيديو الأصلية بأعلى نقاوة (4K HDR / 1080p). اضغط تشغيل لمشاهدة الفيلم فوراً في مشغل الموقع، أو أدخل كود Debrid لتشغيلها مباشرة بجودة MP4 وبدون إعلانات.
               </span>
             </div>
           </div>
