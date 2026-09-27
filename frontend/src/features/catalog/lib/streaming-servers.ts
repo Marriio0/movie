@@ -44,28 +44,39 @@ export const STREAMING_SERVERS: StreamingServer[] = [
   {
     id: 'vidsrc',
     name: 'Server 2 (VidSrc)',
-    badge: 'Ultra Fast HD',
+    badge: 'Ad-Free HD',
     description: 'High definition fast stream mirror with subtitle tracks.',
     supportsSubtitles: true,
     getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'ar' }) =>
       mediaType === 'movie'
-        ? `https://vidsrc.pm/embed/movie/${tmdbId}?ds_lang=${subLang}`
-        : `https://vidsrc.pm/embed/tv/${tmdbId}/${season}/${episode}?ds_lang=${subLang}`,
+        ? `https://vidsrc.pm/embed/movie/${tmdbId}?ds_lang=${subLang}&sub_lang=${subLang}`
+        : `https://vidsrc.pm/embed/tv/${tmdbId}/${season}/${episode}?ds_lang=${subLang}&sub_lang=${subLang}`,
   },
   {
-    id: 'vidsrcto',
-    name: 'Server 3 (VidSrc TO)',
-    badge: '1080p Mirror',
-    description: 'High quality 1080p mirror for movies and series.',
+    id: 'videasy',
+    name: 'Server 3 (Videasy)',
+    badge: 'Clean & Fast',
+    description: 'Clean modern stream player with smooth multi-language playback.',
     supportsSubtitles: true,
     getUrl: ({ mediaType, tmdbId, season, episode }) =>
       mediaType === 'movie'
-        ? `https://vidsrc.to/embed/movie/${tmdbId}`
-        : `https://vidsrc.to/embed/tv/${tmdbId}/${season}/${episode}`,
+        ? `https://player.videasy.net/movie/${tmdbId}?color=6366f1`
+        : `https://player.videasy.net/tv/${tmdbId}/${season}/${episode}?color=6366f1`,
+  },
+  {
+    id: 'vidsrcto',
+    name: 'Server 4 (VidSrc TO)',
+    badge: '1080p Mirror',
+    description: 'High quality 1080p mirror for movies and series.',
+    supportsSubtitles: true,
+    getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'ar' }) =>
+      mediaType === 'movie'
+        ? `https://vidsrc.to/embed/movie/${tmdbId}?sub_lang=${subLang}`
+        : `https://vidsrc.to/embed/tv/${tmdbId}/${season}/${episode}?sub_lang=${subLang}`,
   },
   {
     id: 'twoembed',
-    name: 'Server 4 (2Embed)',
+    name: 'Server 5 (2Embed)',
     badge: 'Fast Mirror',
     description: 'Fast responsive mirror with multi-source video feeds.',
     supportsSubtitles: false,
@@ -73,16 +84,5 @@ export const STREAMING_SERVERS: StreamingServer[] = [
       mediaType === 'movie'
         ? `https://www.2embed.skin/embed/${tmdbId}`
         : `https://www.2embed.skin/embedtv/${tmdbId}&s=${season}&e=${episode}`,
-  },
-  {
-    id: 'multiembed',
-    name: 'Server 5 (SuperEmbed)',
-    badge: 'Multi-Source',
-    description: 'Multi-server backup player for high-demand titles.',
-    supportsSubtitles: true,
-    getUrl: ({ mediaType, tmdbId, season, episode }) =>
-      mediaType === 'movie'
-        ? `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`
-        : `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`,
   },
 ];

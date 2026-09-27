@@ -400,10 +400,11 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
           </div>
         </div>
 
-        {/* Server Selector Bar (when in streaming mode) */}
+        {/* Server & Subtitle Selector Bar (when in streaming mode) */}
         {viewMode === 'stream' && (
-          <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-            <div className="flex flex-wrap items-center gap-1.5">
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div className="flex flex-wrap items-center gap-1.5">
                 {STREAMING_SERVERS.map((server) => {
                   const isSelected = selectedServerId === server.id && !directVideoUrl;
                   return (
@@ -426,7 +427,6 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                     </button>
                   );
                 })}
-
               </div>
 
               <button
@@ -438,6 +438,36 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 <SkipForward className="size-3" />
               </button>
             </div>
+
+            {/* Subtitle Language Quick Select */}
+            <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-line/60 bg-surface-1/80 px-2.5 py-1.5 text-xs">
+              <span className="flex items-center gap-1 font-medium text-fg-muted shrink-0">
+                <Subtitles className="size-3.5 text-emerald-400" />
+                <span>الترجمة:</span>
+              </span>
+              <div className="flex flex-wrap items-center gap-1">
+                {SUPPORTED_SUBTITLE_LANGUAGES.map((lang) => {
+                  const isSelected = selectedSubLang === lang.code;
+                  return (
+                    <button
+                      key={lang.code}
+                      type="button"
+                      onClick={() => handleSelectSubLang(lang.code)}
+                      className={cn(
+                        'flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-semibold transition',
+                        isSelected
+                          ? 'bg-emerald-600 text-white shadow-sm ring-1 ring-emerald-400'
+                          : 'bg-surface-2 text-fg-muted hover:bg-surface-3 hover:text-fg',
+                      )}
+                    >
+                      <span>{lang.flag}</span>
+                      <span>{lang.nativeName}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Series Season & Episode Navigation */}
@@ -554,6 +584,11 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="origin"
+                  sandbox={
+                    selectedServerId !== 'vidlink'
+                      ? 'allow-scripts allow-same-origin allow-forms allow-presentation'
+                      : undefined
+                  }
                   className="size-full border-0"
                 />
               )}

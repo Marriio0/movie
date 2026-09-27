@@ -81,6 +81,7 @@ describe('WatchPlayer', () => {
 
     const iframe = screen.getByTitle(/Watch Dune: Part Two/i);
     expect(iframe).toHaveAttribute('src', expect.stringContaining('vidlink.pro/movie/693134'));
+    expect(iframe).not.toHaveAttribute('sandbox');
   });
 
   it('switches between servers when clicked', async () => {
@@ -94,6 +95,10 @@ describe('WatchPlayer', () => {
     expect(iframe).toHaveAttribute(
       'src',
       expect.stringContaining('vidsrc.pm/embed/movie/693134'),
+    );
+    expect(iframe).toHaveAttribute(
+      'sandbox',
+      'allow-scripts allow-same-origin allow-forms allow-presentation',
     );
   });
 
