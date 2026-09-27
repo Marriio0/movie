@@ -125,22 +125,14 @@ describe('WatchPlayer', () => {
     expect(screen.getByRole('link', { name: /torrentio\.org/i })).toBeInTheDocument();
   });
 
-  it('updates subtitle language when a language button is clicked', async () => {
-    const user = userEvent.setup();
+  it('configures default Arabic subtitles in player and displays CC indicator', () => {
     renderWatchPlayer(mockMovie);
 
     expect(screen.getByTitle(/Watch Dune: Part Two/i)).toHaveAttribute(
       'src',
       expect.stringContaining('sub_lang=ar'),
     );
-
-    const frenchBtn = screen.getByRole('button', { name: /Français/i });
-    await user.click(frenchBtn);
-
-    expect(screen.getByTitle(/Watch Dune: Part Two/i)).toHaveAttribute(
-      'src',
-      expect.stringContaining('sub_lang=fr'),
-    );
+    expect(screen.getByText(/Subtitles \(CC\) Available/i)).toBeInTheDocument();
   });
 
   it('opens Download Center and displays direct download links and Arabic subtitles', async () => {

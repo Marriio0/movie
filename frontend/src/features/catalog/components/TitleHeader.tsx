@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Subtitles } from 'lucide-react';
 import { formatRuntime, languageName } from '@/shared/lib/format';
 import { cn } from '@/shared/lib/cn';
 import { Badge } from '@/shared/ui/Badge';
@@ -58,6 +59,10 @@ export function TitleHeader({ details, actions }: { details: MediaDetails; actio
             {details.rating !== null && (
               <Rating value={details.rating} className="font-medium text-fg" />
             )}
+            <span className="flex items-center gap-1 font-semibold text-emerald-400">
+              <Subtitles aria-hidden="true" className="size-3.5" />
+              Subtitles (CC)
+            </span>
           </p>
 
           {details.genres.length > 0 && (

@@ -43,8 +43,19 @@ export const STREAMING_SERVERS: StreamingServer[] = [
         : `https://vidsrc.cc/v2/embed/tv/${tmdbId}/${season}/${episode}?ds_lang=${subLang}`,
   },
   {
+    id: 'multiembed',
+    name: 'Server 3 (SuperEmbed)',
+    badge: 'Multi-Source HD',
+    description: 'Reliable multi-server player with integrated subtitle tracks.',
+    supportsSubtitles: true,
+    getUrl: ({ mediaType, tmdbId, season, episode }) =>
+      mediaType === 'movie'
+        ? `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`
+        : `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`,
+  },
+  {
     id: 'embedsu',
-    name: 'Server 3 (Embed.su)',
+    name: 'Server 4 (Embed.su)',
     badge: 'Multi-Res HD',
     description: 'Adaptive streaming with subtitle language selector.',
     supportsSubtitles: true,
@@ -55,7 +66,7 @@ export const STREAMING_SERVERS: StreamingServer[] = [
   },
   {
     id: 'autoembed',
-    name: 'Server 4 (AutoEmbed)',
+    name: 'Server 5 (AutoEmbed)',
     badge: 'Auto-Source',
     description: 'Auto-switching streaming server with built-in captions.',
     supportsSubtitles: true,
@@ -63,17 +74,6 @@ export const STREAMING_SERVERS: StreamingServer[] = [
       mediaType === 'movie'
         ? `https://player.autoembed.cc/embed/movie/${tmdbId}`
         : `https://player.autoembed.cc/embed/tv/${tmdbId}/${season}/${episode}`,
-  },
-  {
-    id: 'multiembed',
-    name: 'Server 5 (SuperEmbed)',
-    badge: 'Backup Mirr.',
-    description: 'Reliable fallback mirror with multiple player servers.',
-    supportsSubtitles: true,
-    getUrl: ({ mediaType, tmdbId, season, episode }) =>
-      mediaType === 'movie'
-        ? `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`
-        : `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`,
   },
   {
     id: 'twoembed',
