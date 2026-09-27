@@ -30,6 +30,19 @@ export const popularQuery = (mediaType: MediaType) =>
     staleTime: 10 * MINUTE,
   });
 
+export const infinitePopularQuery = (mediaType: MediaType) => ({
+  queryKey: [...catalogKeys.popular(mediaType), 'infinite'] as const,
+  queryFn: ({ pageParam = 1, signal }: { pageParam?: number; signal?: AbortSignal }) =>
+    catalogApi.popularPaged(mediaType, pageParam, signal),
+  initialPageParam: 1,
+  getNextPageParam: (lastPage: { page?: number; totalPages?: number }) => {
+    const cur = lastPage.page ?? 1;
+    const total = lastPage.totalPages ?? 1;
+    return cur < total ? cur + 1 : undefined;
+  },
+  staleTime: 10 * MINUTE,
+});
+
 export const trendingTodayQuery = () =>
   queryOptions({
     queryKey: catalogKeys.trendingToday(),

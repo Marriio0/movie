@@ -9,6 +9,8 @@ import { cn } from '@/shared/lib/cn';
 import { iconButtonStyles } from '@/shared/ui/button-styles';
 import { ButtonLink } from '@/shared/ui/ButtonLink';
 import { Container } from '@/shared/ui/Container';
+import { InstantSearch } from '@/features/search/components/InstantSearch';
+import { LanguageMenu } from './LanguageMenu';
 import { MobileNav } from './MobileNav';
 import { PRIMARY_NAV } from './nav-items';
 import { ThemeMenu } from './ThemeMenu';
@@ -36,7 +38,7 @@ export function Navbar() {
           : 'border-transparent bg-transparent',
       )}
     >
-      <Container className="flex h-full items-center gap-2 md:gap-8">
+      <Container className="flex h-full items-center gap-2 md:gap-6">
         <Link
           to={paths.home}
           aria-label={`${APP_NAME} home`}
@@ -57,15 +59,22 @@ export function Navbar() {
           </ul>
         </nav>
 
+        {/* Netflix-Style Instant Live Search */}
+        <div className="hidden sm:block ml-2 md:ml-4">
+          <InstantSearch />
+        </div>
+
         <div className="ml-auto flex items-center gap-1">
+          {/* Mobile search icon */}
           <Link
             to={paths.search()}
             aria-label="Search"
             title="Search"
-            className={iconButtonStyles()}
+            className={cn(iconButtonStyles(), 'sm:hidden')}
           >
             <Search aria-hidden="true" />
           </Link>
+
           {isInstallable && (
             <button
               type="button"
@@ -77,10 +86,15 @@ export function Navbar() {
               <span>Install App</span>
             </button>
           )}
+
+          {/* Language Switcher */}
+          <LanguageMenu />
+
           <div className="hidden md:block">
             <ThemeMenu />
           </div>
-          <ButtonLink to={paths.login()} size="sm" className="ml-2 hidden sm:inline-flex">
+
+          <ButtonLink to={paths.login()} size="sm" className="ml-1 hidden sm:inline-flex">
             Sign in
           </ButtonLink>
           <div className="md:hidden">

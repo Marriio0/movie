@@ -66,6 +66,18 @@ export const catalogApi = {
       { signal },
     ),
 
+  /** GET /api/public/{movies|series}/popular with pagination support. */
+  popularPaged: (
+    mediaType: MediaType,
+    page: number = 1,
+    signal?: AbortSignal,
+  ): Promise<MediaList> =>
+    getPublic<TmdbPage<TmdbMovieListItem | TmdbTvListItem>, MediaList>(
+      `/api/public/${segment(mediaType)}/popular`,
+      (p) => toMediaList(p, (raw) => toMediaSummary(raw, mediaType)),
+      { params: { page: String(page) }, signal },
+    ),
+
   /** GET /api/public/trending/today: Trending movies and series today. */
   trendingToday: async (signal?: AbortSignal): Promise<MediaList> => {
     try {

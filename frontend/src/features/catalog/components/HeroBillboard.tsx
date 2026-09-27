@@ -82,6 +82,10 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
         />
       </div>
 
+      {/* Dynamic Animated Ambient Neon Aura */}
+      <div className="pointer-events-none absolute -top-24 -start-24 z-1 size-96 rounded-full bg-accent/25 blur-3xl animate-pulse" />
+      <div className="pointer-events-none absolute top-1/3 -end-24 z-1 size-80 rounded-full bg-purple-600/20 blur-3xl" />
+
       {/* Atmospheric ambient top and bottom glow */}
       <div className="pointer-events-none absolute inset-0 z-1 bg-gradient-to-t from-canvas via-canvas/40 to-canvas/15 md:bg-gradient-to-r md:from-canvas md:via-canvas/80 md:to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-2 h-24 bg-gradient-to-t from-canvas to-transparent" />
@@ -89,8 +93,16 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
       {/* Billboard Hero Body */}
       <div className={HERO_BODY}>
         <div className="max-w-2xl">
-          {/* Spotlight Badges */}
+          {/* Spotlight Badges with Eye-Catching Pulsing VIP Indicator */}
           <div className="flex flex-wrap items-center gap-2 text-xs">
+            <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/15 px-3 py-1 text-xs font-bold text-accent shadow-sm shadow-accent/20">
+              <span className="relative flex size-2">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-75" />
+                <span className="relative inline-flex size-2 rounded-full bg-accent" />
+              </span>
+              <span>NETFARJO VIP • جودة 4K فوري</span>
+            </div>
+
             <Badge tone="accent" className="flex items-center gap-1.5 shadow-sm font-semibold">
               <Sparkles className="size-3.5" />
               <span>تريند اليوم · Trending #{currentIndex + 1}</span>
@@ -106,7 +118,7 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
           {/* Title */}
           <h2
             id={headingId}
-            className="mt-4 font-display text-display-md sm:text-display-lg leading-none tracking-tight text-balance text-fg drop-shadow-md"
+            className="mt-4 font-display text-display-md sm:text-display-lg leading-none tracking-tight text-balance text-fg drop-shadow-md transition-all duration-500 animate-in fade-in slide-in-from-bottom-2"
           >
             {activeItem.title}
           </h2>
@@ -142,14 +154,17 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
 
           {/* Action Buttons: Watch Now, Watch Trailer, View Details */}
           <div className="mt-7 flex flex-wrap items-center gap-3">
-            {/* Direct Play Link */}
+            {/* Direct Play Link with animated pulse glow */}
             <ButtonLink
               to={paths.title(activeItem.mediaType, activeItem.id)}
               size="lg"
-              className="group shadow-lg shadow-accent/20 bg-accent text-accent-fg hover:bg-accent-hover font-semibold"
+              className="group relative shadow-xl shadow-accent/25 bg-accent text-accent-fg hover:bg-accent-hover font-bold transition-all hover:scale-105 active:scale-95"
             >
-              <Play className="size-5 fill-current transition-transform duration-200 group-hover:scale-110" />
-              <span>تشغيل الآن · Watch Now</span>
+              <span className="absolute -inset-0.5 rounded-lg bg-gradient-to-r from-accent to-purple-600 opacity-50 blur-xs transition group-hover:opacity-100 animate-pulse" />
+              <span className="relative flex items-center gap-2">
+                <Play className="size-5 fill-current transition-transform duration-200 group-hover:scale-110" />
+                <span>تشغيل الآن · Watch Now</span>
+              </span>
             </ButtonLink>
 
             {/* Watch Live Trailer Modal Button */}

@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { cn } from '@/shared/lib/cn';
 import { EmptyState, type EmptyStateProps } from '@/shared/ui/EmptyState';
 import { ErrorState } from '@/shared/ui/ErrorState';
-import type { MediaList } from '../catalog.types';
+import type { MediaList, MediaSummary } from '../catalog.types';
 import { MediaCard, MediaCardSkeleton } from './MediaCard';
 import { OfflineNotice } from './OfflineNotice';
 import { useWaitingForNetwork } from './query-state';
@@ -19,6 +19,10 @@ export interface MediaGridProps {
   showType?: boolean;
   /** Rendered above the grid once results exist (e.g. a heading). */
   header?: ReactNode;
+  /** Rendered below the grid (e.g. infinite scroll loader or button). */
+  footer?: ReactNode;
+  /** Custom items array when paginated / infinite scrolling. Defaults to query.data.items. */
+  items?: MediaSummary[];
   skeletonCount?: number;
 }
 
@@ -29,6 +33,8 @@ export function MediaGrid({
   errorTitle,
   showType = false,
   header,
+  footer,
+  items,
   skeletonCount = 18,
 }: MediaGridProps) {
   const offline = useWaitingForNetwork(query);
@@ -54,7 +60,8 @@ export function MediaGrid({
     );
   }
 
-  if (query.data.items.length === 0) return <EmptyState {...empty} />;
+  const displayItems = items && items.length > 0 ? items : query.data.items;
+  if (displayItems.length === 0) return <EmptyState {...empty} />;
 
   return (
     <>
@@ -67,12 +74,13 @@ export function MediaGrid({
           query.isPlaceholderData && 'opacity-60',
         )}
       >
-        {query.data.items.map((media) => (
+        {displayItems.map((media) => (
           <li key={`${media.mediaType}:${media.id}`}>
             <MediaCard media={media} showType={showType} />
           </li>
         ))}
       </ul>
+      {footer}
     </>
   );
 }

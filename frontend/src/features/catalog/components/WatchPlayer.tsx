@@ -23,6 +23,7 @@ import { STREAMING_SERVERS, type StreamingServer } from '../lib/streaming-server
 import {
   fetchLiveSubtitles,
   downloadSubtitleBlob,
+  getOpenSubtitlesUrl,
   SUPPORTED_SUBTITLE_LANGUAGES,
 } from '../lib/subtitles';
 import { fetchTorrentioStreams, type ParsedTorrentioStream } from '../lib/torrentio';
@@ -112,6 +113,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
 
   // Theater / Cinema mode
   const [isTheater, setIsTheater] = useState(false);
+  const [isWidePlayer, setIsWidePlayer] = useState(false);
 
   // Reload key to force iframe remount if stream gets stuck
   const [reloadKey, setReloadKey] = useState(0);
@@ -273,7 +275,19 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
   // Dynamic subtitle download in the client's chosen language directly (.SRT)
   const handleDownloadSelectedSub = async () => {
     const subToDownload = currentLangSub || bestArabicSub;
-    if (!subToDownload) return;
+    if (!subToDownload) {
+      // Fallback: Open OpenSubtitles for this title and language directly
+      const openSubUrl = getOpenSubtitlesUrl({
+        mediaType: details.mediaType,
+        title: details.title,
+        imdbId: details.imdbId,
+        season: isSeries ? currentSeason : undefined,
+        episode: isSeries ? currentEpisode : undefined,
+        langCode: selectedSubLang,
+      });
+      window.open(openSubUrl, '_blank');
+      return;
+    }
     setIsDownloadingSub(true);
     const safeLangName = currentSubLangObj.name.replace(/[^a-zA-Z0-9]/g, '_');
     const filename = isSeries
@@ -547,33 +561,51 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               </button>
             </div>
 
-            {/* Subtitle Language Quick Select */}
-            <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-line/60 bg-surface-1/80 px-2.5 py-1.5 text-xs">
-              <span className="flex items-center gap-1 font-medium text-fg-muted shrink-0">
-                <Subtitles className="size-3.5 text-emerald-400" />
-                <span>الترجمة:</span>
-              </span>
-              <div className="flex flex-wrap items-center gap-1">
-                {SUPPORTED_SUBTITLE_LANGUAGES.map((lang) => {
-                  const isSelected = selectedSubLang === lang.code;
-                  return (
-                    <button
-                      key={lang.code}
-                      type="button"
-                      onClick={() => handleSelectSubLang(lang.code)}
-                      className={cn(
-                        'flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-semibold transition',
-                        isSelected
-                          ? 'bg-emerald-600 text-white shadow-sm ring-1 ring-emerald-400'
-                          : 'bg-surface-2 text-fg-muted hover:bg-surface-3 hover:text-fg',
-                      )}
-                    >
-                      <span>{lang.flag}</span>
-                      <span>{lang.nativeName}</span>
-                    </button>
-                  );
-                })}
+            {/* Subtitle Language Quick Select & Enlarge Video Button */}
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line/60 bg-surface-1/80 px-2.5 py-1.5 text-xs">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="flex items-center gap-1 font-medium text-fg-muted shrink-0">
+                  <Subtitles className="size-3.5 text-emerald-400" />
+                  <span>الترجمة:</span>
+                </span>
+                <div className="flex flex-wrap items-center gap-1">
+                  {SUPPORTED_SUBTITLE_LANGUAGES.map((lang) => {
+                    const isSelected = selectedSubLang === lang.code;
+                    return (
+                      <button
+                        key={lang.code}
+                        type="button"
+                        onClick={() => handleSelectSubLang(lang.code)}
+                        className={cn(
+                          'flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-semibold transition',
+                          isSelected
+                            ? 'bg-emerald-600 text-white shadow-sm ring-1 ring-emerald-400'
+                            : 'bg-surface-2 text-fg-muted hover:bg-surface-3 hover:text-fg',
+                        )}
+                      >
+                        <span>{lang.flag}</span>
+                        <span>{lang.nativeName}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
+
+              {/* Directly next to subtitle: Enlarge Video / Cinema Wide Toggle */}
+              <button
+                type="button"
+                onClick={() => setIsWidePlayer(!isWidePlayer)}
+                className={cn(
+                  'flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-bold transition shadow-xs',
+                  isWidePlayer
+                    ? 'bg-accent text-accent-fg ring-1 ring-accent'
+                    : 'bg-surface-2 text-fg ring-1 ring-line hover:bg-surface-3 hover:text-accent',
+                )}
+                title="تكبير وتوسيع مشغل الفيديو لعرض عريض"
+              >
+                {isWidePlayer ? <Minimize2 className="size-3.5" /> : <Maximize2 className="size-3.5" />}
+                <span>{isWidePlayer ? 'تصغير المشغل' : '🔍 تكبير الفيديو (Cinema Wide)'}</span>
+              </button>
             </div>
 
             {/* Ad & Streaming Guidance Alert */}
@@ -693,7 +725,14 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
         {viewMode === 'stream' && (
           <div className="space-y-2">
             {/* Cinema Video Container */}
-            <div className="relative aspect-video w-full transform-gpu overflow-hidden rounded-xl bg-black shadow-xl ring-1 ring-white/10 contain-paint">
+            <div
+              className={cn(
+                'relative w-full transform-gpu overflow-hidden rounded-xl bg-black shadow-2xl ring-1 ring-white/10 contain-paint transition-all duration-300',
+                isWidePlayer
+                  ? 'h-[55vh] sm:h-[68vh] md:h-[78vh] w-full max-w-full'
+                  : 'aspect-video w-full',
+              )}
+            >
               {directVideoUrl ? (
                 <video
                   key={directVideoUrl}
@@ -738,7 +777,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   size="sm"
                   variant="secondary"
                   onClick={handleDownloadSelectedSub}
-                  disabled={isDownloadingSub || (!currentLangSub && !bestArabicSub)}
+                  disabled={isDownloadingSub}
                   className="h-6 px-2 text-[11px] font-semibold text-emerald-400 hover:text-emerald-300"
                   title={`تحميل ملف الترجمة (${currentSubLangObj.nativeName}) المتزامن مع الصوت مباشرة`}
                 >
@@ -1252,6 +1291,50 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
         {/* VIEW 3: Torrentio Streams View */}
         {viewMode === 'torrentio' && (
           <div className="space-y-4 rounded-xl border border-line bg-surface-1 p-4 sm:p-5">
+            {/* Prominent En Cours / Under Development Status Banner */}
+            <div
+              className="relative overflow-hidden rounded-xl border border-purple-500/40 bg-gradient-to-r from-purple-950/80 via-purple-900/50 to-surface-2 p-4 sm:p-5 shadow-lg"
+              dir="rtl"
+            >
+              <div className="pointer-events-none absolute -top-12 -left-12 size-40 rounded-full bg-purple-500/20 blur-2xl animate-pulse" />
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="space-y-1.5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="flex size-7 items-center justify-center rounded-lg bg-purple-500/30 text-purple-300">
+                      <Sparkles className="size-4 animate-spin text-purple-400" />
+                    </span>
+                    <h3 className="text-sm sm:text-base font-bold text-fg">
+                      سيرفرات Torrentio 4K فائقة السرعة (قيد التجهيز والتطوير • En cours)
+                    </h3>
+                    <span className="rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-400/30">
+                      Bientôt disponible
+                    </span>
+                  </div>
+                  <p className="text-xs text-fg-muted max-w-2xl leading-relaxed">
+                    نعمل حالياً على تجهيز وربط خوادم تورنتيو السريعة المباشرة (4K HDR وبدون إعلانات) لتعمل بشكل فوري داخل الموقع وبدون الحاجة لبرامج خارجية. في هذه الأثناء، يمكنك الاستمتاع بالمشاهدة السريعة الفورية عبر السيرفرات البديلة (سيرفر 1 - 5) أو عبر قسم التحميل المباشر.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 shrink-0">
+                  <Button
+                    onClick={() => handleSetViewMode('stream')}
+                    className="gap-1.5 bg-accent text-accent-fg hover:bg-accent-hover font-bold text-xs shadow-md"
+                  >
+                    <Play className="size-3.5 fill-current" />
+                    <span>الانتقال للمشغل المباشر (سيرفرات 1-5)</span>
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => handleSetViewMode('download')}
+                    className="gap-1.5 text-xs font-semibold text-emerald-400 hover:text-emerald-300"
+                  >
+                    <Download className="size-3.5" />
+                    <span>سيرفرات التحميل</span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+
             {/* Header & Mode Switcher */}
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line/60 pb-3" dir="rtl">
               <div className="flex items-center gap-2.5">

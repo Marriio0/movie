@@ -59,6 +59,8 @@ export interface Credits {
  */
 export interface MediaList {
   items: MediaSummary[];
+  page?: number;
+  totalPages?: number;
 }
 
 /**

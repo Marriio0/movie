@@ -3,6 +3,8 @@ import { Dialog } from 'radix-ui';
 import { useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router';
 import { paths } from '@/shared/config/paths';
+import { SUPPORTED_LANGUAGES, useLanguage } from '@/shared/i18n/language-context';
+import { cn } from '@/shared/lib/cn';
 import { ButtonLink } from '@/shared/ui/ButtonLink';
 import { IconButton } from '@/shared/ui/IconButton';
 import { PRIMARY_NAV } from './nav-items';
@@ -11,6 +13,7 @@ import { ThemeSegmentedControl } from './ThemeSegmentedControl';
 /** Slide-in navigation sheet for viewports below `md`. */
 export function MobileNav() {
   const { pathname } = useLocation();
+  const { language, setLanguage } = useLanguage();
   // Open state is tied to the path it was opened on, so any navigation (link, back or forward)
   // closes the sheet with no effect needed.
   const [openedOn, setOpenedOn] = useState<string | null>(null);
@@ -67,6 +70,32 @@ export function MobileNav() {
           </nav>
 
           <ThemeSegmentedControl />
+
+          {/* Mobile Language Switcher */}
+          <div className="space-y-1.5">
+            <span className="text-xs font-semibold text-fg-subtle">لغة الموقع / Language</span>
+            <div className="grid grid-cols-3 gap-1.5">
+              {SUPPORTED_LANGUAGES.map((item) => {
+                const isActive = language === item.code;
+                return (
+                  <button
+                    key={item.code}
+                    type="button"
+                    onClick={() => setLanguage(item.code)}
+                    className={cn(
+                      'flex items-center justify-center gap-1 rounded-lg border py-2 text-xs font-semibold transition-all',
+                      isActive
+                        ? 'border-accent bg-accent/20 text-accent font-bold'
+                        : 'border-line bg-surface-3 text-fg-muted hover:text-fg',
+                    )}
+                  >
+                    <span>{item.flag}</span>
+                    <span>{item.nativeName}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           <ButtonLink
             to={paths.login()}

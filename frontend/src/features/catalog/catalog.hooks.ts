@@ -1,9 +1,10 @@
-import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import type { MediaType } from '@/shared/types/media';
 import {
   creditsQuery,
   detailsQuery,
+  infinitePopularQuery,
   nowPlayingQuery,
   popularQuery,
   searchQuery,
@@ -18,6 +19,7 @@ import {
 export const MIN_SEARCH_LENGTH = 2;
 
 export const usePopular = (mediaType: MediaType) => useQuery(popularQuery(mediaType));
+export const useInfinitePopular = (mediaType: MediaType) => useInfiniteQuery(infinitePopularQuery(mediaType));
 export const useTrendingToday = () => useQuery(trendingTodayQuery());
 export const useTrendingMovies = () => useQuery(trendingMoviesQuery());
 export const useTrendingSeries = () => useQuery(trendingSeriesQuery());

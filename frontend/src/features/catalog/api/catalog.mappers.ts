@@ -77,7 +77,7 @@ export function toMediaList<R>(page: TmdbPage<R>, map: (raw: R) => MediaSummary 
     seen.add(key);
     items.push(item);
   }
-  return { items };
+  return { items, page: page.page, totalPages: page.total_pages };
 }
 
 export function toMediaDetails(
