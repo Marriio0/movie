@@ -5,9 +5,6 @@ import {
   Copy,
   Download,
   ExternalLink,
-  Film,
-  Globe2,
-  HardDrive,
   Info,
   Languages,
   Maximize2,
@@ -25,13 +22,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import type { MediaDetails } from '../catalog.types';
 import { STREAMING_SERVERS, type StreamingServer } from '../lib/streaming-servers';
-import {
-  SUPPORTED_SUBTITLE_LANGUAGES,
-  getOpenSubtitlesUrl,
-  getSubDLUrl,
-  getYifySubtitlesUrl,
-  type SubtitleLanguage,
-} from '../lib/subtitles';
+import { SUPPORTED_SUBTITLE_LANGUAGES, type SubtitleLanguage } from '../lib/subtitles';
 import { fetchTorrentioStreams, type ParsedTorrentioStream } from '../lib/torrentio';
 import { cn } from '@/shared/lib/cn';
 import { Badge } from '@/shared/ui/Badge';
@@ -236,60 +227,13 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
     setIsConfigOpen(false);
   };
 
-  // Subtitle URLs for currently selected language
+  // Subtitle language for currently selected language
   const activeSubLangObj: SubtitleLanguage = useMemo(() => {
     return (
       SUPPORTED_SUBTITLE_LANGUAGES.find((l) => l.code === selectedSubLang) ||
       SUPPORTED_SUBTITLE_LANGUAGES[0]!
     );
   }, [selectedSubLang]);
-
-  const openSubtitlesSelectedUrl = useMemo(() => {
-    return getOpenSubtitlesUrl({
-      title: details.title,
-      mediaType: details.mediaType,
-      imdbId: details.imdbId,
-      season: isSeries ? currentSeason : undefined,
-      episode: isSeries ? currentEpisode : undefined,
-      langCode: selectedSubLang,
-    });
-  }, [
-    details.title,
-    details.mediaType,
-    details.imdbId,
-    isSeries,
-    currentSeason,
-    currentEpisode,
-    selectedSubLang,
-  ]);
-
-  const subDlSelectedUrl = useMemo(() => {
-    return getSubDLUrl({
-      title: details.title,
-      mediaType: details.mediaType,
-      imdbId: details.imdbId,
-      season: isSeries ? currentSeason : undefined,
-      episode: isSeries ? currentEpisode : undefined,
-      langCode: selectedSubLang,
-    });
-  }, [
-    details.title,
-    details.mediaType,
-    details.imdbId,
-    isSeries,
-    currentSeason,
-    currentEpisode,
-    selectedSubLang,
-  ]);
-
-  const ytsSelectedUrl = useMemo(() => {
-    return getYifySubtitlesUrl({
-      title: details.title,
-      mediaType: details.mediaType,
-      imdbId: details.imdbId,
-      langCode: selectedSubLang,
-    });
-  }, [details.title, details.mediaType, details.imdbId, selectedSubLang]);
 
   return (
     <section
@@ -644,8 +588,8 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 <Download className="size-4 text-emerald-400" />
                 <h3 className="text-base font-bold text-fg">
                   {isSeries
-                    ? `تحميل فيلم: S${currentSeason} : E${currentEpisode}`
-                    : `تحميل فيلم: ${details.title}`}
+                    ? `تحميل الحلقات: الموسم ${currentSeason} - الحلقة ${currentEpisode}`
+                    : `تحميل: ${details.title}`}
                 </h3>
               </div>
 
@@ -659,6 +603,94 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 <span>Return to Watch</span>
               </Button>
             </div>
+
+            {/* Series Season & Episode Navigation inside Download Center */}
+            {isSeries && (
+              <div className="space-y-2 rounded-lg border border-line bg-surface-2 p-3 text-xs">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Tv className="size-3.5 text-emerald-400" />
+                    <span className="font-semibold text-fg">
+                      اختر الحلقة لتحميلها: الموسم {currentSeason} • الحلقة {currentEpisode}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      disabled={currentEpisode <= 1}
+                      onClick={() => setCurrentEpisode((prev) => Math.max(1, prev - 1))}
+                      className="h-6 text-xs"
+                    >
+                      <ChevronLeft className="size-3" />
+                      <span>الحلقة السابقة</span>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      disabled={currentEpisode >= episodesInCurrentSeason}
+                      onClick={() =>
+                        setCurrentEpisode((prev) => Math.min(episodesInCurrentSeason, prev + 1))
+                      }
+                      className="h-6 text-xs"
+                    >
+                      <span>الحلقة التالية</span>
+                      <ChevronRight className="size-3" />
+                    </Button>
+                  </div>
+                </div>
+
+                {availableSeasons.length > 1 && (
+                  <div className="flex flex-wrap items-center gap-1.5 border-t border-line/60 pt-2">
+                    <span className="font-medium text-fg-muted">الموسم:</span>
+                    {availableSeasons.map((seasonNum) => {
+                      const isSelected = currentSeason === seasonNum;
+                      return (
+                        <button
+                          key={seasonNum}
+                          type="button"
+                          onClick={() => {
+                            setCurrentSeason(seasonNum);
+                            setCurrentEpisode(1);
+                          }}
+                          className={cn(
+                            'rounded px-2 py-0.5 text-xs font-medium transition',
+                            isSelected
+                              ? 'bg-accent font-bold text-accent-fg'
+                              : 'bg-surface-3 text-fg-muted hover:text-fg',
+                          )}
+                        >
+                          S{seasonNum}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <div className="flex max-h-24 flex-wrap gap-1 overflow-y-auto pr-1">
+                  {Array.from({ length: episodesInCurrentSeason }, (_, i) => i + 1).map((epNum) => {
+                    const isActive = currentEpisode === epNum;
+                    return (
+                      <button
+                        key={epNum}
+                        type="button"
+                        onClick={() => setCurrentEpisode(epNum)}
+                        className={cn(
+                          'flex items-center gap-1 rounded px-2.5 py-1 font-mono text-xs transition',
+                          isActive
+                            ? 'bg-emerald-600 font-bold text-white shadow-sm ring-1 ring-emerald-400'
+                            : 'bg-surface-3 text-fg-muted hover:bg-surface-1 hover:text-fg',
+                        )}
+                      >
+                        <Download className="size-2.5" />
+                        <span>E{epNum}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Direct Quality Downloads */}
             {isTorrentLoading ? (
@@ -696,14 +728,16 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                         onClick={() =>
                           handleDownloadTorrentFile(
                             downloadOptions.fhd!.stream.infoHash,
-                            details.title,
+                            isSeries
+                              ? `${details.title}_S${currentSeason}E${currentEpisode}`
+                              : details.title,
                           )
                         }
                         className="h-7 flex-1 bg-emerald-600 text-xs text-white hover:bg-emerald-700"
-                        title="Download .torrent file to your computer"
+                        title="Download .torrent file"
                       >
                         <Download className="size-3" />
-                        <span>Download</span>
+                        <span>تحميل .torrent</span>
                       </Button>
                       <Button
                         size="sm"
@@ -753,14 +787,16 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                         onClick={() =>
                           handleDownloadTorrentFile(
                             downloadOptions.hd!.stream.infoHash,
-                            details.title,
+                            isSeries
+                              ? `${details.title}_S${currentSeason}E${currentEpisode}`
+                              : details.title,
                           )
                         }
                         className="h-7 flex-1 bg-emerald-600 text-xs text-white hover:bg-emerald-700"
                         title="Download .torrent file"
                       >
                         <Download className="size-3" />
-                        <span>Download</span>
+                        <span>تحميل .torrent</span>
                       </Button>
                       <Button
                         size="sm"
@@ -812,14 +848,16 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                         onClick={() =>
                           handleDownloadTorrentFile(
                             downloadOptions.uhd!.stream.infoHash,
-                            details.title,
+                            isSeries
+                              ? `${details.title}_S${currentSeason}E${currentEpisode}`
+                              : details.title,
                           )
                         }
                         className="h-7 flex-1 bg-purple-600 text-xs text-white hover:bg-purple-700"
                         title="Download .torrent file"
                       >
                         <Download className="size-3" />
-                        <span>Download 4K</span>
+                        <span>تحميل 4K</span>
                       </Button>
                       <Button
                         size="sm"
@@ -852,67 +890,12 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               </div>
             )}
 
-            {/* Direct Synchronized Subtitle Download Row */}
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-surface-2 p-3 text-xs">
-              <div className="flex items-center gap-2">
-                <Subtitles className="size-4 text-emerald-400" />
-                <span className="font-semibold text-fg">Download Subtitles (.SRT):</span>
-                <div className="flex items-center gap-1">
-                  {SUPPORTED_SUBTITLE_LANGUAGES.slice(0, 4).map((lang) => (
-                    <button
-                      key={lang.code}
-                      type="button"
-                      onClick={() => setSelectedSubLang(lang.code)}
-                      className={cn(
-                        'rounded px-1.5 py-0.5 text-[11px] font-medium transition',
-                        selectedSubLang === lang.code
-                          ? 'bg-emerald-500 font-bold text-white'
-                          : 'bg-surface-3 text-fg-muted hover:text-fg',
-                      )}
-                    >
-                      {lang.flag} {lang.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <a
-                  href={openSubtitlesSelectedUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-700"
-                >
-                  <Download className="size-3" />
-                  <span>
-                    {selectedSubLang === 'ar'
-                      ? 'تحميل الترجمة العربية (.SRT)'
-                      : `تحميل ترجمة ${activeSubLangObj.name} (.SRT)`}
-                  </span>
-                </a>
-
-                <a
-                  href={subDlSelectedUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1 rounded-md border border-line bg-surface-1 px-2.5 py-1.5 text-xs font-medium text-fg transition hover:bg-surface-3"
-                >
-                  <Globe2 className="size-3 text-blue-400" />
-                  <span>SubDL</span>
-                </a>
-
-                {!isSeries && (
-                  <a
-                    href={ytsSelectedUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 rounded-md border border-line bg-surface-1 px-2.5 py-1.5 text-xs font-medium text-fg transition hover:bg-surface-3"
-                  >
-                    <HardDrive className="size-3 text-purple-400" />
-                    <span>YIFY</span>
-                  </a>
-                )}
-              </div>
+            {/* In-Site Synchronized Subtitles Guarantee */}
+            <div className="flex items-center gap-2.5 rounded-lg border border-line bg-surface-2 p-3 text-xs text-fg-muted">
+              <Check className="size-4 shrink-0 text-emerald-400" />
+              <span>
+                الترجمة متوفرة تلقائياً في مشغل الموقع بجودة عالية ومتزامنة مع الصوت، كما تتضمن ملفات التورنت ترجمات متعددة اللغات مدمجة (Multi-Subtitles).
+              </span>
             </div>
           </div>
         )}
@@ -1070,15 +1053,6 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                             <Copy className="size-3" />
                           )}
                         </Button>
-
-                        <a
-                          href={s.stremioLink}
-                          className="inline-flex h-7 items-center gap-1 rounded-md border border-line bg-surface-1 px-2.5 py-1 text-xs font-medium text-fg transition hover:bg-surface-3"
-                          title="Open specifically in Stremio"
-                        >
-                          <Film className="size-3 text-indigo-400" />
-                          <span>Stremio</span>
-                        </a>
                       </div>
                     </div>
                   ))}

@@ -151,9 +151,9 @@ describe('WatchPlayer', () => {
     expect(downloadTabs[0]).toBeDefined();
     await user.click(downloadTabs[0]!);
 
-    expect(screen.getByText(/تحميل فيلم: Dune: Part Two/i)).toBeInTheDocument();
+    expect(screen.getByText(/تحميل: Dune: Part Two/i)).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: /تحميل الترجمة العربية \(\.SRT\)/i }),
+      screen.getByText(/الترجمة متوفرة تلقائياً في مشغل الموقع/i),
     ).toBeInTheDocument();
   });
 
