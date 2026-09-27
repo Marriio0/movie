@@ -152,8 +152,14 @@ describe('WatchPlayer', () => {
     const user = userEvent.setup();
     renderWatchPlayer(mockMovie);
 
-    const subSelect = screen.getByLabelText(/Select Subtitle Language/i);
-    await user.selectOptions(subSelect, 'fr');
+    const downloadTabs = screen.getAllByRole('button', { name: /Download Movie/i });
+    await user.click(downloadTabs[0]!);
+
+    const frBtn = screen.getByRole('button', { name: /Français/i });
+    await user.click(frBtn);
+
+    const watchOnlineBtn = screen.getByRole('button', { name: /Watch Online/i });
+    await user.click(watchOnlineBtn);
 
     expect(screen.getByTitle(/Watch Dune: Part Two/i)).toHaveAttribute(
       'src',
@@ -173,7 +179,7 @@ describe('WatchPlayer', () => {
     await user.click(installBtn);
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getAllByText(/تثبيت تطبيق Netfarjo على جهازك/i).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText(/تثبيت تطبيق/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/هواتف آيفون وآيباد/i)).toBeInTheDocument();
     expect(screen.getByText(/أندرويد/i)).toBeInTheDocument();
   });

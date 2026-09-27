@@ -9,8 +9,6 @@ import {
   Play,
   RefreshCw,
   Server,
-  ShieldAlert,
-  ShieldCheck,
   SkipForward,
   Subtitles,
   Tv,
@@ -92,9 +90,6 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
 
   // Reload key to force iframe remount if stream gets stuck
   const [reloadKey, setReloadKey] = useState(0);
-
-  // Ad-Shield: blocks unwanted third-party popups, redirects, and malware ads from embed servers
-  const [isAdShieldActive, setIsAdShieldActive] = useState(true);
 
   const [torrentioConfig] = useState('');
 
@@ -317,28 +312,6 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               <Subtitles className="size-3.5" />
               Subtitles (CC) Available
             </span>
-
-            {/* Quick Subtitle Language Selector in Header */}
-            <div className="flex items-center gap-1 rounded-md border border-line bg-surface-2 px-2 py-0.5 text-xs">
-              <span className="text-[11px] font-medium text-fg-muted">ترجمة:</span>
-              <select
-                value={selectedSubLang}
-                onChange={(e) => handleSelectSubLang(e.target.value)}
-                className="cursor-pointer bg-transparent text-xs font-bold text-fg focus:outline-none"
-                aria-label="Select Subtitle Language"
-              >
-                {SUPPORTED_SUBTITLE_LANGUAGES.map((lang) => (
-                  <option key={lang.code} value={lang.code} className="bg-surface-1 text-fg">
-                    {lang.flag} {lang.nativeName} ({lang.name})
-                  </option>
-                ))}
-              </select>
-              {currentLangSub && (
-                <span className="rounded bg-emerald-500/20 px-1 py-0.5 text-[10px] font-bold text-emerald-400">
-                  متزامنة ✓
-                </span>
-              )}
-            </div>
           </div>
 
           {/* Navigation View Tabs */}
@@ -542,7 +515,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 </video>
               ) : (
                 <iframe
-                  key={`${selectedServerId}-${currentSeason}-${currentEpisode}-${selectedSubLang}-${reloadKey}-${isAdShieldActive}`}
+                  key={`${selectedServerId}-${currentSeason}-${currentEpisode}-${selectedSubLang}-${reloadKey}`}
                   src={currentEmbedUrl}
                   title={`Watch ${details.title}`}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
@@ -550,11 +523,6 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   loading="lazy"
                   referrerPolicy="origin"
                   className="size-full border-0"
-                  sandbox={
-                    isAdShieldActive
-                      ? 'allow-scripts allow-same-origin allow-forms allow-presentation'
-                      : undefined
-                  }
                 />
               )}
             </div>
@@ -572,35 +540,6 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 <span className="rounded bg-emerald-500/20 px-2 py-0.5 font-medium text-emerald-400">
                   🟢 ترجمة {currentSubLangObj.nativeName} {currentLangSub ? 'متزامنة' : 'مدمجة'}
                 </span>
-
-                {/* Ad-Shield Badge & Toggle */}
-                <button
-                  type="button"
-                  onClick={() => setIsAdShieldActive(!isAdShieldActive)}
-                  className={cn(
-                    'flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-semibold transition',
-                    isAdShieldActive
-                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                      : 'bg-surface-2 text-fg-muted border border-line hover:text-fg',
-                  )}
-                  title={
-                    isAdShieldActive
-                      ? 'حماية ضد الإعلانات والنوافذ المنبثقة مفعلة (انقر لتعطيلها إذا لزم الأمر)'
-                      : 'تم تعطيل حماية الإعلانات (انقر لتفعيلها)'
-                  }
-                >
-                  {isAdShieldActive ? (
-                    <>
-                      <ShieldCheck className="size-3 text-emerald-400" />
-                      <span>حماية الإعلانات (ON)</span>
-                    </>
-                  ) : (
-                    <>
-                      <ShieldAlert className="size-3 text-amber-400" />
-                      <span>حماية الإعلانات (OFF)</span>
-                    </>
-                  )}
-                </button>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
@@ -753,11 +692,13 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
             )}
 
             {/* Install App on Device Banner (PWA) */}
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-surface-2 p-3 text-xs">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-surface-2 p-3 text-xs" dir="rtl">
               <div className="flex items-center gap-2.5">
                 <Download className="size-4 shrink-0 text-emerald-400" />
                 <div>
-                  <p className="font-semibold text-fg">تثبيت تطبيق Netfarjo على جهازك</p>
+                  <p className="font-semibold text-fg">
+                    تثبيت تطبيق <bdi className="font-bold text-accent">Netfarjo</bdi> على جهازك
+                  </p>
                   <p className="text-fg-muted">
                     ثبّت الموقع كتطبيق أصلي على هاتفك أو حاسوبك لتشغيل وتنزيل الأفلام والمسلسلات مباشرة بدون متصفح
                   </p>
@@ -780,9 +721,9 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
             </div>
 
             {/* Clean one-line note */}
-            <div className="flex items-center gap-2 rounded-lg border border-line bg-surface-2 px-3 py-2 text-xs">
+            <div className="flex items-center gap-2 rounded-lg border border-line bg-surface-2 px-3 py-2 text-xs" dir="rtl">
               <Info className="size-3.5 shrink-0 text-emerald-400" />
-              <span className="text-fg-muted">اضغط تشغيل للمشاهدة مباشرة بجودة عالية، أو حمّل الفيديو MP4 لجهازك.</span>
+              <span className="text-fg-muted">اختر الجودة أدناه للمشاهدة المباشرة فائقة السرعة أو تنزيل ملف الترجمة المتزامن.</span>
             </div>
 
             {/* Direct Quality Downloads */}
@@ -1041,14 +982,14 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
             )}
 
             {/* Multilingual Subtitle Center */}
-            <div className="space-y-3 rounded-lg border border-emerald-500/30 bg-emerald-950/20 p-3.5 text-xs">
+            <div className="space-y-3 rounded-lg border border-emerald-500/30 bg-emerald-950/20 p-3.5 text-xs" dir="rtl">
               <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-emerald-500/20 pb-2.5">
                 <div className="flex items-center gap-2">
                   <Subtitles className="size-4 text-emerald-400 shrink-0" />
                   <span className="font-bold text-fg">اختر لغة الترجمة للتحميل والمشاهدة:</span>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-1">
+                <div className="flex flex-wrap items-center gap-1" dir="ltr">
                   {SUPPORTED_SUBTITLE_LANGUAGES.map((lang) => {
                     const isSelected = selectedSubLang === lang.code;
                     return (
@@ -1097,7 +1038,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
             </div>
 
             {/* In-Site Synchronized Subtitles Guarantee */}
-            <div className="flex items-center gap-2.5 rounded-lg border border-line bg-surface-2 p-3 text-xs text-fg-muted">
+            <div className="flex items-center gap-2.5 rounded-lg border border-line bg-surface-2 p-3 text-xs text-fg-muted" dir="rtl">
               <Check className="size-4 shrink-0 text-emerald-400" />
               <span>
                 الترجمة متوفرة تلقائياً في المشغل ومتزامنة مع الصوت.
