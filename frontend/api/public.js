@@ -1,6 +1,5 @@
-const TMDB_API_KEY =
-  process.env.TMDB_API_KEY ||
-  'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0MmU4YmMyYjRkZjgwZDY2NDYyYjM2MjU1MzE0MWU1MiIsIm5iZiI6MTc3ODk3OTA4MC42NjYsInN1YiI6IjZhMDkxMTA4ZmUyMmMwN2ZiMDdhOGM0YyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.mHG9fpj7__YNBUkflalGOZH4sHqr2WWsvktjdBpCOZ8';
+// Set TMDB_API_KEY in the Vercel project settings (never in code).
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
 function getTmdbPath(pathname, searchParams) {
@@ -78,6 +77,10 @@ export default async function handler(req, res) {
 
     if (mapping.isHealth) {
       return res.status(200).send('OK');
+    }
+
+    if (!TMDB_API_KEY) {
+      return res.status(500).json({ error: 'TMDB_API_KEY is not configured on the server' });
     }
 
     const tmdbUrl = `${TMDB_BASE_URL}${mapping.path}`;
