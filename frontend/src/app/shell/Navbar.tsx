@@ -1,8 +1,9 @@
-import { Search } from 'lucide-react';
+import { Download, Search } from 'lucide-react';
 import { Link, NavLink } from 'react-router';
 import { Logo } from '@/shared/components/Logo';
 import { APP_NAME } from '@/shared/config/app';
 import { paths } from '@/shared/config/paths';
+import { usePwaInstall } from '@/shared/hooks/usePwaInstall';
 import { useScrolled } from '@/shared/hooks/useScrolled';
 import { cn } from '@/shared/lib/cn';
 import { iconButtonStyles } from '@/shared/ui/button-styles';
@@ -24,6 +25,7 @@ const navLinkStyles =
  */
 export function Navbar() {
   const scrolled = useScrolled();
+  const { isInstallable, installApp } = usePwaInstall();
 
   return (
     <header
@@ -64,6 +66,17 @@ export function Navbar() {
           >
             <Search aria-hidden="true" />
           </Link>
+          {isInstallable && (
+            <button
+              type="button"
+              onClick={installApp}
+              className="hidden items-center gap-1.5 rounded-md border border-emerald-500/40 bg-emerald-600/20 px-2.5 py-1 text-xs font-semibold text-emerald-300 transition hover:bg-emerald-600 hover:text-white sm:inline-flex"
+              title="Install App"
+            >
+              <Download className="size-3.5" />
+              <span>Install App</span>
+            </button>
+          )}
           <div className="hidden md:block">
             <ThemeMenu />
           </div>

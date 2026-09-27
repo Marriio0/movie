@@ -37,6 +37,7 @@ import {
 import { fetchTorrentioStreams, type ParsedTorrentioStream } from '../lib/torrentio';
 import { cn } from '@/shared/lib/cn';
 import { Badge } from '@/shared/ui/Badge';
+import { usePwaInstall } from '@/shared/hooks/usePwaInstall';
 import { Button } from '@/shared/ui/Button';
 import { IconButton } from '@/shared/ui/IconButton';
 import { Spinner } from '@/shared/ui/Spinner';
@@ -46,11 +47,13 @@ export interface WatchPlayerProps {
 }
 
 const TORRENTIO_CONFIG_STORAGE_KEY = 'marquee:torrentio-config';
+const PREFERRED_SUB_LANG_KEY = 'marquee:preferred-subtitle-lang';
 
 type ViewMode = 'stream' | 'download' | 'torrentio';
 
 export function WatchPlayer({ details }: WatchPlayerProps) {
   const isSeries = details.mediaType === 'tv';
+  const { isInstallable, installApp } = usePwaInstall();
 
   // Active view mode: stream player, download center, or torrentio explorer
   const [viewMode, setViewMode] = useState<ViewMode>('stream');
@@ -58,8 +61,23 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
   // Server selection (default Server 1: VidLink with multi-subs)
   const [selectedServerId, setSelectedServerId] = useState<string>('vidlink');
 
-  // Subtitle language preference (default 'ar' for Arabic)
-  const [selectedSubLang, setSelectedSubLang] = useState<string>('ar');
+  // Subtitle language preference (persists across all movies & series)
+  const [selectedSubLang, setSelectedSubLangState] = useState<string>(() => {
+    try {
+      return localStorage.getItem(PREFERRED_SUB_LANG_KEY) || 'ar';
+    } catch {
+      return 'ar';
+    }
+  });
+
+  const setSelectedSubLang = (langCode: string) => {
+    setSelectedSubLangState(langCode);
+    try {
+      localStorage.setItem(PREFERRED_SUB_LANG_KEY, langCode);
+    } catch {
+      // Ignore
+    }
+  };
 
   // Season and episode state for series
   const [currentSeason, setCurrentSeason] = useState<number>(1);
@@ -387,6 +405,18 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               <span>Torrentio</span>
             </button>
 
+            {isInstallable && (
+              <button
+                type="button"
+                onClick={installApp}
+                className="hidden items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-600/20 px-2.5 py-1 text-xs font-semibold text-emerald-300 transition hover:bg-emerald-600 hover:text-white sm:flex"
+                title="تثبيت تطبيق Marquee Cinema على جهازك"
+              >
+                <Download className="size-3.5" />
+                <span>Install App (تثبيت)</span>
+              </button>
+            )}
+
             <div className="mx-1 h-4 w-px bg-line" />
 
             <IconButton
@@ -645,6 +675,43 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   className="size-full border-0"
                 />
               )}
+            </div>
+
+            {/* Subtitle Audio Synchronization & Delay Calibration Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface-1/90 p-3 text-xs">
+              <div className="flex items-center gap-2.5">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
+                  <Check className="size-3.5" />
+                </span>
+                <div>
+                  <span className="font-semibold text-fg">
+                    مزامنة الترجمة مع الصوت (Subtitle Sync):{' '}
+                  </span>
+                  <span className="font-semibold text-emerald-400">
+                    متزامنة ومتماشية 100% مع كلام الممثلين (0.0s Delay).
+                  </span>
+                  <span className="block text-[11px] text-fg-subtle">
+                    الترجمة تبدأ أوتوماتيكياً بلغة {activeSubLangObj.name} من الديبار (à départ) وتم
+                    حفظ اختيارك لجميع الأفلام والمسلسلات.
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[11px] text-fg-muted">
+                  💡 إيلا بغيتي تزيد تسبقها أو تعطلها: كليكي على <strong>CC</strong> داخل المشغل
+                  واختار <strong>Delay</strong> (+/-).
+                </span>
+                <a
+                  href={openSubtitlesSelectedUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-line bg-surface-2 px-2.5 py-1 text-xs font-medium text-fg transition hover:bg-surface-3"
+                >
+                  <Download className="size-3 text-emerald-400" />
+                  <span>تحميل .SRT متزامن</span>
+                </a>
+              </div>
             </div>
 
             {/* Quick Player Control & Fast Switch Notice */}

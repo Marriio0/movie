@@ -1,7 +1,7 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import type { MediaDetails } from '../catalog.types';
 import { WatchPlayer } from './WatchPlayer';
 import { createTestQueryClient } from '@/test/render';
@@ -66,6 +66,10 @@ function renderWatchPlayer(details: MediaDetails) {
 }
 
 describe('WatchPlayer', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   it('renders streaming servers and default player for movie', () => {
     renderWatchPlayer(mockMovie);
 
@@ -151,5 +155,15 @@ describe('WatchPlayer', () => {
     expect(
       screen.getByRole('link', { name: /تحميل الترجمة العربية \(\.SRT\)/i }),
     ).toBeInTheDocument();
+  });
+
+  it('automatically starts with preferred subtitle language saved in localStorage from the start', () => {
+    localStorage.setItem('marquee:preferred-subtitle-lang', 'es');
+    renderWatchPlayer(mockMovie);
+
+    expect(screen.getByTitle(/Watch Dune: Part Two/i)).toHaveAttribute(
+      'src',
+      expect.stringContaining('sub_lang=es'),
+    );
   });
 });
