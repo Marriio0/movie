@@ -12,6 +12,7 @@ export interface StreamingServer {
     imdbId?: string | null;
     season: number;
     episode: number;
+    subLang?: string;
   }) => string;
 }
 
@@ -19,13 +20,13 @@ export const STREAMING_SERVERS: StreamingServer[] = [
   {
     id: 'vidlink',
     name: 'Server 1 (VidLink)',
-    badge: 'Multi-Subs / Fast',
-    description: 'Fast CDN with multilingual subtitles (Arabic, French, English, Spanish...).',
+    badge: 'Arabic / Multi-Subs',
+    description: 'Fast CDN with instant Arabic & multilingual subtitles.',
     supportsSubtitles: true,
-    getUrl: ({ mediaType, tmdbId, season, episode }) =>
+    getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'ar' }) =>
       mediaType === 'movie'
-        ? `https://vidlink.pro/movie/${tmdbId}?primaryColor=6366f1&secondaryColor=a855f7&iconColor=ffffff&title=true&poster=true`
-        : `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}?primaryColor=6366f1&secondaryColor=a855f7&iconColor=ffffff&title=true&poster=true`,
+        ? `https://vidlink.pro/movie/${tmdbId}?primaryColor=6366f1&secondaryColor=a855f7&iconColor=ffffff&title=true&poster=true&sub_lang=${subLang}`
+        : `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}?primaryColor=6366f1&secondaryColor=a855f7&iconColor=ffffff&title=true&poster=true&sub_lang=${subLang}`,
   },
   {
     id: 'vidsrc',
@@ -33,10 +34,10 @@ export const STREAMING_SERVERS: StreamingServer[] = [
     badge: 'HD + Subtitles',
     description: 'High definition stream with integrated subtitle tracks.',
     supportsSubtitles: true,
-    getUrl: ({ mediaType, tmdbId, season, episode }) =>
+    getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'ar' }) =>
       mediaType === 'movie'
-        ? `https://vidsrc.cc/v2/embed/movie/${tmdbId}`
-        : `https://vidsrc.cc/v2/embed/tv/${tmdbId}/${season}/${episode}`,
+        ? `https://vidsrc.cc/v2/embed/movie/${tmdbId}?ds_lang=${subLang}`
+        : `https://vidsrc.cc/v2/embed/tv/${tmdbId}/${season}/${episode}?ds_lang=${subLang}`,
   },
   {
     id: 'embedsu',

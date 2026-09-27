@@ -120,4 +120,36 @@ describe('WatchPlayer', () => {
     expect(screen.getByText(/Torrentio Streams/i)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /torrentio\.org/i })).toBeInTheDocument();
   });
+
+  it('updates subtitle language when a language button is clicked', async () => {
+    const user = userEvent.setup();
+    renderWatchPlayer(mockMovie);
+
+    expect(screen.getByTitle(/Watch Dune: Part Two/i)).toHaveAttribute(
+      'src',
+      expect.stringContaining('sub_lang=ar'),
+    );
+
+    const frenchBtn = screen.getByRole('button', { name: /Français/i });
+    await user.click(frenchBtn);
+
+    expect(screen.getByTitle(/Watch Dune: Part Two/i)).toHaveAttribute(
+      'src',
+      expect.stringContaining('sub_lang=fr'),
+    );
+  });
+
+  it('opens Download Center and displays direct download links and Arabic subtitles', async () => {
+    const user = userEvent.setup();
+    renderWatchPlayer(mockMovie);
+
+    const downloadTabs = screen.getAllByRole('button', { name: /Download Movie/i });
+    expect(downloadTabs[0]).toBeDefined();
+    await user.click(downloadTabs[0]!);
+
+    expect(screen.getByText(/تحميل فيلم: Dune: Part Two/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /تحميل الترجمة العربية \(\.SRT\)/i }),
+    ).toBeInTheDocument();
+  });
 });
