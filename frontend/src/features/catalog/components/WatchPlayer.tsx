@@ -96,7 +96,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
   // Active direct video stream URL from Debrid (if played through Torrentio)
   const [directVideoUrl, setDirectVideoUrl] = useState<string | null>(null);
 
-  // Prevent third-party embed scripts from automatically redirecting the user away to external ad sites
+  // Prevent third-party embed scripts from automatically redirecting the user away to external ad sites or opening popups
   useEffect(() => {
     let isInternalClick = false;
 
@@ -119,10 +119,20 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
       }
     };
 
+    const originalOpen = window.open;
+    window.open = function (url?: string | URL, target?: string, features?: string) {
+      if (isInternalClick) {
+        return originalOpen.call(window, url, target, features);
+      }
+      // Block third-party embed popups
+      return null;
+    };
+
     window.addEventListener('click', handleDocumentClick, true);
     window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
+      window.open = originalOpen;
       window.removeEventListener('click', handleDocumentClick, true);
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
@@ -584,11 +594,6 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="origin"
-                  sandbox={
-                    selectedServerId !== 'vidlink'
-                      ? 'allow-scripts allow-same-origin allow-forms allow-presentation'
-                      : undefined
-                  }
                   className="size-full border-0"
                 />
               )}

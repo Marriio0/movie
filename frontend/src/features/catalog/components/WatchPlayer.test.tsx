@@ -96,10 +96,7 @@ describe('WatchPlayer', () => {
       'src',
       expect.stringContaining('vidsrc.pm/embed/movie/693134'),
     );
-    expect(iframe).toHaveAttribute(
-      'sandbox',
-      'allow-scripts allow-same-origin allow-forms allow-presentation',
-    );
+    expect(iframe).not.toHaveAttribute('sandbox');
   });
 
   it('renders series seasons and episodes and updates iframe src', async () => {
