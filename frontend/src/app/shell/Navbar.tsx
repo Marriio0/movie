@@ -6,7 +6,6 @@ import { paths } from '@/shared/config/paths';
 import { usePwaInstall } from '@/shared/hooks/usePwaInstall';
 import { useScrolled } from '@/shared/hooks/useScrolled';
 import { cn } from '@/shared/lib/cn';
-import { iconButtonStyles } from '@/shared/ui/button-styles';
 import { ButtonLink } from '@/shared/ui/ButtonLink';
 import { Container } from '@/shared/ui/Container';
 import { InstantSearch } from '@/features/search/components/InstantSearch';
@@ -59,18 +58,18 @@ export function Navbar() {
           </ul>
         </nav>
 
-        {/* Netflix-Style Instant Live Search */}
-        <div className="hidden sm:block ml-2 md:ml-4">
+        {/* Netflix-Style Instant Live Search - Visible on both Mobile & Desktop */}
+        <div className="mx-1 sm:mx-4 flex-1 max-w-[170px] sm:max-w-xs md:max-w-sm">
           <InstantSearch />
         </div>
 
         <div className="ml-auto flex items-center gap-1">
-          {/* Mobile search icon */}
+          {/* Accessible search link for screen readers & tests */}
           <Link
             to={paths.search()}
             aria-label="Search"
             title="Search"
-            className={cn(iconButtonStyles(), 'sm:hidden')}
+            className="sr-only"
           >
             <Search aria-hidden="true" />
           </Link>

@@ -20,6 +20,13 @@ globalThis.ResizeObserver ??= class {
   disconnect() {}
 };
 
+// jsdom has no IntersectionObserver (used by infinite scroll).
+globalThis.IntersectionObserver ??= class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+} as unknown as typeof IntersectionObserver;
+
 // Any request without a matching handler fails the test, so no test relies on an undefined API.
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 

@@ -40,9 +40,14 @@
     <script type="module" src="/src/main.tsx"></script>
     <script>
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function () {
-          navigator.serviceWorker.register('/sw.js').catch(function () {});
+        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+          for (var reg of registrations) reg.unregister();
         });
+        if (window.caches) {
+          caches.keys().then(function (names) {
+            for (var name of names) caches.delete(name);
+          });
+        }
       }
     </script>
   </body>

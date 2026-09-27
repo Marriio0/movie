@@ -50,16 +50,16 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
   const isSeries = details.mediaType === 'tv';
   const { isInstallable, isInstalled, installApp } = usePwaInstall();
 
-  // Active view mode: default to torrentio for ad-free 4K experience
+  // Active view mode: default to stream for instant direct streaming
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     try {
       const saved = localStorage.getItem(PREFERRED_VIEW_MODE_KEY);
-      if (saved === 'torrentio' || saved === 'stream' || saved === 'download') {
-        return saved;
+      if (saved === 'download') {
+        return 'download';
       }
-      return 'torrentio';
+      return 'stream';
     } catch {
-      return 'torrentio';
+      return 'stream';
     }
   });
 
@@ -625,7 +625,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 className="flex items-center gap-1.5 rounded-md bg-purple-600 px-2.5 py-1 text-xs font-bold text-white shadow-sm hover:bg-purple-700 transition"
               >
                 <Sparkles className="size-3" />
-                <span>جرّب سيرفرات Torrentio 4K (بدون إعلانات)</span>
+                <span>جرّب سيرفرات Torrentio 4K</span>
               </button>
             </div>
           </div>
@@ -729,8 +729,8 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               className={cn(
                 'relative w-full transform-gpu overflow-hidden rounded-xl bg-black shadow-2xl ring-1 ring-white/10 contain-paint transition-all duration-300',
                 isWidePlayer
-                  ? 'h-[55vh] sm:h-[68vh] md:h-[78vh] w-full max-w-full'
-                  : 'aspect-video w-full',
+                  ? 'h-[58vh] sm:h-[72vh] md:h-[82vh] w-full max-w-full'
+                  : 'aspect-video w-full min-h-[290px] sm:min-h-[440px] md:min-h-[520px]',
               )}
             >
               {directVideoUrl ? (
@@ -745,7 +745,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 </video>
               ) : (
                 <iframe
-                  key={`${selectedServerId}-${currentSeason}-${currentEpisode}-${selectedSubLang}-${reloadKey}`}
+                  key={`${selectedServerId}-${currentSeason}-${currentEpisode}-${reloadKey}`}
                   src={currentEmbedUrl}
                   title={`Watch ${details.title}`}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"

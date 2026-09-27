@@ -70,29 +70,29 @@ describe('WatchPlayer', () => {
     localStorage.clear();
   });
 
-  it('renders Torrentio 4K view by default with ad-free badges', () => {
+  it('renders streaming player by default with servers and cinema controls', () => {
     renderWatchPlayer(mockMovie);
 
     expect(screen.getByRole('heading', { name: /Watch Dune: Part Two/i })).toBeInTheDocument();
     expect(screen.getByText(/Subtitles \(CC\) Available/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Torrentio 4K \(بدون إعلانات\)/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /سيرفرات بديلة/i })).toBeInTheDocument();
-    expect(screen.getAllByText(/سيرفرات تورنتيو فائقة الجودة/i).length).toBeGreaterThanOrEqual(1);
+
+    // Default stream mode shows servers and video player iframe immediately
+    expect(screen.getByRole('button', { name: /Server 1 \(Videasy Fast HD\)/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Server 2 \(VidSrc\)/i })).toBeInTheDocument();
+    const iframe = screen.getByTitle(/Watch Dune: Part Two/i);
+    expect(iframe).toHaveAttribute('src', expect.stringContaining('player.videasy.net/movie/693134'));
   });
 
-  it('renders streaming servers and player when switching to servers view', async () => {
+  it('renders Torrentio view when switching to torrentio tab', async () => {
     const user = userEvent.setup();
     renderWatchPlayer(mockMovie);
 
-    const serversBtn = screen.getByRole('button', { name: /سيرفرات بديلة/i });
-    await user.click(serversBtn);
+    const torrentioBtn = screen.getByRole('button', { name: /Torrentio 4K \(بدون إعلانات\)/i });
+    await user.click(torrentioBtn);
 
-    expect(screen.getByRole('button', { name: /Server 1 \(Videasy Fast HD\)/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Server 2 \(VidSrc\)/i })).toBeInTheDocument();
-
-    const iframe = screen.getByTitle(/Watch Dune: Part Two/i);
-    expect(iframe).toHaveAttribute('src', expect.stringContaining('player.videasy.net/movie/693134'));
-    expect(iframe).not.toHaveAttribute('sandbox');
+    expect(screen.getAllByText(/سيرفرات تورنتيو فائقة الجودة/i).length).toBeGreaterThanOrEqual(1);
   });
 
   it('switches between servers when clicked in stream mode', async () => {

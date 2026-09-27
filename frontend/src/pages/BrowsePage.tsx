@@ -65,6 +65,7 @@ function Browse({ mediaType }: { mediaType: MediaType }) {
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el || !hasMore || query.isPending || query.isError) return;
+    if (typeof IntersectionObserver === 'undefined') return;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {

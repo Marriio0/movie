@@ -86,11 +86,7 @@ export function InstantSearch() {
     <div ref={containerRef} className="relative z-50">
       {/* Search Input Box */}
       <div
-        className={cn(
-          'flex items-center rounded-full border border-line/80 bg-surface-2/90 px-3 py-1.5 transition-all duration-300 backdrop-blur-md focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/30',
-          isOpen ? 'w-64 sm:w-80 md:w-96 shadow-lg bg-surface-1' : 'w-44 sm:w-56 md:w-72',
-          isExpandedMobile && 'fixed inset-x-3 top-2.5 z-50 w-auto',
-        )}
+        className="flex w-full items-center rounded-full border border-line/80 bg-surface-2/90 px-2.5 sm:px-3 py-1 sm:py-1.5 transition-all duration-200 backdrop-blur-md focus-within:border-accent focus-within:bg-surface-1 focus-within:ring-2 focus-within:ring-accent/30"
       >
         <Search className="size-4 shrink-0 text-fg-muted" />
         <input

@@ -1,7 +1,7 @@
-import { Search, SearchX, X } from 'lucide-react';
+import { Search, SearchX, Sparkles, X } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
-import { MIN_SEARCH_LENGTH, useTitleSearch } from '@/features/catalog/catalog.hooks';
+import { MIN_SEARCH_LENGTH, useTitleSearch, useTrendingToday } from '@/features/catalog/catalog.hooks';
 import { MediaGrid } from '@/features/catalog/components/MediaGrid';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
@@ -48,6 +48,7 @@ function useSearchQuery() {
 export function SearchPage() {
   const { text, setText, query } = useSearchQuery();
   const search = useTitleSearch(query);
+  const trending = useTrendingToday();
   const inputId = useId();
   const ready = query.length >= MIN_SEARCH_LENGTH;
   useDocumentTitle(ready ? `Search: ${query}` : 'Search');
@@ -64,7 +65,10 @@ export function SearchPage() {
 
   return (
     <div className="container-page py-(--section-y)">
-      <h1 className="font-display text-display-md text-fg">Search</h1>
+      <header className="space-y-1">
+        <h1 className="font-display text-display-md text-fg">Search</h1>
+        <p className="text-xs text-fg-muted">ابحث عن أي فيلم أو مسلسل، أو اختر من الاقتراحات الشائعة بالأسفل</p>
+      </header>
 
       <form role="search" className="mt-6 max-w-2xl" onSubmit={(event) => event.preventDefault()}>
         <label htmlFor={inputId} className="sr-only">
@@ -79,6 +83,7 @@ export function SearchPage() {
             id={inputId}
             type="search"
             value={text}
+            autoFocus
             onChange={(event) => setText(event.target.value)}
             onKeyDown={(event) => {
               if (event.key === 'Escape' && text) {
@@ -127,15 +132,35 @@ export function SearchPage() {
             }}
           />
         ) : (
-          <EmptyState
-            icon={Search}
-            title="Find a movie or series"
-            description={
-              text.trim().length > 0
-                ? `Keep typing: searches start at ${MIN_SEARCH_LENGTH} characters.`
-                : 'Search by title. Results include both movies and series.'
-            }
-          />
+          <div className="space-y-8">
+            <EmptyState
+              icon={Search}
+              title="Find a movie or series"
+              description={
+                text.trim().length > 0
+                  ? `Keep typing: searches start at ${MIN_SEARCH_LENGTH} characters.`
+                  : 'Search by title. Results include both movies and series.'
+              }
+            />
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-fg">
+                <Sparkles className="size-4 text-accent" />
+                <h2 className="text-base font-bold sm:text-lg">
+                  عناوين مقترحة وشائعة اليوم • Trending Titles
+                </h2>
+              </div>
+              <MediaGrid
+                query={trending}
+                showType
+                errorTitle="Couldn’t load suggestions"
+                empty={{
+                  icon: Search,
+                  title: 'No suggestions available',
+                  description: 'Search by title above.',
+                }}
+              />
+            </div>
+          </div>
         )}
       </div>
     </div>
