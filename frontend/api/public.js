@@ -9,6 +9,18 @@ function getTmdbPath(pathname, searchParams) {
     return { path: '/movie/popular?language=fr-FR&page=1' };
   if (pathname === '/api/public/series/popular')
     return { path: '/tv/popular?language=fr-FR&page=1' };
+  if (pathname === '/api/public/trending/today')
+    return { path: '/trending/all/day?language=fr-FR' };
+  if (pathname === '/api/public/trending/movies')
+    return { path: '/trending/movie/day?language=fr-FR' };
+  if (pathname === '/api/public/trending/series')
+    return { path: '/trending/tv/day?language=fr-FR' };
+  if (pathname === '/api/public/movies/top-rated')
+    return { path: '/movie/top_rated?language=fr-FR&page=1' };
+  if (pathname === '/api/public/series/top-rated')
+    return { path: '/tv/top_rated?language=fr-FR&page=1' };
+  if (pathname === '/api/public/movies/now-playing')
+    return { path: '/movie/now_playing?language=fr-FR&page=1' };
   if (pathname === '/api/public/search') {
     const q = searchParams.get('query') || '';
     return { path: '/search/multi?language=fr-FR&query=' + encodeURIComponent(q) };

@@ -26,6 +26,36 @@ public class MovieController {
         return ResponseEntity.ok(tmdbService.getPopularSeries());
     }
 
+    @GetMapping("/trending/today")
+    public ResponseEntity<Map> getTrendingToday() {
+        return ResponseEntity.ok(tmdbService.getTrendingToday());
+    }
+
+    @GetMapping("/trending/movies")
+    public ResponseEntity<Map> getTrendingMovies() {
+        return ResponseEntity.ok(tmdbService.getTrendingMovies());
+    }
+
+    @GetMapping("/trending/series")
+    public ResponseEntity<Map> getTrendingSeries() {
+        return ResponseEntity.ok(tmdbService.getTrendingSeries());
+    }
+
+    @GetMapping("/movies/top-rated")
+    public ResponseEntity<Map> getTopRatedMovies() {
+        return ResponseEntity.ok(tmdbService.getTopRatedMovies());
+    }
+
+    @GetMapping("/series/top-rated")
+    public ResponseEntity<Map> getTopRatedSeries() {
+        return ResponseEntity.ok(tmdbService.getTopRatedSeries());
+    }
+
+    @GetMapping("/movies/now-playing")
+    public ResponseEntity<Map> getNowPlayingMovies() {
+        return ResponseEntity.ok(tmdbService.getNowPlayingMovies());
+    }
+
     @GetMapping("/search")
     public ResponseEntity<Map> search(@RequestParam String query) {
         return ResponseEntity.ok(tmdbService.search(query));

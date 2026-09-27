@@ -720,7 +720,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               <div className="flex items-center gap-2.5">
                 <Download className="size-4 shrink-0 text-emerald-400" />
                 <div>
-                  <p className="font-semibold text-fg">تثبيت تطبيق Marquee على جهازك</p>
+                  <p className="font-semibold text-fg">تثبيت تطبيق Netfarjo على جهازك</p>
                   <p className="text-fg-muted">
                     ثبّت الموقع كتطبيق أصلي على هاتفك أو حاسوبك لتشغيل وتنزيل الأفلام والمسلسلات مباشرة بدون متصفح
                   </p>

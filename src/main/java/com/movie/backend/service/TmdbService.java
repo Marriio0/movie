@@ -34,6 +34,48 @@ public class TmdbService {
             .body(Map.class);
     }
 
+    public Map getTrendingToday() {
+        return restClient.get()
+            .uri("/trending/all/day?language=fr-FR")
+            .retrieve()
+            .body(Map.class);
+    }
+
+    public Map getTrendingMovies() {
+        return restClient.get()
+            .uri("/trending/movie/day?language=fr-FR")
+            .retrieve()
+            .body(Map.class);
+    }
+
+    public Map getTrendingSeries() {
+        return restClient.get()
+            .uri("/trending/tv/day?language=fr-FR")
+            .retrieve()
+            .body(Map.class);
+    }
+
+    public Map getTopRatedMovies() {
+        return restClient.get()
+            .uri("/movie/top_rated?language=fr-FR&page=1")
+            .retrieve()
+            .body(Map.class);
+    }
+
+    public Map getTopRatedSeries() {
+        return restClient.get()
+            .uri("/tv/top_rated?language=fr-FR&page=1")
+            .retrieve()
+            .body(Map.class);
+    }
+
+    public Map getNowPlayingMovies() {
+        return restClient.get()
+            .uri("/movie/now_playing?language=fr-FR&page=1")
+            .retrieve()
+            .body(Map.class);
+    }
+
     public Map search(String query) {
         return restClient.get()
             .uri("/search/multi?query=" + query + "&language=fr-FR")

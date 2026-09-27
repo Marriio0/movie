@@ -1,6 +1,6 @@
 {
-  "name": "Marquee Cinema",
-  "short_name": "Marquee",
+  "name": "Netfarjo Cinema - نتفرجو",
+  "short_name": "Netfarjo",
   "description": "Watch and download movies and series with synchronized multilingual subtitles.",
   "start_url": "/",
   "display": "standalone",

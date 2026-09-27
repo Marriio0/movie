@@ -4,15 +4,25 @@ import type { MediaType } from '@/shared/types/media';
 import {
   creditsQuery,
   detailsQuery,
+  nowPlayingQuery,
   popularQuery,
   searchQuery,
+  topRatedQuery,
   trailerQuery,
+  trendingMoviesQuery,
+  trendingSeriesQuery,
+  trendingTodayQuery,
   watchProvidersQuery,
 } from './api/catalog.queries';
 
 export const MIN_SEARCH_LENGTH = 2;
 
 export const usePopular = (mediaType: MediaType) => useQuery(popularQuery(mediaType));
+export const useTrendingToday = () => useQuery(trendingTodayQuery());
+export const useTrendingMovies = () => useQuery(trendingMoviesQuery());
+export const useTrendingSeries = () => useQuery(trendingSeriesQuery());
+export const useTopRated = (mediaType: MediaType) => useQuery(topRatedQuery(mediaType));
+export const useNowPlaying = () => useQuery(nowPlayingQuery());
 
 /** Runs only for queries of at least MIN_SEARCH_LENGTH characters; keeps old results while typing. */
 export function useTitleSearch(query: string) {

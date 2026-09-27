@@ -17,7 +17,7 @@ describe('TitleDetailPage', () => {
       within(screen.getByRole('list', { name: 'Genres' })).getByText('Aventure'),
     ).toBeInTheDocument();
     expect(screen.getByText('Rated 8.1 out of 10')).toBeInTheDocument();
-    expect(document.title).toBe('Dune : Deuxième partie · Marquee');
+    expect(document.title).toBe('Dune : Deuxième partie · Netfarjo');
 
     expect(await screen.findByText('Denis Villeneuve')).toBeInTheDocument();
     const cast = screen.getByRole('region', { name: 'Cast' });

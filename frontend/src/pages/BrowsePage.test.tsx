@@ -10,7 +10,7 @@ describe('BrowsePage', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Movies' })).toBeInTheDocument();
     const links = await screen.findAllByRole('link', { name: /Spider-Man : Brand New Day/ });
     expect(links[0]).toHaveAttribute('href', '/movies/969681');
-    expect(document.title).toBe('Movies · Marquee');
+    expect(document.title).toBe('Movies · Netfarjo');
   });
 
   it('lists popular series', async () => {

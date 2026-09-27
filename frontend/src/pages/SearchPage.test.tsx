@@ -19,7 +19,7 @@ describe('SearchPage', () => {
     expect(items).toHaveLength(3); // the person in the payload is excluded
     expect(within(items[2]!).getByText('Series')).toBeInTheDocument();
     expect(await screen.findByText('3 matches for dune.')).toBeInTheDocument();
-    expect(document.title).toBe('Search: dune · Marquee');
+    expect(document.title).toBe('Search: dune · Netfarjo');
   });
 
   it('does not search for fewer than two characters', async () => {

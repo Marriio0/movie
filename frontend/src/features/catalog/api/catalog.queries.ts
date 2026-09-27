@@ -5,6 +5,11 @@ import { catalogApi } from './catalog.api';
 export const catalogKeys = {
   all: ['catalog'] as const,
   popular: (mediaType: MediaType) => [...catalogKeys.all, 'popular', mediaType] as const,
+  trendingToday: () => [...catalogKeys.all, 'trending-today'] as const,
+  trendingMovies: () => [...catalogKeys.all, 'trending-movies'] as const,
+  trendingSeries: () => [...catalogKeys.all, 'trending-series'] as const,
+  topRated: (mediaType: MediaType) => [...catalogKeys.all, 'top-rated', mediaType] as const,
+  nowPlaying: () => [...catalogKeys.all, 'now-playing'] as const,
   search: (query: string) => [...catalogKeys.all, 'search', query] as const,
   details: (mediaType: MediaType, id: number) =>
     [...catalogKeys.all, 'details', mediaType, id] as const,
@@ -22,6 +27,41 @@ export const popularQuery = (mediaType: MediaType) =>
   queryOptions({
     queryKey: catalogKeys.popular(mediaType),
     queryFn: ({ signal }) => catalogApi.popular(mediaType, signal),
+    staleTime: 10 * MINUTE,
+  });
+
+export const trendingTodayQuery = () =>
+  queryOptions({
+    queryKey: catalogKeys.trendingToday(),
+    queryFn: ({ signal }) => catalogApi.trendingToday(signal),
+    staleTime: 10 * MINUTE,
+  });
+
+export const trendingMoviesQuery = () =>
+  queryOptions({
+    queryKey: catalogKeys.trendingMovies(),
+    queryFn: ({ signal }) => catalogApi.trendingMovies(signal),
+    staleTime: 10 * MINUTE,
+  });
+
+export const trendingSeriesQuery = () =>
+  queryOptions({
+    queryKey: catalogKeys.trendingSeries(),
+    queryFn: ({ signal }) => catalogApi.trendingSeries(signal),
+    staleTime: 10 * MINUTE,
+  });
+
+export const topRatedQuery = (mediaType: MediaType) =>
+  queryOptions({
+    queryKey: catalogKeys.topRated(mediaType),
+    queryFn: ({ signal }) => catalogApi.topRated(mediaType, signal),
+    staleTime: 15 * MINUTE,
+  });
+
+export const nowPlayingQuery = () =>
+  queryOptions({
+    queryKey: catalogKeys.nowPlaying(),
+    queryFn: ({ signal }) => catalogApi.nowPlaying(signal),
     staleTime: 10 * MINUTE,
   });
 

@@ -66,6 +66,71 @@ export const catalogApi = {
       { signal },
     ),
 
+  /** GET /api/public/trending/today: Trending movies and series today. */
+  trendingToday: async (signal?: AbortSignal): Promise<MediaList> => {
+    try {
+      return await getPublic<TmdbPage<TmdbMultiResult>, MediaList>(
+        '/api/public/trending/today',
+        (page) => toMediaList(page, fromMultiResult),
+        { signal },
+      );
+    } catch {
+      return catalogApi.popular('movie', signal);
+    }
+  },
+
+  /** GET /api/public/trending/movies: Trending movies this week/day. */
+  trendingMovies: async (signal?: AbortSignal): Promise<MediaList> => {
+    try {
+      return await getPublic<TmdbPage<TmdbMovieListItem>, MediaList>(
+        '/api/public/trending/movies',
+        (page) => toMediaList(page, (raw) => toMediaSummary(raw, 'movie')),
+        { signal },
+      );
+    } catch {
+      return catalogApi.popular('movie', signal);
+    }
+  },
+
+  /** GET /api/public/trending/series: Trending TV series this week/day. */
+  trendingSeries: async (signal?: AbortSignal): Promise<MediaList> => {
+    try {
+      return await getPublic<TmdbPage<TmdbTvListItem>, MediaList>(
+        '/api/public/trending/series',
+        (page) => toMediaList(page, (raw) => toMediaSummary(raw, 'tv')),
+        { signal },
+      );
+    } catch {
+      return catalogApi.popular('tv', signal);
+    }
+  },
+
+  /** GET /api/public/{movies|series}/top-rated: Highest rated titles. */
+  topRated: async (mediaType: MediaType, signal?: AbortSignal): Promise<MediaList> => {
+    try {
+      return await getPublic<TmdbPage<TmdbMovieListItem | TmdbTvListItem>, MediaList>(
+        `/api/public/${segment(mediaType)}/top-rated`,
+        (page) => toMediaList(page, (raw) => toMediaSummary(raw, mediaType)),
+        { signal },
+      );
+    } catch {
+      return catalogApi.popular(mediaType, signal);
+    }
+  },
+
+  /** GET /api/public/movies/now-playing: Movies currently playing in theaters. */
+  nowPlaying: async (signal?: AbortSignal): Promise<MediaList> => {
+    try {
+      return await getPublic<TmdbPage<TmdbMovieListItem>, MediaList>(
+        '/api/public/movies/now-playing',
+        (page) => toMediaList(page, (raw) => toMediaSummary(raw, 'movie')),
+        { signal },
+      );
+    } catch {
+      return catalogApi.popular('movie', signal);
+    }
+  },
+
   /** GET /api/public/search?query=: TMDB multi-search page 1, people removed. */
   search: (query: string, signal?: AbortSignal): Promise<MediaList> =>
     getPublic<TmdbPage<TmdbMultiResult>, MediaList>(

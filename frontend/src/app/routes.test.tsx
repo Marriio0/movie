@@ -16,7 +16,7 @@ describe('routing', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: 'Primary' })).toBeInTheDocument();
     expect(screen.getByRole('contentinfo')).toHaveTextContent(/uses the TMDB API/);
-    expect(document.title).toBe('Marquee');
+    expect(document.title).toBe('Netfarjo');
   });
 
   it('marks the active primary nav link', async () => {
@@ -57,7 +57,7 @@ describe('routing', () => {
     renderAt('/login');
     expect(await screen.findByRole('heading', { level: 1, name: 'Sign in' })).toBeInTheDocument();
     expect(screen.queryByRole('navigation', { name: 'Primary' })).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Marquee home' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Netfarjo home' })).toBeInTheDocument();
   });
 
   it('opens the mobile menu and closes it on navigation', async () => {
