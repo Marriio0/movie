@@ -80,7 +80,7 @@ describe('WatchPlayer', () => {
 
     const iframe = screen.getByTitle(/Watch Dune: Part Two/i);
     expect(iframe).toHaveAttribute('src', expect.stringContaining('player.videasy.net/movie/693134'));
-    expect(iframe).toHaveAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-presentation');
+    expect(iframe).not.toHaveAttribute('sandbox');
   });
 
   it('switches between servers when clicked', async () => {
@@ -95,7 +95,7 @@ describe('WatchPlayer', () => {
       'src',
       expect.stringContaining('vidsrc.me/embed/movie?tmdb=693134'),
     );
-    expect(iframe).toHaveAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-presentation');
+    expect(iframe).not.toHaveAttribute('sandbox');
   });
 
   it('renders series seasons and episodes and updates iframe src', async () => {

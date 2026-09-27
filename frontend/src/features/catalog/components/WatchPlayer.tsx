@@ -2,14 +2,18 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  Copy,
   Download,
+  ExternalLink,
   Info,
   Maximize2,
   Minimize2,
   Play,
   RefreshCw,
   Server,
+  Settings,
   SkipForward,
+  Sparkles,
   Subtitles,
   Tv,
 } from 'lucide-react';
@@ -36,8 +40,9 @@ export interface WatchPlayerProps {
 }
 
 const PREFERRED_SUB_LANG_KEY = 'marquee:preferred-subtitle-lang';
+const TORRENTIO_CONFIG_STORAGE_KEY = 'marquee:torrentio-config';
 
-type ViewMode = 'stream' | 'download';
+type ViewMode = 'stream' | 'torrentio' | 'download';
 
 export function WatchPlayer({ details }: WatchPlayerProps) {
   const isSeries = details.mediaType === 'tv';
@@ -91,7 +96,41 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
   // Reload key to force iframe remount if stream gets stuck
   const [reloadKey, setReloadKey] = useState(0);
 
-  const [torrentioConfig] = useState('');
+  const [torrentioConfig, setTorrentioConfig] = useState<string>(() => {
+    try {
+      return localStorage.getItem(TORRENTIO_CONFIG_STORAGE_KEY) || '';
+    } catch {
+      return '';
+    }
+  });
+  const [isConfigOpen, setIsConfigOpen] = useState(false);
+  const [tempConfig, setTempConfig] = useState(torrentioConfig);
+  const [copiedMagnet, setCopiedMagnet] = useState<string | null>(null);
+
+  const handleCopyMagnet = async (magnet: string) => {
+    try {
+      await navigator.clipboard.writeText(magnet);
+      setCopiedMagnet(magnet);
+      setTimeout(() => setCopiedMagnet(null), 2000);
+    } catch {
+      // Fallback
+    }
+  };
+
+  const handleSaveTorrentioConfig = () => {
+    const trimmed = tempConfig.trim();
+    setTorrentioConfig(trimmed);
+    try {
+      if (trimmed) {
+        localStorage.setItem(TORRENTIO_CONFIG_STORAGE_KEY, trimmed);
+      } else {
+        localStorage.removeItem(TORRENTIO_CONFIG_STORAGE_KEY);
+      }
+    } catch {
+      // Ignore
+    }
+    setIsConfigOpen(false);
+  };
 
   // Active direct video stream URL from Debrid (if played through Torrentio)
   const [directVideoUrl, setDirectVideoUrl] = useState<string | null>(null);
@@ -274,7 +313,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
         config: torrentioConfig.trim() || undefined,
         signal,
       }),
-    enabled: viewMode === 'download' && Boolean(details.imdbId),
+    enabled: (viewMode === 'download' || viewMode === 'torrentio') && Boolean(details.imdbId),
     staleTime: 5 * 60 * 1000,
   });
 
@@ -374,6 +413,23 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
 
             <button
               type="button"
+              onClick={() => {
+                setViewMode('torrentio');
+                setDirectVideoUrl(null);
+              }}
+              className={cn(
+                'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition',
+                viewMode === 'torrentio'
+                  ? 'bg-purple-600 text-white shadow-sm'
+                  : 'text-fg-muted hover:text-fg',
+              )}
+            >
+              <Sparkles className="size-3" />
+              <span>Torrentio (4K/HQ)</span>
+            </button>
+
+            <button
+              type="button"
               onClick={() => setViewMode('download')}
               className={cn(
                 'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition',
@@ -437,6 +493,19 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                     </button>
                   );
                 })}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setViewMode('torrentio');
+                    setDirectVideoUrl(null);
+                  }}
+                  className="flex items-center gap-1.5 rounded-md bg-purple-950/60 px-2.5 py-1 text-xs font-semibold text-purple-300 ring-1 ring-purple-500/40 hover:bg-purple-900/60 transition"
+                  title="سيرفرات تورنتيو فائقة الجودة 4K"
+                >
+                  <Sparkles className="size-3 text-purple-400" />
+                  <span>Torrentio (4K/HQ)</span>
+                </button>
               </div>
 
               <button
@@ -594,11 +663,6 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="origin"
-                  sandbox={
-                    selectedServerId !== 'vidlink'
-                      ? 'allow-scripts allow-same-origin allow-forms allow-presentation'
-                      : undefined
-                  }
                   className="size-full border-0"
                 />
               )}
@@ -640,6 +704,17 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 >
                   <SkipForward className="size-3" />
                   <span>Next Server</span>
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => setViewMode('torrentio')}
+                  className="h-6 px-2 text-xs font-semibold text-purple-400 hover:text-purple-300"
+                  title="سيرفرات تورنتيو فائقة الجودة"
+                >
+                  <Sparkles className="size-3" />
+                  <span>Torrentio 4K</span>
                 </Button>
 
                 <Button
@@ -1119,6 +1194,298 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               <Check className="size-4 shrink-0 text-emerald-400" />
               <span>
                 الترجمة متوفرة تلقائياً في المشغل ومتزامنة مع الصوت.
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* VIEW 3: Torrentio Streams View */}
+        {viewMode === 'torrentio' && (
+          <div className="space-y-4 rounded-xl border border-line bg-surface-1 p-4 sm:p-5">
+            {/* Header & Mode Switcher */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line/60 pb-3" dir="rtl">
+              <div className="flex items-center gap-2.5">
+                <div className="flex size-9 items-center justify-center rounded-lg bg-purple-500/20 text-purple-400">
+                  <Sparkles className="size-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-fg sm:text-base">سيرفرات تورنتيو فائقة الجودة (Torrentio 4K / 1080p)</h3>
+                    <Badge className="bg-purple-500/20 text-[10px] font-bold text-purple-300">
+                      {torrentStreams.length > 0 ? `${torrentStreams.length} سيرفر متوفر` : 'Torrentio HQ'}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-fg-muted">
+                    سيرفرات سريعة بدقة 4K و 1080p بدون إعلانات نهائياً مع أعلى جودة صوت وصورة.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => setIsConfigOpen((prev) => !prev)}
+                  className="flex items-center gap-1.5 text-xs text-fg-muted hover:text-fg"
+                  title="إعدادات Debrid / Torrentio"
+                >
+                  <Settings className="size-3.5" />
+                  <span>{torrentioConfig ? 'Debrid مفعل' : 'إعداد Debrid'}</span>
+                </Button>
+
+                <Button
+                  size="sm"
+                  onClick={() => setViewMode('stream')}
+                  className="flex items-center gap-1.5 bg-brand-primary text-xs font-semibold text-white hover:bg-brand-primary/90"
+                >
+                  <Play className="size-3.5 fill-current" />
+                  <span>المشغل العادي</span>
+                </Button>
+              </div>
+            </div>
+
+            {/* Collapsible Debrid / RealDebrid Config Panel */}
+            {isConfigOpen && (
+              <div className="rounded-lg border border-purple-500/30 bg-purple-950/20 p-3.5 text-xs" dir="rtl">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="font-semibold text-purple-300">إعدادات مزود Debrid (RealDebrid / Torbox) لتشغيل مباشر:</span>
+                  <button
+                    type="button"
+                    onClick={() => setIsConfigOpen(false)}
+                    className="text-fg-subtle hover:text-fg"
+                  >
+                    إغلاق ✕
+                  </button>
+                </div>
+                <p className="mb-2 text-fg-muted">
+                  إذا كان لديك حساب RealDebrid أو AllDebrid أو Torbox، أدخل كود الإعداد من موقع Torrentio للحصول على تشغيل فوري 4K بدون تحميل:
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={tempConfig}
+                    onChange={(e) => setTempConfig(e.target.value)}
+                    placeholder="مثال: realdebrid=APIKEY أو torbox=APIKEY"
+                    className="flex-1 rounded-md border border-line bg-surface-2 px-3 py-1.5 text-xs text-fg outline-none focus:border-purple-500 font-mono"
+                    dir="ltr"
+                  />
+                  <Button
+                    size="sm"
+                    onClick={handleSaveTorrentioConfig}
+                    className="bg-purple-600 px-3 text-xs text-white hover:bg-purple-700"
+                  >
+                    حفظ
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* TV Series Season & Episode Picker */}
+            {isSeries && (
+              <div className="space-y-2 rounded-lg border border-line bg-surface-2 p-3" dir="rtl">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-fg">اختر الموسم والحلقة:</span>
+                  <span className="text-fg-muted font-mono">
+                    الموسم {currentSeason} - الحلقة {currentEpisode}
+                  </span>
+                </div>
+
+                {availableSeasons.length > 1 && (
+                  <div className="flex flex-wrap gap-1 border-b border-line/60 pb-2">
+                    {availableSeasons.map((seasonNum) => {
+                      const isActive = currentSeason === seasonNum;
+                      return (
+                        <button
+                          key={seasonNum}
+                          type="button"
+                          onClick={() => {
+                            setCurrentSeason(seasonNum);
+                            setCurrentEpisode(1);
+                          }}
+                          className={cn(
+                            'rounded px-2.5 py-1 text-xs font-semibold transition',
+                            isActive
+                              ? 'bg-purple-600 text-white shadow-sm ring-1 ring-purple-400'
+                              : 'bg-surface-3 text-fg-muted hover:bg-surface-1 hover:text-fg',
+                          )}
+                        >
+                          الموسم {seasonNum}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <div className="flex max-h-24 flex-wrap gap-1 overflow-y-auto pr-1">
+                  {Array.from({ length: episodesInCurrentSeason }, (_, i) => i + 1).map((epNum) => {
+                    const isActive = currentEpisode === epNum;
+                    return (
+                      <button
+                        key={epNum}
+                        type="button"
+                        onClick={() => setCurrentEpisode(epNum)}
+                        className={cn(
+                          'flex items-center gap-1 rounded px-2.5 py-1 font-mono text-xs transition',
+                          isActive
+                            ? 'bg-purple-600 font-bold text-white shadow-sm ring-1 ring-purple-400'
+                            : 'bg-surface-3 text-fg-muted hover:bg-surface-1 hover:text-fg',
+                        )}
+                      >
+                        <Play className="size-2.5 fill-current" />
+                        <span>الحلقة {epNum}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Stream List / Cards */}
+            {isTorrentLoading ? (
+              <div className="flex flex-col items-center justify-center space-y-3 py-12">
+                <Spinner className="size-6 text-purple-400" />
+                <p className="text-xs text-fg-muted">جاري فحص وتجهيز سيرفرات تورنتيو فائقة الجودة...</p>
+              </div>
+            ) : torrentStreams.length === 0 ? (
+              <div className="flex flex-col items-center justify-center space-y-3 rounded-lg border border-line bg-surface-2 p-8 text-center" dir="rtl">
+                <Info className="size-8 text-fg-subtle" />
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold text-fg">لم يتم العثور على سيرفرات تورنتيو لهذا العنوان</p>
+                  <p className="text-xs text-fg-muted">يمكنك استخدام المشغل العادي (سيرفر 1 أو 2) لمشاهدة الفيلم مباشرة بجودة عالية وبدون إعلانات.</p>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => setViewMode('stream')}
+                  className="bg-brand-primary text-xs text-white"
+                >
+                  الرجوع للمشغل المباشر
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="grid gap-2">
+                  {torrentStreams.map((s, idx) => {
+                    const is4k = s.quality.includes('4k') || s.quality.includes('2160p') || s.quality.includes('UHD');
+                    const is1080p = s.quality.includes('1080p');
+                    const isCopied = copiedMagnet === s.magnetLink;
+
+                    return (
+                      <div
+                        key={`${s.stream.infoHash}-${idx}`}
+                        className="flex flex-col gap-2.5 rounded-lg border border-line bg-surface-2 p-3 transition hover:border-purple-500/40 sm:flex-row sm:items-center sm:justify-between"
+                        dir="rtl"
+                      >
+                        <div className="min-w-0 flex-1 space-y-1 text-right">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Badge
+                              className={cn(
+                                'text-[10px] font-bold',
+                                is4k
+                                  ? 'bg-purple-500/25 text-purple-300 ring-1 ring-purple-500/40'
+                                  : is1080p
+                                    ? 'bg-blue-500/25 text-blue-300 ring-1 ring-blue-500/40'
+                                    : 'bg-surface-3 text-fg-muted',
+                              )}
+                            >
+                              {s.quality || 'HD'}
+                            </Badge>
+
+                            {s.size && (
+                              <span className="font-mono text-xs font-semibold text-fg-muted">
+                                💾 {s.size}
+                              </span>
+                            )}
+
+                            {s.seeders !== null && (
+                              <span className="font-mono text-xs font-semibold text-emerald-400">
+                                👤 {s.seeders} seeds
+                              </span>
+                            )}
+
+                            {s.provider && (
+                              <span className="rounded bg-surface-3 px-1.5 py-0.5 text-[10px] text-fg-subtle">
+                                {s.provider}
+                              </span>
+                            )}
+                          </div>
+
+                          <p
+                            className="truncate font-mono text-xs text-fg"
+                            dir="ltr"
+                            title={s.releaseTitle}
+                          >
+                            {s.releaseTitle}
+                          </p>
+                        </div>
+
+                        {/* Action buttons */}
+                        <div className="flex flex-wrap items-center gap-1.5 shrink-0" dir="ltr">
+                          {s.isDirectStream && s.stream.url ? (
+                            <>
+                              <Button
+                                size="sm"
+                                onClick={() => handleWatchVideoNow(s.stream.url)}
+                                className="h-8 gap-1.5 bg-purple-600 px-3 text-xs font-bold text-white shadow-sm hover:bg-purple-700"
+                                title="تشغيل مباشر في المشغل بدون تحميل"
+                              >
+                                <Play className="size-3 fill-current" />
+                                <span>▶ تشغيل مباشر</span>
+                              </Button>
+
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => handleDownloadDirectVideo(s.stream.url!, downloadFilename)}
+                                className="h-8 px-2.5 text-xs text-emerald-400 hover:text-emerald-300"
+                                title="تحميل ملف MP4 مباشر"
+                              >
+                                <Download className="size-3" />
+                                <span>تحميل MP4</span>
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => handleCopyMagnet(s.magnetLink)}
+                                className={cn(
+                                  'h-8 gap-1.5 px-3 text-xs font-semibold transition',
+                                  isCopied
+                                    ? 'bg-emerald-600 text-white'
+                                    : 'bg-surface-3 text-fg hover:bg-surface-1',
+                                )}
+                                title="نسخ رابط Magnet لتحميله أو تشغيله"
+                              >
+                                {isCopied ? <Check className="size-3 text-white" /> : <Copy className="size-3" />}
+                                <span>{isCopied ? 'تم النسخ ✔' : 'نسخ Magnet'}</span>
+                              </Button>
+
+                              <a
+                                href={s.stremioLink}
+                                target="_blank"
+                                rel="noreferrer noopener"
+                                className="inline-flex h-8 items-center gap-1.5 rounded-md bg-purple-950/60 px-3 text-xs font-semibold text-purple-300 ring-1 ring-purple-500/40 hover:bg-purple-900/60 transition"
+                                title="فتح فـ Stremio"
+                              >
+                                <ExternalLink className="size-3" />
+                                <span>فتح فـ Stremio</span>
+                              </a>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Helpful Guide Note */}
+            <div className="flex items-center gap-2.5 rounded-lg border border-line bg-surface-2 p-3 text-xs text-fg-muted" dir="rtl">
+              <Info className="size-4 shrink-0 text-purple-400" />
+              <span>
+                سيرفرات تورنتيو تجلب ملفات الفيديو الأصلية بأعلى نقاوة (4K HDR / 1080p). يمكنك نسخ الرابط Magnet وتشغيله، أو فتح السيرفر بضغطة زر واحدة فـ Stremio، أو تفعيل Debrid لتشغيلها مباشرة في المتصفح بدون أي برامج.
               </span>
             </div>
           </div>
