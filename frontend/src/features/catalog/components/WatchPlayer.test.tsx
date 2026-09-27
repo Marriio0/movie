@@ -147,4 +147,34 @@ describe('WatchPlayer', () => {
       expect.stringContaining('sub_lang=es'),
     );
   });
+
+  it('allows user to change subtitle language dynamically and updates player url and localStorage', async () => {
+    const user = userEvent.setup();
+    renderWatchPlayer(mockMovie);
+
+    const subSelect = screen.getByLabelText(/Select Subtitle Language/i);
+    await user.selectOptions(subSelect, 'fr');
+
+    expect(screen.getByTitle(/Watch Dune: Part Two/i)).toHaveAttribute(
+      'src',
+      expect.stringContaining('sub_lang=fr'),
+    );
+    expect(localStorage.getItem('marquee:preferred-subtitle-lang')).toBe('fr');
+  });
+
+  it('opens installation guide modal when install button is clicked in Download Center', async () => {
+    const user = userEvent.setup();
+    renderWatchPlayer(mockMovie);
+
+    const downloadTabs = screen.getAllByRole('button', { name: /Download Movie/i });
+    await user.click(downloadTabs[0]!);
+
+    const installBtn = screen.getByRole('button', { name: /تثبيت التطبيق الآن/i });
+    await user.click(installBtn);
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getAllByText(/تثبيت تطبيق Netfarjo على جهازك/i).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText(/هواتف آيفون وآيباد/i)).toBeInTheDocument();
+    expect(screen.getByText(/أندرويد/i)).toBeInTheDocument();
+  });
 });

@@ -20,10 +20,12 @@ import { STREAMING_SERVERS, type StreamingServer } from '../lib/streaming-server
 import {
   fetchLiveSubtitles,
   downloadSubtitleBlob,
+  SUPPORTED_SUBTITLE_LANGUAGES,
 } from '../lib/subtitles';
 import { fetchTorrentioStreams, type ParsedTorrentioStream } from '../lib/torrentio';
 import { cn } from '@/shared/lib/cn';
 import { usePwaInstall } from '@/shared/hooks/usePwaInstall';
+import { InstallModal } from '@/shared/components/InstallModal';
 import { Badge } from '@/shared/ui/Badge';
 import { Button } from '@/shared/ui/Button';
 import { IconButton } from '@/shared/ui/IconButton';
@@ -47,14 +49,37 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
   // Server selection (default Server 1: VidLink with multi-subs)
   const [selectedServerId, setSelectedServerId] = useState<string>('vidlink');
 
-  // Subtitle language preference (defaults to Arabic 'ar' or user saved preference)
-  const selectedSubLang = useMemo(() => {
+  // Interactive Subtitle language preference (defaults to Arabic 'ar' or saved user preference)
+  const [selectedSubLang, setSelectedSubLang] = useState<string>(() => {
     try {
       return localStorage.getItem(PREFERRED_SUB_LANG_KEY) || 'ar';
     } catch {
       return 'ar';
     }
-  }, []);
+  });
+
+  const handleSelectSubLang = (langCode: string) => {
+    setSelectedSubLang(langCode);
+    try {
+      localStorage.setItem(PREFERRED_SUB_LANG_KEY, langCode);
+    } catch {
+      // Ignore
+    }
+  };
+
+  // State to control guided PWA installation dialog
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+
+  const handleInstallClick = async () => {
+    if (isInstallable) {
+      const outcome = await installApp();
+      if (!outcome) {
+        setIsInstallModalOpen(true);
+      }
+    } else {
+      setIsInstallModalOpen(true);
+    }
+  };
 
   // Season and episode state for series
   const [currentSeason, setCurrentSeason] = useState<number>(1);
@@ -116,6 +141,23 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
   });
 
   const availableSubs = subtitlesQuery.data ?? [];
+
+  // Active language descriptor
+  const currentSubLangObj = useMemo(() => {
+    return (
+      SUPPORTED_SUBTITLE_LANGUAGES.find((l) => l.code === selectedSubLang) ||
+      SUPPORTED_SUBTITLE_LANGUAGES[0]!
+    );
+  }, [selectedSubLang]);
+
+  // Synchronized subtitle track matching the user's selected language
+  const currentLangSub = useMemo(() => {
+    return (
+      availableSubs.find((s) => s.lang === currentSubLangObj.openSubCode) ||
+      availableSubs.find((s) => s.lang.toLowerCase().startsWith(selectedSubLang))
+    );
+  }, [availableSubs, currentSubLangObj, selectedSubLang]);
+
   const arabicSubs = useMemo(
     () => availableSubs.filter((s) => s.lang === 'ara'),
     [availableSubs],
@@ -123,19 +165,24 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
   const bestArabicSub = arabicSubs[0];
   const [isDownloadingSub, setIsDownloadingSub] = useState(false);
 
-  const handleDownloadArabicSub = async () => {
-    if (!bestArabicSub) return;
+  // Dynamic subtitle download in the client's chosen language directly (.SRT)
+  const handleDownloadSelectedSub = async () => {
+    const subToDownload = currentLangSub || bestArabicSub;
+    if (!subToDownload) return;
     setIsDownloadingSub(true);
+    const safeLangName = currentSubLangObj.name.replace(/[^a-zA-Z0-9]/g, '_');
     const filename = isSeries
-      ? `${details.title}_S${currentSeason}E${currentEpisode}_Arabic.srt`
-      : `${details.title}_Arabic.srt`;
-    await downloadSubtitleBlob(bestArabicSub.url, filename);
+      ? `${details.title}_S${currentSeason}E${currentEpisode}_${safeLangName}.srt`
+      : `${details.title}_${safeLangName}.srt`;
+    await downloadSubtitleBlob(subToDownload.url, filename);
     setIsDownloadingSub(false);
   };
+
 
   // Compute active embed player URL with subtitle preference and live sub_file injection
   const currentEmbedUrl = useMemo(() => {
     if (!activeServer) return '';
+    const activeSubFile = currentLangSub?.url || (selectedSubLang === 'ar' ? bestArabicSub?.url : undefined);
     return activeServer.getUrl({
       mediaType: details.mediaType,
       tmdbId: details.id,
@@ -143,7 +190,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
       season: currentSeason,
       episode: currentEpisode,
       subLang: selectedSubLang,
-      subFile: selectedSubLang === 'ar' ? bestArabicSub?.url : undefined,
+      subFile: activeSubFile,
     });
   }, [
     activeServer,
@@ -153,6 +200,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
     currentSeason,
     currentEpisode,
     selectedSubLang,
+    currentLangSub?.url,
     bestArabicSub?.url,
   ]);
 
@@ -264,6 +312,28 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               <Subtitles className="size-3.5" />
               Subtitles (CC) Available
             </span>
+
+            {/* Quick Subtitle Language Selector in Header */}
+            <div className="flex items-center gap-1 rounded-md border border-line bg-surface-2 px-2 py-0.5 text-xs">
+              <span className="text-[11px] font-medium text-fg-muted">ترجمة:</span>
+              <select
+                value={selectedSubLang}
+                onChange={(e) => handleSelectSubLang(e.target.value)}
+                className="cursor-pointer bg-transparent text-xs font-bold text-fg focus:outline-none"
+                aria-label="Select Subtitle Language"
+              >
+                {SUPPORTED_SUBTITLE_LANGUAGES.map((lang) => (
+                  <option key={lang.code} value={lang.code} className="bg-surface-1 text-fg">
+                    {lang.flag} {lang.nativeName} ({lang.name})
+                  </option>
+                ))}
+              </select>
+              {currentLangSub && (
+                <span className="rounded bg-emerald-500/20 px-1 py-0.5 text-[10px] font-bold text-emerald-400">
+                  متزامنة ✓
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Navigation View Tabs */}
@@ -489,27 +559,23 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   <Subtitles className="size-3.5" />
                   الترجمة متوفرة تلقائياً في المشغل (CC)
                 </span>
-                {bestArabicSub && (
-                  <span className="rounded bg-emerald-500/20 px-2 py-0.5 font-medium text-emerald-400">
-                    🟢 ترجمة عربية مدمجة
-                  </span>
-                )}
+                <span className="rounded bg-emerald-500/20 px-2 py-0.5 font-medium text-emerald-400">
+                  🟢 ترجمة {currentSubLangObj.nativeName} {currentLangSub ? 'متزامنة' : 'مدمجة'}
+                </span>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                {bestArabicSub && (
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={handleDownloadArabicSub}
-                    disabled={isDownloadingSub}
-                    className="h-6 px-2 text-[11px] font-semibold text-emerald-400 hover:text-emerald-300"
-                    title="تحميل ملف الترجمة العربية المتزامن مع الصوت مباشرة"
-                  >
-                    <Download className="size-3" />
-                    <span>تحميل الترجمة (.SRT)</span>
-                  </Button>
-                )}
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={handleDownloadSelectedSub}
+                  disabled={isDownloadingSub || (!currentLangSub && !bestArabicSub)}
+                  className="h-6 px-2 text-[11px] font-semibold text-emerald-400 hover:text-emerald-300"
+                  title={`تحميل ملف الترجمة (${currentSubLangObj.nativeName}) المتزامن مع الصوت مباشرة`}
+                >
+                  <Download className="size-3" />
+                  <span>تحميل الترجمة ({currentSubLangObj.nativeName}) (.SRT)</span>
+                </Button>
 
                 <Button
                   size="sm"
@@ -658,19 +724,20 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   </p>
                 </div>
               </div>
-              {isInstallable ? (
-                <Button
-                  size="sm"
-                  onClick={installApp}
-                  className="h-7 bg-emerald-600 px-3 text-xs font-bold text-white hover:bg-emerald-700"
-                >
-                  <span>تثبيت التطبيق الآن</span>
-                </Button>
-              ) : isInstalled ? (
+              {isInstalled ? (
                 <span className="rounded bg-emerald-500/20 px-2.5 py-1 text-xs font-semibold text-emerald-400">
                   ✓ التطبيق مثبت على جهازك
                 </span>
-              ) : null}
+              ) : (
+                <Button
+                  size="sm"
+                  onClick={handleInstallClick}
+                  className="h-8 bg-emerald-600 px-3.5 text-xs font-bold text-white hover:bg-emerald-700 shadow-sm transition"
+                >
+                  <Download className="size-3.5 mr-1" />
+                  <span>تثبيت التطبيق الآن</span>
+                </Button>
+              )}
             </div>
 
             {/* Clean one-line note */}
@@ -747,22 +814,21 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                           title="مشاهدة مباشرة في المشغل"
                         >
                           <Play className="size-2.5 fill-current" />
-                          <span>▶ مشاهدة مباشرة</span>
+                          <span>▶ مشاهدة مباشرة ({currentSubLangObj.nativeName})</span>
                         </Button>
 
-                        {bestArabicSub && (
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="secondary"
-                            onClick={handleDownloadArabicSub}
-                            className="h-7 px-2.5 text-xs text-emerald-400 hover:text-emerald-300"
-                            title="تحميل ملف الترجمة العربية المزامنة (.SRT)"
-                          >
-                            <Download className="size-3" />
-                            <span>الترجمة</span>
-                          </Button>
-                        )}
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          onClick={handleDownloadSelectedSub}
+                          disabled={!currentLangSub && !bestArabicSub}
+                          className="h-7 px-2.5 text-xs text-emerald-400 hover:text-emerald-300"
+                          title={`تحميل ملف الترجمة (${currentSubLangObj.nativeName}) المزامنة (.SRT)`}
+                        >
+                          <Download className="size-3" />
+                          <span>الترجمة ({currentSubLangObj.nativeName})</span>
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -826,22 +892,21 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                           title="مشاهدة مباشرة في المشغل"
                         >
                           <Play className="size-2.5 fill-current" />
-                          <span>▶ مشاهدة مباشرة</span>
+                          <span>▶ مشاهدة مباشرة ({currentSubLangObj.nativeName})</span>
                         </Button>
 
-                        {bestArabicSub && (
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="secondary"
-                            onClick={handleDownloadArabicSub}
-                            className="h-7 px-2.5 text-xs text-emerald-400 hover:text-emerald-300"
-                            title="تحميل ملف الترجمة العربية المزامنة (.SRT)"
-                          >
-                            <Download className="size-3" />
-                            <span>الترجمة</span>
-                          </Button>
-                        )}
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          onClick={handleDownloadSelectedSub}
+                          disabled={!currentLangSub && !bestArabicSub}
+                          className="h-7 px-2.5 text-xs text-emerald-400 hover:text-emerald-300"
+                          title={`تحميل ملف الترجمة (${currentSubLangObj.nativeName}) المزامنة (.SRT)`}
+                        >
+                          <Download className="size-3" />
+                          <span>الترجمة ({currentSubLangObj.nativeName})</span>
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -907,22 +972,21 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                           title="مشاهدة مباشرة في المشغل"
                         >
                           <Play className="size-2.5 fill-current" />
-                          <span>▶ مشاهدة مباشرة</span>
+                          <span>▶ مشاهدة مباشرة ({currentSubLangObj.nativeName})</span>
                         </Button>
 
-                        {bestArabicSub && (
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="secondary"
-                            onClick={handleDownloadArabicSub}
-                            className="h-7 px-2.5 text-xs text-emerald-400 hover:text-emerald-300"
-                            title="تحميل ملف الترجمة العربية المزامنة (.SRT)"
-                          >
-                            <Download className="size-3" />
-                            <span>الترجمة</span>
-                          </Button>
-                        )}
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          onClick={handleDownloadSelectedSub}
+                          disabled={!currentLangSub && !bestArabicSub}
+                          className="h-7 px-2.5 text-xs text-emerald-400 hover:text-emerald-300"
+                          title={`تحميل ملف الترجمة (${currentSubLangObj.nativeName}) المزامنة (.SRT)`}
+                        >
+                          <Download className="size-3" />
+                          <span>الترجمة ({currentSubLangObj.nativeName})</span>
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -937,29 +1001,61 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               </div>
             )}
 
-            {/* Subtitle direct download in Download Center */}
-            {bestArabicSub && (
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-emerald-500/30 bg-emerald-950/20 p-3 text-xs">
+            {/* Multilingual Subtitle Center */}
+            <div className="space-y-3 rounded-lg border border-emerald-500/30 bg-emerald-950/20 p-3.5 text-xs">
+              <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-emerald-500/20 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <Subtitles className="size-4 text-emerald-400 shrink-0" />
+                  <span className="font-bold text-fg">اختر لغة الترجمة للتحميل والمشاهدة:</span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-1">
+                  {SUPPORTED_SUBTITLE_LANGUAGES.map((lang) => {
+                    const isSelected = selectedSubLang === lang.code;
+                    return (
+                      <button
+                        key={lang.code}
+                        type="button"
+                        onClick={() => handleSelectSubLang(lang.code)}
+                        className={cn(
+                          'flex items-center gap-1 rounded px-2 py-1 text-xs font-semibold transition',
+                          isSelected
+                            ? 'bg-emerald-600 text-white shadow-sm ring-1 ring-emerald-400'
+                            : 'bg-surface-2 text-fg-muted hover:bg-surface-3 hover:text-fg',
+                        )}
+                      >
+                        <span>{lang.flag}</span>
+                        <span>{lang.nativeName}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Subtitle track details & direct download */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="size-2 rounded-full bg-emerald-400 shrink-0" />
-                  <span className="font-semibold text-fg shrink-0">ملف الترجمة العربية المزامنة (.SRT):</span>
+                  <span className="font-semibold text-fg shrink-0">
+                    ملف ترجمة {currentSubLangObj.nativeName} المتزامن (.SRT):
+                  </span>
                   <span className="text-emerald-400 font-mono text-[11px] truncate">
-                    {bestArabicSub.subtitleFileName || `${details.title} Arabic`}
+                    {currentLangSub?.subtitleFileName || `${details.title} ${currentSubLangObj.name}`}
                   </span>
                 </div>
 
                 <Button
                   size="sm"
-                  onClick={handleDownloadArabicSub}
-                  disabled={isDownloadingSub}
-                  className="h-7 bg-emerald-600 px-3 text-xs text-white hover:bg-emerald-700 font-semibold shrink-0"
-                  title="تحميل ملف الترجمة العربية .SRT لجهازك"
+                  onClick={handleDownloadSelectedSub}
+                  disabled={isDownloadingSub || (!currentLangSub && !bestArabicSub)}
+                  className="h-7 bg-emerald-600 px-3 text-xs text-white hover:bg-emerald-700 font-semibold shrink-0 shadow-sm"
+                  title={`تحميل ملف الترجمة (${currentSubLangObj.nativeName}) .SRT لجهازك`}
                 >
                   <Download className="size-3" />
-                  <span>تحميل ملف الترجمة (.SRT)</span>
+                  <span>تحميل ملف الترجمة ({currentSubLangObj.nativeName}) (.SRT)</span>
                 </Button>
               </div>
-            )}
+            </div>
 
             {/* In-Site Synchronized Subtitles Guarantee */}
             <div className="flex items-center gap-2.5 rounded-lg border border-line bg-surface-2 p-3 text-xs text-fg-muted">
@@ -971,6 +1067,13 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
           </div>
         )}
 
+        {/* Guided PWA Installation Modal */}
+        <InstallModal
+          isOpen={isInstallModalOpen}
+          onClose={() => setIsInstallModalOpen(false)}
+          onInstallNative={isInstallable ? installApp : undefined}
+          canPromptNative={isInstallable}
+        />
       </div>
     </section>
   );
