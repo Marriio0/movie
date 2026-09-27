@@ -83,4 +83,37 @@ export const STREAMING_SERVERS: StreamingServer[] = [
         ? `https://www.2embed.cc/embed/${tmdbId}`
         : `https://www.2embed.cc/embedtv/${tmdbId}&s=${season}&e=${episode}`,
   },
+  {
+    id: 'vidsrcrip',
+    name: 'Server 7 (VidSrc Rip)',
+    badge: 'Fast Mirror',
+    description: 'Direct high-speed stream mirror for high-demand titles.',
+    supportsSubtitles: true,
+    getUrl: ({ mediaType, tmdbId, season, episode }) =>
+      mediaType === 'movie'
+        ? `https://vidsrc.rip/embed/movie/${tmdbId}`
+        : `https://vidsrc.rip/embed/tv/${tmdbId}/${season}/${episode}`,
+  },
+  {
+    id: 'smashystream',
+    name: 'Server 8 (Smashy)',
+    badge: 'Multi-Audio',
+    description: 'Multi-source stream provider with player selection.',
+    supportsSubtitles: true,
+    getUrl: ({ mediaType, tmdbId, season, episode }) =>
+      mediaType === 'movie'
+        ? `https://player.smashy.stream/movie/${tmdbId}`
+        : `https://player.smashy.stream/tv/${tmdbId}?s=${season}&e=${episode}`,
+  },
+  {
+    id: 'moviesapi',
+    name: 'Server 9 (MoviesAPI)',
+    badge: 'Ultra HD',
+    description: 'Cloud stream server with high resolution support.',
+    supportsSubtitles: false,
+    getUrl: ({ mediaType, tmdbId, season, episode }) =>
+      mediaType === 'movie'
+        ? `https://moviesapi.club/movie/${tmdbId}`
+        : `https://moviesapi.club/tv/${tmdbId}-${season}-${episode}`,
+  },
 ];
