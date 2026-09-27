@@ -2,7 +2,6 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
-  Copy,
   Download,
   ExternalLink,
   Info,
@@ -81,7 +80,6 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
   });
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [tempConfig, setTempConfig] = useState(torrentioConfig);
-  const [copiedHash, setCopiedHash] = useState<string | null>(null);
 
   // Active direct video stream URL from Debrid (if played through Torrentio)
   const [directVideoUrl, setDirectVideoUrl] = useState<string | null>(null);
@@ -237,26 +235,26 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
       : details.title;
   }, [isSeries, details.title, currentSeason, currentEpisode]);
 
-  const handleCopyMagnet = async (magnetLink: string, infoHash: string) => {
-    try {
-      await navigator.clipboard.writeText(magnetLink);
-      setCopiedHash(infoHash);
-      setTimeout(() => setCopiedHash(null), 2500);
-    } catch {
-      window.prompt('Copy Magnet Link:', magnetLink);
-    }
-  };
-
-  // Direct .torrent file download (never forces Stremio)
-  const handleDownloadTorrentFile = (infoHash: string, title: string) => {
-    const torrentUrl = `https://itorrents.net/torrent/${infoHash.toUpperCase()}.torrent`;
+  // Direct MP4 video download (never downloads .torrent files that launch Stremio)
+  const handleDownloadDirectVideo = (url: string, filename: string) => {
     const a = document.createElement('a');
-    a.href = torrentUrl;
-    a.download = `${title.replace(/[^a-zA-Z0-9_-]/g, '_')}.torrent`;
+    a.href = url;
+    a.download = `${filename.replace(/[^a-zA-Z0-9_-]/g, '_')}.mp4`;
     a.target = '_blank';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+  };
+
+  const handleWatchVideoNow = (directUrl?: string | null) => {
+    if (directUrl) {
+      setDirectVideoUrl(directUrl);
+    }
+    setViewMode('stream');
+    const el = document.getElementById('watch-player');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const handleSaveConfig = () => {
@@ -596,7 +594,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   className="h-6 px-2 text-xs font-semibold text-emerald-400 hover:text-emerald-300"
                 >
                   <Download className="size-3" />
-                  <span>{isSeries ? `تحميل وتثبيت الحلقة ${currentEpisode}` : 'تحميل الفيلم'}</span>
+                  <span>{isSeries ? `تحميل وترجمة الحلقة ${currentEpisode}` : 'سيرفرات التحميل والترجمة'}</span>
                 </Button>
               </div>
             </div>
@@ -745,16 +743,16 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
             <div className="space-y-1.5 rounded-lg border border-line bg-surface-2 p-3 text-xs">
               <div className="flex items-center gap-2 font-semibold text-fg">
                 <Info className="size-4 shrink-0 text-emerald-400" />
-                <span>طرق تنزيل وتثبيت الفيديو مباشرة من الموقع:</span>
+                <span>مشاهدة وتحميل الفيديو مباشرة من الموقع (بدون برامج خارجية أو Stremio):</span>
               </div>
               <p className="leading-relaxed text-fg-muted">
-                • <strong>تحميل مباشر للملف (.torrent)</strong>: اضغط على الزر الأخضر لتنزيل ملف التورنت المباشر فوراً إلى جهازك.
+                • <strong>مشاهدة فورية بدون تقطيع</strong>: اضغط على تشغيل لمشاهدة الفيلم أو الحلقة مباشرة بجودة عالية وسرعة فائقة في المشغل.
               </p>
               <p className="leading-relaxed text-fg-muted">
-                • <strong>فتح بتطبيق التحميل</strong>: اضغط لفتح رابط التحميل مباشرة في تطبيق التنزيل بجهازك (مثل 1DM أو uTorrent).
+                • <strong>تحميل فيديو مباشر (MP4)</strong>: عند توفر رابط فيديو مباشر يتم تنزيله كملف فيديو MP4 فعلي إلى جهازك.
               </p>
               <p className="leading-relaxed text-fg-muted">
-                • <strong>نسخ الرابط</strong>: لنسخ رابط التحميل المباشر واستعماله في أي وقت.
+                • <strong>تحميل الترجمة المتزامنة (.SRT)</strong>: يمكنك تنزيل ملف الترجمة العربية المزامنة مع الفيديو مباشرة.
               </p>
             </div>
 
@@ -789,55 +787,59 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                     </div>
 
                     <div className="space-y-1.5 pt-1">
-                      <Button
-                        type="button"
-                        onClick={() =>
-                          handleDownloadTorrentFile(
-                            downloadOptions.fhd!.stream.infoHash,
-                            downloadFilename,
-                          )
-                        }
-                        className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-emerald-600 px-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700"
-                        title="تحميل ملف التورنت المباشر لجهازك"
-                      >
-                        <Download className="size-3.5" />
-                        <span>تحميل مباشر (.torrent)</span>
-                      </Button>
-
-                      <div className="flex items-center gap-1">
-                        <a
-                          href={downloadOptions.fhd.magnetLink}
-                          className="flex h-7 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
-                          title="فتح في تطبيق التحميل بجهازك"
-                        >
-                          <ExternalLink className="size-2.5" />
-                          <span>فتح بتطبيق التحميل</span>
-                        </a>
-
+                      {downloadOptions.fhd.isDirectStream && downloadOptions.fhd.stream.url ? (
                         <Button
-                          size="sm"
-                          variant="secondary"
+                          type="button"
                           onClick={() =>
-                            handleCopyMagnet(
-                              downloadOptions.fhd!.magnetLink,
-                              downloadOptions.fhd!.stream.infoHash,
+                            handleDownloadDirectVideo(
+                              downloadOptions.fhd!.stream.url!,
+                              downloadFilename,
                             )
                           }
-                          className="h-7 px-2.5 text-xs"
-                          title="نسخ رابط التحميل (Magnet)"
+                          className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-emerald-600 px-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700"
+                          title="تحميل فيديو MP4 مباشر لجهازك"
                         >
-                          {copiedHash === downloadOptions.fhd.stream.infoHash ? (
-                            <div className="flex items-center gap-1 font-semibold text-emerald-400">
-                              <Check className="size-3" />
-                              <span>تم النسخ</span>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1">
-                              <Copy className="size-3" />
-                              <span>نسخ الرابط</span>
-                            </div>
-                          )}
+                          <Download className="size-3.5" />
+                          <span>تحميل فيديو مباشر (MP4)</span>
                         </Button>
+                      ) : (
+                        <Button
+                          type="button"
+                          onClick={() => handleWatchVideoNow()}
+                          className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-emerald-600 px-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700"
+                          title="مشاهدة وتشغيل الفيديو فوراً في المشغل"
+                        >
+                          <Play className="size-3.5 fill-current" />
+                          <span>تشغيل الفيديو (1080p)</span>
+                        </Button>
+                      )}
+
+                      <div className="flex items-center gap-1">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => handleWatchVideoNow(downloadOptions.fhd?.stream.url)}
+                          className="flex h-7 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
+                          title="مشاهدة بدون برامج خارجية"
+                        >
+                          <Play className="size-2.5 fill-current" />
+                          <span>مشاهدة فورية بدون Stremio</span>
+                        </Button>
+
+                        {bestArabicSub && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="secondary"
+                            onClick={handleDownloadArabicSub}
+                            className="h-7 px-2.5 text-xs text-emerald-400 hover:text-emerald-300"
+                            title="تحميل ملف الترجمة العربية المزامنة (.SRT)"
+                          >
+                            <Download className="size-3" />
+                            <span>الترجمة</span>
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -864,55 +866,59 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                     </div>
 
                     <div className="space-y-1.5 pt-1">
-                      <Button
-                        type="button"
-                        onClick={() =>
-                          handleDownloadTorrentFile(
-                            downloadOptions.hd!.stream.infoHash,
-                            downloadFilename,
-                          )
-                        }
-                        className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-emerald-600 px-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700"
-                        title="تحميل ملف التورنت المباشر لجهازك"
-                      >
-                        <Download className="size-3.5" />
-                        <span>تحميل مباشر (.torrent)</span>
-                      </Button>
-
-                      <div className="flex items-center gap-1">
-                        <a
-                          href={downloadOptions.hd.magnetLink}
-                          className="flex h-7 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
-                          title="فتح في تطبيق التحميل بجهازك"
-                        >
-                          <ExternalLink className="size-2.5" />
-                          <span>فتح بتطبيق التحميل</span>
-                        </a>
-
+                      {downloadOptions.hd.isDirectStream && downloadOptions.hd.stream.url ? (
                         <Button
-                          size="sm"
-                          variant="secondary"
+                          type="button"
                           onClick={() =>
-                            handleCopyMagnet(
-                              downloadOptions.hd!.magnetLink,
-                              downloadOptions.hd!.stream.infoHash,
+                            handleDownloadDirectVideo(
+                              downloadOptions.hd!.stream.url!,
+                              downloadFilename,
                             )
                           }
-                          className="h-7 px-2.5 text-xs"
-                          title="نسخ رابط التحميل (Magnet)"
+                          className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-emerald-600 px-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700"
+                          title="تحميل فيديو MP4 مباشر لجهازك"
                         >
-                          {copiedHash === downloadOptions.hd.stream.infoHash ? (
-                            <div className="flex items-center gap-1 font-semibold text-emerald-400">
-                              <Check className="size-3" />
-                              <span>تم النسخ</span>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1">
-                              <Copy className="size-3" />
-                              <span>نسخ الرابط</span>
-                            </div>
-                          )}
+                          <Download className="size-3.5" />
+                          <span>تحميل فيديو مباشر (MP4)</span>
                         </Button>
+                      ) : (
+                        <Button
+                          type="button"
+                          onClick={() => handleWatchVideoNow()}
+                          className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-emerald-600 px-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700"
+                          title="مشاهدة وتشغيل الفيديو فوراً في المشغل"
+                        >
+                          <Play className="size-3.5 fill-current" />
+                          <span>تشغيل الفيديو (720p)</span>
+                        </Button>
+                      )}
+
+                      <div className="flex items-center gap-1">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => handleWatchVideoNow(downloadOptions.hd?.stream.url)}
+                          className="flex h-7 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
+                          title="مشاهدة بدون برامج خارجية"
+                        >
+                          <Play className="size-2.5 fill-current" />
+                          <span>مشاهدة فورية بدون Stremio</span>
+                        </Button>
+
+                        {bestArabicSub && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="secondary"
+                            onClick={handleDownloadArabicSub}
+                            className="h-7 px-2.5 text-xs text-emerald-400 hover:text-emerald-300"
+                            title="تحميل ملف الترجمة العربية المزامنة (.SRT)"
+                          >
+                            <Download className="size-3" />
+                            <span>الترجمة</span>
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -941,55 +947,59 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                     </div>
 
                     <div className="space-y-1.5 pt-1">
-                      <Button
-                        type="button"
-                        onClick={() =>
-                          handleDownloadTorrentFile(
-                            downloadOptions.uhd!.stream.infoHash,
-                            downloadFilename,
-                          )
-                        }
-                        className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-purple-600 px-2 text-xs font-bold text-white shadow-sm transition hover:bg-purple-700"
-                        title="تحميل ملف التورنت المباشر لجهازك"
-                      >
-                        <Download className="size-3.5" />
-                        <span>تحميل مباشر (.torrent)</span>
-                      </Button>
-
-                      <div className="flex items-center gap-1">
-                        <a
-                          href={downloadOptions.uhd.magnetLink}
-                          className="flex h-7 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
-                          title="فتح في تطبيق التحميل بجهازك"
-                        >
-                          <ExternalLink className="size-2.5" />
-                          <span>فتح بتطبيق التحميل</span>
-                        </a>
-
+                      {downloadOptions.uhd.isDirectStream && downloadOptions.uhd.stream.url ? (
                         <Button
-                          size="sm"
-                          variant="secondary"
+                          type="button"
                           onClick={() =>
-                            handleDownloadTorrentFile(
-                              downloadOptions.uhd!.stream.infoHash,
+                            handleDownloadDirectVideo(
+                              downloadOptions.uhd!.stream.url!,
                               downloadFilename,
                             )
                           }
-                          className="h-7 px-2.5 text-xs"
-                          title="نسخ رابط التحميل (Magnet)"
+                          className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-purple-600 px-2 text-xs font-bold text-white shadow-sm transition hover:bg-purple-700"
+                          title="تحميل فيديو MP4 مباشر لجهازك"
                         >
-                          {copiedHash === downloadOptions.uhd.stream.infoHash ? (
-                            <div className="flex items-center gap-1 font-semibold text-emerald-400">
-                              <Check className="size-3" />
-                              <span>تم النسخ</span>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1">
-                              <Copy className="size-3" />
-                              <span>نسخ الرابط</span>
-                            </div>
-                          )}
+                          <Download className="size-3.5" />
+                          <span>تحميل فيديو مباشر (MP4)</span>
                         </Button>
+                      ) : (
+                        <Button
+                          type="button"
+                          onClick={() => handleWatchVideoNow()}
+                          className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-purple-600 px-2 text-xs font-bold text-white shadow-sm transition hover:bg-purple-700"
+                          title="مشاهدة وتشغيل الفيديو فوراً في المشغل"
+                        >
+                          <Play className="size-3.5 fill-current" />
+                          <span>تشغيل الفيديو (4K)</span>
+                        </Button>
+                      )}
+
+                      <div className="flex items-center gap-1">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => handleWatchVideoNow(downloadOptions.uhd?.stream.url)}
+                          className="flex h-7 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
+                          title="مشاهدة بدون برامج خارجية"
+                        >
+                          <Play className="size-2.5 fill-current" />
+                          <span>مشاهدة فورية بدون Stremio</span>
+                        </Button>
+
+                        {bestArabicSub && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="secondary"
+                            onClick={handleDownloadArabicSub}
+                            className="h-7 px-2.5 text-xs text-emerald-400 hover:text-emerald-300"
+                            title="تحميل ملف الترجمة العربية المزامنة (.SRT)"
+                          >
+                            <Download className="size-3" />
+                            <span>الترجمة</span>
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1152,45 +1162,40 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                       </div>
 
                       <div className="flex shrink-0 items-center gap-1.5">
-                        {s.isDirectStream && (
+                        {s.isDirectStream && s.stream.url ? (
+                          <>
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                setDirectVideoUrl(s.stream.url!);
+                                setViewMode('stream');
+                              }}
+                              className="h-7 bg-indigo-600 px-2 text-xs hover:bg-indigo-700"
+                            >
+                              <Play className="size-3 fill-current" />
+                              <span>Stream</span>
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => handleDownloadDirectVideo(s.stream.url!, details.title)}
+                              className="h-7 bg-emerald-600 px-2 text-xs text-white hover:bg-emerald-700"
+                              title="تحميل فيديو MP4 مباشر لجهازك"
+                            >
+                              <Download className="size-3" />
+                              <span>Download MP4</span>
+                            </Button>
+                          </>
+                        ) : (
                           <Button
                             size="sm"
-                            onClick={() => {
-                              setDirectVideoUrl(s.stream.url!);
-                              setViewMode('stream');
-                            }}
-                            className="h-7 bg-indigo-600 px-2 text-xs hover:bg-indigo-700"
+                            onClick={() => handleWatchVideoNow()}
+                            className="h-7 bg-emerald-600 px-2 text-xs text-white hover:bg-emerald-700"
+                            title="تشغيل الفيديو مباشرة في المشغل"
                           >
                             <Play className="size-3 fill-current" />
-                            <span>Stream</span>
+                            <span>Watch Online</span>
                           </Button>
                         )}
-
-                        <Button
-                          size="sm"
-                          onClick={() =>
-                            handleDownloadTorrentFile(s.stream.infoHash, details.title)
-                          }
-                          className="h-7 bg-emerald-600 px-2 text-xs text-white hover:bg-emerald-700"
-                          title="Direct .torrent download"
-                        >
-                          <Download className="size-3" />
-                          <span>Download</span>
-                        </Button>
-
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => handleCopyMagnet(s.magnetLink, s.stream.infoHash)}
-                          className="h-7 px-2 text-xs"
-                          title="Copy Magnet Link"
-                        >
-                          {copiedHash === s.stream.infoHash ? (
-                            <Check className="size-3 text-emerald-400" />
-                          ) : (
-                            <Copy className="size-3" />
-                          )}
-                        </Button>
                       </div>
                     </div>
                   ))}
