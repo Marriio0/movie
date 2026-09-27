@@ -28,6 +28,7 @@ import {
 } from '../lib/subtitles';
 import { fetchTorrentioStreams, type ParsedTorrentioStream } from '../lib/torrentio';
 import { cn } from '@/shared/lib/cn';
+import { env } from '@/shared/config/env';
 import { usePwaInstall } from '@/shared/hooks/usePwaInstall';
 import { InstallModal } from '@/shared/components/InstallModal';
 import { Badge } from '@/shared/ui/Badge';
@@ -40,6 +41,7 @@ export interface WatchPlayerProps {
 }
 
 const PREFERRED_SUB_LANG_KEY = 'marquee:preferred-subtitle-lang';
+const PREFERRED_VIEW_MODE_KEY = 'marquee:preferred-view-mode';
 const TORRENTIO_CONFIG_STORAGE_KEY = 'marquee:torrentio-config';
 
 type ViewMode = 'stream' | 'torrentio' | 'download';
@@ -48,10 +50,29 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
   const isSeries = details.mediaType === 'tv';
   const { isInstallable, isInstalled, installApp } = usePwaInstall();
 
-  // Active view mode: stream player or download center
-  const [viewMode, setViewMode] = useState<ViewMode>('stream');
+  // Active view mode: default to torrentio for ad-free 4K experience
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    try {
+      const saved = localStorage.getItem(PREFERRED_VIEW_MODE_KEY);
+      if (saved === 'torrentio' || saved === 'stream' || saved === 'download') {
+        return saved;
+      }
+      return 'torrentio';
+    } catch {
+      return 'torrentio';
+    }
+  });
 
-  // Server selection (default Server 1: Videasy Fast HD, zero ads)
+  const handleSetViewMode = (mode: ViewMode) => {
+    setViewMode(mode);
+    try {
+      localStorage.setItem(PREFERRED_VIEW_MODE_KEY, mode);
+    } catch {
+      // Ignore
+    }
+  };
+
+  // Server selection (default Server 1: Videasy Fast HD)
   const [selectedServerId, setSelectedServerId] = useState<string>('videasy');
 
   // Interactive Subtitle language preference (defaults to Arabic 'ar' or saved user preference)
@@ -98,9 +119,13 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
 
   const [torrentioConfig, setTorrentioConfig] = useState<string>(() => {
     try {
-      return localStorage.getItem(TORRENTIO_CONFIG_STORAGE_KEY) || '';
+      return (
+        localStorage.getItem(TORRENTIO_CONFIG_STORAGE_KEY) ||
+        env.torrentioDefaultConfig ||
+        ''
+      );
     } catch {
-      return '';
+      return env.torrentioDefaultConfig || '';
     }
   });
   const [isConfigOpen, setIsConfigOpen] = useState(false);
@@ -358,8 +383,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
   const handleWatchVideoNow = (directUrl?: string | null) => {
     if (directUrl) {
       setDirectVideoUrl(directUrl);
+      handleSetViewMode('torrentio');
+    } else {
+      handleSetViewMode('stream');
     }
-    setViewMode('stream');
     const el = document.getElementById('watch-player');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
@@ -399,22 +426,8 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
           <div className="flex items-center gap-1 rounded-lg border border-line bg-surface-2 p-1">
             <button
               type="button"
-              onClick={() => setViewMode('stream')}
-              className={cn(
-                'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition',
-                viewMode === 'stream'
-                  ? 'bg-accent text-accent-fg shadow-sm'
-                  : 'text-fg-muted hover:text-fg',
-              )}
-            >
-              <Play className="size-3 fill-current" />
-              <span>Watch Online</span>
-            </button>
-
-            <button
-              type="button"
               onClick={() => {
-                setViewMode('torrentio');
+                handleSetViewMode('torrentio');
                 setDirectVideoUrl(null);
               }}
               className={cn(
@@ -425,12 +438,29 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               )}
             >
               <Sparkles className="size-3" />
-              <span>Torrentio (4K/HQ)</span>
+              <span>⚡ Torrentio 4K (بدون إعلانات)</span>
             </button>
 
             <button
               type="button"
-              onClick={() => setViewMode('download')}
+              onClick={() => {
+                handleSetViewMode('stream');
+                setDirectVideoUrl(null);
+              }}
+              className={cn(
+                'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition',
+                viewMode === 'stream'
+                  ? 'bg-accent text-accent-fg shadow-sm'
+                  : 'text-fg-muted hover:text-fg',
+              )}
+            >
+              <Server className="size-3" />
+              <span>سيرفرات بديلة (Servers 1-5)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleSetViewMode('download')}
               className={cn(
                 'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition',
                 viewMode === 'download'
@@ -439,7 +469,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               )}
             >
               <Download className="size-3" />
-              <span>{isSeries ? 'Download Episodes' : 'Download Movie'}</span>
+              <span>{isSeries ? 'تحميل الحلقات' : 'تحميل الفيلم'}</span>
             </button>
 
 
@@ -1297,6 +1327,45 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   >
                     حفظ
                   </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Native In-Site Direct HTML5 Video Player */}
+            {directVideoUrl && (
+              <div className="space-y-2" dir="ltr">
+                <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black shadow-2xl ring-1 ring-purple-500/50">
+                  <video
+                    key={directVideoUrl}
+                    src={directVideoUrl}
+                    controls
+                    autoPlay
+                    className="size-full"
+                    playsInline
+                  >
+                    {currentLangSub && (
+                      <track
+                        kind="subtitles"
+                        src={currentLangSub.url}
+                        srcLang={selectedSubLang}
+                        label={currentSubLangObj.nativeName}
+                        default
+                      />
+                    )}
+                    Your browser does not support HTML5 video streaming.
+                  </video>
+                </div>
+                <div className="flex items-center justify-between rounded-lg border border-line bg-surface-2 p-2.5 text-xs" dir="rtl">
+                  <span className="font-semibold text-purple-300">
+                    جاري التشغيل المباشر فالموقع بجودة 4K أصلية وبدون إعلانات (Direct Stream)
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setDirectVideoUrl(null)}
+                    className="text-xs text-fg-subtle hover:text-fg font-medium"
+                  >
+                    إغلاق المشغل ✕
+                  </button>
                 </div>
               </div>
             )}

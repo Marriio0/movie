@@ -6,6 +6,8 @@
 export interface AppEnv {
   /** '' for same-origin requests (dev proxy), otherwise an absolute http(s) origin/base path. */
   apiBaseUrl: string;
+  /** Optional default Torrentio configuration (e.g. realdebrid=... or torbox=...). */
+  torrentioDefaultConfig: string;
 }
 
 export function parseApiBaseUrl(raw: string | undefined): string {
@@ -33,4 +35,5 @@ export function parseApiBaseUrl(raw: string | undefined): string {
 
 export const env: AppEnv = {
   apiBaseUrl: parseApiBaseUrl(import.meta.env.VITE_API_BASE_URL),
+  torrentioDefaultConfig: (import.meta.env.VITE_TORRENTIO_DEFAULT_CONFIG as string | undefined)?.trim() ?? '',
 };

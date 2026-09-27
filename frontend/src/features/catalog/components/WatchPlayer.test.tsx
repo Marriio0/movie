@@ -70,11 +70,23 @@ describe('WatchPlayer', () => {
     localStorage.clear();
   });
 
-  it('renders streaming servers and default player for movie', () => {
+  it('renders Torrentio 4K view by default with ad-free badges', () => {
     renderWatchPlayer(mockMovie);
 
     expect(screen.getByRole('heading', { name: /Watch Dune: Part Two/i })).toBeInTheDocument();
     expect(screen.getByText(/Subtitles \(CC\) Available/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Torrentio 4K \(بدون إعلانات\)/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /سيرفرات بديلة/i })).toBeInTheDocument();
+    expect(screen.getAllByText(/سيرفرات تورنتيو فائقة الجودة/i).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('renders streaming servers and player when switching to servers view', async () => {
+    const user = userEvent.setup();
+    renderWatchPlayer(mockMovie);
+
+    const serversBtn = screen.getByRole('button', { name: /سيرفرات بديلة/i });
+    await user.click(serversBtn);
+
     expect(screen.getByRole('button', { name: /Server 1 \(Videasy Fast HD\)/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Server 2 \(VidSrc\)/i })).toBeInTheDocument();
 
@@ -83,8 +95,9 @@ describe('WatchPlayer', () => {
     expect(iframe).not.toHaveAttribute('sandbox');
   });
 
-  it('switches between servers when clicked', async () => {
+  it('switches between servers when clicked in stream mode', async () => {
     const user = userEvent.setup();
+    localStorage.setItem('marquee:preferred-view-mode', 'stream');
     renderWatchPlayer(mockMovie);
 
     const vidsrcBtn = screen.getByRole('button', { name: /Server 2 \(VidSrc\)/i });
@@ -100,6 +113,7 @@ describe('WatchPlayer', () => {
 
   it('renders series seasons and episodes and updates iframe src', async () => {
     const user = userEvent.setup();
+    localStorage.setItem('marquee:preferred-view-mode', 'stream');
     renderWatchPlayer(mockSeries);
 
     expect(screen.getByRole('heading', { name: /Watch S1 : E1/i })).toBeInTheDocument();
@@ -113,9 +127,8 @@ describe('WatchPlayer', () => {
     expect(iframe).toHaveAttribute('src', expect.stringContaining('player.videasy.net/tv/1399/1/2'));
   });
 
-
-
   it('configures default Arabic subtitles in player and displays CC indicator', () => {
+    localStorage.setItem('marquee:preferred-view-mode', 'stream');
     renderWatchPlayer(mockMovie);
 
     expect(screen.getByTitle(/Watch Dune: Part Two/i)).toHaveAttribute(
@@ -129,7 +142,7 @@ describe('WatchPlayer', () => {
     const user = userEvent.setup();
     renderWatchPlayer(mockMovie);
 
-    const downloadTabs = screen.getAllByRole('button', { name: /Download Movie/i });
+    const downloadTabs = screen.getAllByRole('button', { name: /تحميل/i });
     expect(downloadTabs[0]).toBeDefined();
     await user.click(downloadTabs[0]!);
 
@@ -140,6 +153,7 @@ describe('WatchPlayer', () => {
   });
 
   it('automatically starts with preferred subtitle language saved in localStorage from the start', () => {
+    localStorage.setItem('marquee:preferred-view-mode', 'stream');
     localStorage.setItem('marquee:preferred-subtitle-lang', 'es');
     renderWatchPlayer(mockMovie);
 
@@ -151,16 +165,17 @@ describe('WatchPlayer', () => {
 
   it('allows user to change subtitle language dynamically and updates player url and localStorage', async () => {
     const user = userEvent.setup();
+    localStorage.setItem('marquee:preferred-view-mode', 'stream');
     renderWatchPlayer(mockMovie);
 
-    const downloadTabs = screen.getAllByRole('button', { name: /Download Movie/i });
+    const downloadTabs = screen.getAllByRole('button', { name: /تحميل/i });
     await user.click(downloadTabs[0]!);
 
     const frBtn = screen.getByRole('button', { name: /Français/i });
     await user.click(frBtn);
 
-    const watchOnlineBtn = screen.getByRole('button', { name: /Watch Online/i });
-    await user.click(watchOnlineBtn);
+    const serversBtn = screen.getByRole('button', { name: /سيرفرات بديلة/i });
+    await user.click(serversBtn);
 
     expect(screen.getByTitle(/Watch Dune: Part Two/i)).toHaveAttribute(
       'src',
@@ -173,7 +188,7 @@ describe('WatchPlayer', () => {
     const user = userEvent.setup();
     renderWatchPlayer(mockMovie);
 
-    const downloadTabs = screen.getAllByRole('button', { name: /Download Movie/i });
+    const downloadTabs = screen.getAllByRole('button', { name: /تحميل/i });
     await user.click(downloadTabs[0]!);
 
     const installBtn = screen.getByRole('button', { name: /تثبيت التطبيق الآن/i });

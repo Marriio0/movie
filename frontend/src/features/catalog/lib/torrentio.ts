@@ -38,6 +38,9 @@ const DEFAULT_TRACKERS = [
   'udp://explodie.org:6969/announce',
   'udp://tracker.coppersurfer.tk:6969/announce',
   'udp://tracker.leechers-paradise.org:6969/announce',
+  'wss://tracker.openwebtorrent.com',
+  'wss://tracker.btorrent.xyz',
+  'wss://tracker.webtorrent.dev',
 ];
 
 export function buildMagnetLink(infoHash: string, filename?: string): string {
