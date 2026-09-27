@@ -144,3 +144,66 @@ export function getYifySubtitlesUrl({ imdbId, title }: SubtitleQueryOptions): st
   }
   return `https://yifysubtitles.ch/search?q=${encodeURIComponent(title)}`;
 }
+
+export interface LiveSubtitleTrack {
+  id: string;
+  url: string;
+  lang: string;
+  subtitleFileName?: string;
+  movieReleaseName?: string;
+}
+
+/**
+ * Fetches real, synchronized subtitle tracks via Stremio OpenSubtitles v3 addon
+ */
+export async function fetchLiveSubtitles(options: {
+  mediaType: 'movie' | 'tv';
+  imdbId?: string | null;
+  season?: number;
+  episode?: number;
+  signal?: AbortSignal;
+}): Promise<LiveSubtitleTrack[]> {
+  const { mediaType, imdbId, season, episode, signal } = options;
+  if (!imdbId) return [];
+
+  const cleanImdb = imdbId.startsWith('tt') ? imdbId : `tt${imdbId}`;
+  const path =
+    mediaType === 'movie'
+      ? `movie/${cleanImdb}`
+      : `series/${cleanImdb}:${season ?? 1}:${episode ?? 1}`;
+
+  const url = `https://opensubtitles-v3.strem.io/subtitles/${path}.json`;
+
+  try {
+    const res = await fetch(url, { signal });
+    if (!res.ok) return [];
+    const data = (await res.json()) as { subtitles?: LiveSubtitleTrack[] };
+    return data.subtitles ?? [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Downloads a subtitle file directly from URL to client disk using Blob (No external redirects)
+ */
+export async function downloadSubtitleBlob(subUrl: string, filename: string): Promise<boolean> {
+  try {
+    const res = await fetch(subUrl);
+    if (!res.ok) throw new Error('Fetch failed');
+    const text = await res.text();
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename.endsWith('.srt') ? filename : `${filename}.srt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
+    return true;
+  } catch {
+    window.open(subUrl, '_blank');
+    return false;
+  }
+}

@@ -22,7 +22,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import type { MediaDetails } from '../catalog.types';
 import { STREAMING_SERVERS, type StreamingServer } from '../lib/streaming-servers';
-import { SUPPORTED_SUBTITLE_LANGUAGES, type SubtitleLanguage } from '../lib/subtitles';
+import {
+  SUPPORTED_SUBTITLE_LANGUAGES,
+  type SubtitleLanguage,
+  fetchLiveSubtitles,
+  downloadSubtitleBlob,
+} from '../lib/subtitles';
 import { fetchTorrentioStreams, type ParsedTorrentioStream } from '../lib/torrentio';
 import { cn } from '@/shared/lib/cn';
 import { Badge } from '@/shared/ui/Badge';
@@ -114,7 +119,46 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
     return STREAMING_SERVERS.find((s) => s.id === selectedServerId);
   }, [selectedServerId]);
 
-  // Compute active embed player URL with subtitle preference
+  // Live Subtitles query via Stremio OpenSubtitles v3 addon
+  const subtitlesQuery = useQuery({
+    queryKey: [
+      'subtitles',
+      details.mediaType,
+      details.imdbId,
+      currentSeason,
+      currentEpisode,
+    ],
+    queryFn: ({ signal }) =>
+      fetchLiveSubtitles({
+        mediaType: details.mediaType,
+        imdbId: details.imdbId,
+        season: isSeries ? currentSeason : undefined,
+        episode: isSeries ? currentEpisode : undefined,
+        signal,
+      }),
+    enabled: Boolean(details.imdbId),
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const availableSubs = subtitlesQuery.data ?? [];
+  const arabicSubs = useMemo(
+    () => availableSubs.filter((s) => s.lang === 'ara'),
+    [availableSubs],
+  );
+  const bestArabicSub = arabicSubs[0];
+  const [isDownloadingSub, setIsDownloadingSub] = useState(false);
+
+  const handleDownloadArabicSub = async () => {
+    if (!bestArabicSub) return;
+    setIsDownloadingSub(true);
+    const filename = isSeries
+      ? `${details.title}_S${currentSeason}E${currentEpisode}_Arabic.srt`
+      : `${details.title}_Arabic.srt`;
+    await downloadSubtitleBlob(bestArabicSub.url, filename);
+    setIsDownloadingSub(false);
+  };
+
+  // Compute active embed player URL with subtitle preference and live sub_file injection
   const currentEmbedUrl = useMemo(() => {
     if (!activeServer) return '';
     return activeServer.getUrl({
@@ -124,6 +168,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
       season: currentSeason,
       episode: currentEpisode,
       subLang: selectedSubLang,
+      subFile: selectedSubLang === 'ar' ? bestArabicSub?.url : undefined,
     });
   }, [
     activeServer,
@@ -133,6 +178,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
     currentSeason,
     currentEpisode,
     selectedSubLang,
+    bestArabicSub?.url,
   ]);
 
   // Quick switch to next server if current is buffering
@@ -207,7 +253,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
 
   // Direct .torrent file download (never forces Stremio)
   const handleDownloadTorrentFile = (infoHash: string, title: string) => {
-    const torrentUrl = `https://itorrents.org/torrent/${infoHash.toUpperCase()}.torrent`;
+    const torrentUrl = `https://itorrents.net/torrent/${infoHash.toUpperCase()}.torrent`;
     const a = document.createElement('a');
     a.href = torrentUrl;
     a.download = `${title.replace(/[^a-zA-Z0-9_-]/g, '_')}.torrent`;
@@ -547,15 +593,34 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
             </div>
 
             {/* Minimal Under-Player Bar */}
-            <div className="flex items-center justify-between rounded-lg border border-line bg-surface-1 px-3 py-2 text-xs text-fg-muted">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line bg-surface-1 px-3 py-2 text-xs text-fg-muted">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="size-2 rounded-full bg-emerald-400" />
                 <span className="font-medium text-fg">{activeServer?.name}</span>
                 <span>•</span>
                 <span>Subtitles: {activeSubLangObj.name}</span>
+                {bestArabicSub && (
+                  <span className="rounded bg-emerald-500/20 px-2 py-0.5 font-medium text-emerald-400">
+                    🟢 متوفرة الترجمة العربية ({arabicSubs.length})
+                  </span>
+                )}
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                {bestArabicSub && (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={handleDownloadArabicSub}
+                    disabled={isDownloadingSub}
+                    className="h-6 px-2 text-[11px] font-semibold text-emerald-400 hover:text-emerald-300"
+                    title="تحميل ملف الترجمة العربية المتزامن مع الصوت مباشرة"
+                  >
+                    <Download className="size-3" />
+                    <span>تحميل الترجمة (.SRT)</span>
+                  </Button>
+                )}
+
                 <Button
                   size="sm"
                   variant="secondary"
@@ -723,8 +788,17 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                     </div>
 
                     <div className="flex items-center gap-1.5">
+                      <a
+                        href={downloadOptions.fhd!.magnetLink}
+                        className="inline-flex h-7 flex-1 items-center justify-center gap-1 rounded bg-emerald-600 px-2 text-xs font-semibold text-white transition hover:bg-emerald-700"
+                        title="تحميل مباشر عبر uTorrent أو IDM أو BitTorrent"
+                      >
+                        <Download className="size-3" />
+                        <span>تحميل مباشر</span>
+                      </a>
                       <Button
                         size="sm"
+                        variant="secondary"
                         onClick={() =>
                           handleDownloadTorrentFile(
                             downloadOptions.fhd!.stream.infoHash,
@@ -733,11 +807,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                               : details.title,
                           )
                         }
-                        className="h-7 flex-1 bg-emerald-600 text-xs text-white hover:bg-emerald-700"
-                        title="Download .torrent file"
+                        className="h-7 px-2 text-[11px]"
+                        title="تحميل ملف .torrent"
                       >
-                        <Download className="size-3" />
-                        <span>تحميل .torrent</span>
+                        <span>.torrent</span>
                       </Button>
                       <Button
                         size="sm"
@@ -782,8 +855,17 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                     </div>
 
                     <div className="flex items-center gap-1.5">
+                      <a
+                        href={downloadOptions.hd!.magnetLink}
+                        className="inline-flex h-7 flex-1 items-center justify-center gap-1 rounded bg-emerald-600 px-2 text-xs font-semibold text-white transition hover:bg-emerald-700"
+                        title="تحميل مباشر عبر uTorrent أو IDM أو BitTorrent"
+                      >
+                        <Download className="size-3" />
+                        <span>تحميل مباشر</span>
+                      </a>
                       <Button
                         size="sm"
+                        variant="secondary"
                         onClick={() =>
                           handleDownloadTorrentFile(
                             downloadOptions.hd!.stream.infoHash,
@@ -792,11 +874,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                               : details.title,
                           )
                         }
-                        className="h-7 flex-1 bg-emerald-600 text-xs text-white hover:bg-emerald-700"
-                        title="Download .torrent file"
+                        className="h-7 px-2 text-[11px]"
+                        title="تحميل ملف .torrent"
                       >
-                        <Download className="size-3" />
-                        <span>تحميل .torrent</span>
+                        <span>.torrent</span>
                       </Button>
                       <Button
                         size="sm"
@@ -843,8 +924,17 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                     </div>
 
                     <div className="flex items-center gap-1.5">
+                      <a
+                        href={downloadOptions.uhd!.magnetLink}
+                        className="inline-flex h-7 flex-1 items-center justify-center gap-1 rounded bg-purple-600 px-2 text-xs font-semibold text-white transition hover:bg-purple-700"
+                        title="تحميل 4K عبر uTorrent أو IDM أو BitTorrent"
+                      >
+                        <Download className="size-3" />
+                        <span>تحميل 4K</span>
+                      </a>
                       <Button
                         size="sm"
+                        variant="secondary"
                         onClick={() =>
                           handleDownloadTorrentFile(
                             downloadOptions.uhd!.stream.infoHash,
@@ -853,11 +943,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                               : details.title,
                           )
                         }
-                        className="h-7 flex-1 bg-purple-600 text-xs text-white hover:bg-purple-700"
-                        title="Download .torrent file"
+                        className="h-7 px-2 text-[11px]"
+                        title="تحميل ملف .torrent"
                       >
-                        <Download className="size-3" />
-                        <span>تحميل 4K</span>
+                        <span>.torrent</span>
                       </Button>
                       <Button
                         size="sm"
@@ -887,6 +976,30 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   Direct torrent sources are loading or unavailable for this title. You can watch
                   online above.
                 </span>
+              </div>
+            )}
+
+            {/* Subtitle direct download in Download Center */}
+            {bestArabicSub && (
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-emerald-500/30 bg-emerald-950/20 p-3 text-xs">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="size-2 rounded-full bg-emerald-400 shrink-0" />
+                  <span className="font-semibold text-fg shrink-0">ملف الترجمة العربية المزامنة (.SRT):</span>
+                  <span className="text-emerald-400 font-mono text-[11px] truncate">
+                    {bestArabicSub.subtitleFileName || `${details.title} Arabic`}
+                  </span>
+                </div>
+
+                <Button
+                  size="sm"
+                  onClick={handleDownloadArabicSub}
+                  disabled={isDownloadingSub}
+                  className="h-7 bg-emerald-600 px-3 text-xs text-white hover:bg-emerald-700 font-semibold shrink-0"
+                  title="تحميل ملف الترجمة العربية .SRT لجهازك"
+                >
+                  <Download className="size-3" />
+                  <span>تحميل ملف الترجمة (.SRT)</span>
+                </Button>
               </div>
             )}
 

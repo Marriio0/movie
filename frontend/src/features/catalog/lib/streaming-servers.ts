@@ -13,6 +13,7 @@ export interface StreamingServer {
     season: number;
     episode: number;
     subLang?: string;
+    subFile?: string;
   }) => string;
 }
 
@@ -23,10 +24,12 @@ export const STREAMING_SERVERS: StreamingServer[] = [
     badge: 'Arabic / Multi-Subs',
     description: 'Fast CDN with instant Arabic & multilingual subtitles.',
     supportsSubtitles: true,
-    getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'ar' }) =>
-      mediaType === 'movie'
-        ? `https://vidlink.pro/movie/${tmdbId}?primaryColor=6366f1&secondaryColor=a855f7&iconColor=ffffff&title=true&poster=true&sub_lang=${subLang}`
-        : `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}?primaryColor=6366f1&secondaryColor=a855f7&iconColor=ffffff&title=true&poster=true&sub_lang=${subLang}`,
+    getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'ar', subFile }) => {
+      const subParam = subFile ? `&sub_file=${encodeURIComponent(subFile)}&sub_label=Arabic` : '';
+      return mediaType === 'movie'
+        ? `https://vidlink.pro/movie/${tmdbId}?primaryColor=6366f1&secondaryColor=a855f7&iconColor=ffffff&title=true&poster=true&sub_lang=${subLang}${subParam}`
+        : `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}?primaryColor=6366f1&secondaryColor=a855f7&iconColor=ffffff&title=true&poster=true&sub_lang=${subLang}${subParam}`;
+    },
   },
   {
     id: 'vidsrc',

@@ -56,4 +56,10 @@ describe('subtitles helper', () => {
     });
     expect(yifyUrl).toContain('yifysubtitles.ch/movie-imdb/tt0172495');
   });
+
+  it('fetchLiveSubtitles returns empty array when no imdbId is provided', async () => {
+    const { fetchLiveSubtitles } = await import('./subtitles');
+    const result = await fetchLiveSubtitles({ mediaType: 'movie', imdbId: null });
+    expect(result).toEqual([]);
+  });
 });
