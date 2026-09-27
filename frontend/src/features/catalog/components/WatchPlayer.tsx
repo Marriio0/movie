@@ -14,7 +14,7 @@ import {
   Tv,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { MediaDetails } from '../catalog.types';
 import { STREAMING_SERVERS, type StreamingServer } from '../lib/streaming-servers';
 import {
@@ -95,6 +95,38 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
 
   // Active direct video stream URL from Debrid (if played through Torrentio)
   const [directVideoUrl, setDirectVideoUrl] = useState<string | null>(null);
+
+  // Prevent third-party embed scripts from automatically redirecting the user away to external ad sites
+  useEffect(() => {
+    let isInternalClick = false;
+
+    const handleDocumentClick = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement).closest('a, button');
+      if (target) {
+        isInternalClick = true;
+        setTimeout(() => {
+          isInternalClick = false;
+        }, 1200);
+      }
+    };
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!isInternalClick) {
+        // Stop embed scripts from hijacking parent window top navigation
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+      }
+    };
+
+    window.addEventListener('click', handleDocumentClick, true);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('click', handleDocumentClick, true);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
 
   // Calculate available seasons and episodes
   const availableSeasons = useMemo(() => {

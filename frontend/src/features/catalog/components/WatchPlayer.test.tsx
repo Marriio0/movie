@@ -93,7 +93,7 @@ describe('WatchPlayer', () => {
     const iframe = screen.getByTitle(/Watch Dune: Part Two/i);
     expect(iframe).toHaveAttribute(
       'src',
-      expect.stringContaining('vidsrc.cc/v2/embed/movie/693134'),
+      expect.stringContaining('vidsrc.pm/embed/movie/693134'),
     );
   });
 
