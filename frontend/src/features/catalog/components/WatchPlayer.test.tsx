@@ -77,9 +77,7 @@ describe('WatchPlayer', () => {
     expect(screen.getByText(/Subtitles \(CC\) Available/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Server 1 \(VidLink\)/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Server 2 \(VidSrc\)/i })).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /Torrentio \(torrentio\.org\)/i }),
-    ).toBeInTheDocument();
+
 
     const iframe = screen.getByTitle(/Watch Dune: Part Two/i);
     expect(iframe).toHaveAttribute('src', expect.stringContaining('vidlink.pro/movie/693134'));
@@ -114,16 +112,7 @@ describe('WatchPlayer', () => {
     expect(iframe).toHaveAttribute('src', expect.stringContaining('vidlink.pro/tv/1399/1/2'));
   });
 
-  it('displays Torrentio panel when Torrentio tab is clicked', async () => {
-    const user = userEvent.setup();
-    renderWatchPlayer(mockMovie);
 
-    const torrentioBtn = screen.getByRole('button', { name: /Torrentio \(torrentio\.org\)/i });
-    await user.click(torrentioBtn);
-
-    expect(screen.getByText(/Torrentio Streams/i)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /torrentio\.org/i })).toBeInTheDocument();
-  });
 
   it('configures default Arabic subtitles in player and displays CC indicator', () => {
     renderWatchPlayer(mockMovie);
@@ -145,7 +134,7 @@ describe('WatchPlayer', () => {
 
     expect(screen.getByText(/تحميل: Dune: Part Two/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/الترجمة متوفرة تلقائياً في مشغل الموقع/i),
+      screen.getByText(/الترجمة متوفرة تلقائياً في المشغل/i),
     ).toBeInTheDocument();
   });
 

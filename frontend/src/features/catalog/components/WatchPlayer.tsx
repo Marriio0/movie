@@ -3,16 +3,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
-  ExternalLink,
   Info,
   Maximize2,
   Minimize2,
   Play,
   RefreshCw,
   Server,
-  Settings,
   SkipForward,
-  Sparkles,
   Subtitles,
   Tv,
 } from 'lucide-react';
@@ -36,16 +33,15 @@ export interface WatchPlayerProps {
   details: MediaDetails;
 }
 
-const TORRENTIO_CONFIG_STORAGE_KEY = 'marquee:torrentio-config';
 const PREFERRED_SUB_LANG_KEY = 'marquee:preferred-subtitle-lang';
 
-type ViewMode = 'stream' | 'download' | 'torrentio';
+type ViewMode = 'stream' | 'download';
 
 export function WatchPlayer({ details }: WatchPlayerProps) {
   const isSeries = details.mediaType === 'tv';
   const { isInstallable, isInstalled, installApp } = usePwaInstall();
 
-  // Active view mode: stream player, download center, or torrentio explorer
+  // Active view mode: stream player or download center
   const [viewMode, setViewMode] = useState<ViewMode>('stream');
 
   // Server selection (default Server 1: VidLink with multi-subs)
@@ -70,16 +66,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
   // Reload key to force iframe remount if stream gets stuck
   const [reloadKey, setReloadKey] = useState(0);
 
-  // Torrentio state
-  const [torrentioConfig, setTorrentioConfig] = useState<string>(() => {
-    try {
-      return localStorage.getItem(TORRENTIO_CONFIG_STORAGE_KEY) || '';
-    } catch {
-      return '';
-    }
-  });
-  const [isConfigOpen, setIsConfigOpen] = useState(false);
-  const [tempConfig, setTempConfig] = useState(torrentioConfig);
+  const [torrentioConfig] = useState('');
 
   // Active direct video stream URL from Debrid (if played through Torrentio)
   const [directVideoUrl, setDirectVideoUrl] = useState<string | null>(null);
@@ -178,7 +165,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
     setDirectVideoUrl(null);
   };
 
-  // Torrentio query via TanStack Query (auto-fetches when in torrentio mode or download center)
+  // Torrentio query via TanStack Query (auto-fetches when in download center)
   const torrentQuery = useQuery({
     queryKey: [
       'torrentio',
@@ -197,8 +184,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
         config: torrentioConfig.trim() || undefined,
         signal,
       }),
-    enabled:
-      (selectedServerId === 'torrentio' || viewMode === 'download') && Boolean(details.imdbId),
+    enabled: viewMode === 'download' && Boolean(details.imdbId),
     staleTime: 5 * 60 * 1000,
   });
 
@@ -207,13 +193,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
     [torrentQuery.data],
   );
   const isTorrentLoading = torrentQuery.isLoading;
-  const torrentError = !details.imdbId
-    ? 'No IMDb ID found for this title (required by Torrentio).'
-    : torrentQuery.isError
-      ? 'Failed to connect to Torrentio. Check your network or configuration.'
-      : torrentQuery.isSuccess && torrentStreams.length === 0
-        ? 'No torrent streams found on Torrentio for this title.'
-        : null;
+
 
   // Filter torrent streams by quality for easy 1-click download cards
   const downloadOptions = useMemo(() => {
@@ -257,16 +237,6 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
     }
   };
 
-  const handleSaveConfig = () => {
-    try {
-      localStorage.setItem(TORRENTIO_CONFIG_STORAGE_KEY, tempConfig.trim());
-    } catch {
-      // Ignore
-    }
-    setTorrentioConfig(tempConfig.trim());
-    setIsConfigOpen(false);
-  };
-
   return (
     <section
       id="watch-player"
@@ -300,13 +270,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
           <div className="flex items-center gap-1 rounded-lg border border-line bg-surface-2 p-1">
             <button
               type="button"
-              onClick={() => {
-                setViewMode('stream');
-                if (selectedServerId === 'torrentio') setSelectedServerId('vidlink');
-              }}
+              onClick={() => setViewMode('stream')}
               className={cn(
                 'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition',
-                viewMode === 'stream' && selectedServerId !== 'torrentio'
+                viewMode === 'stream'
                   ? 'bg-accent text-accent-fg shadow-sm'
                   : 'text-fg-muted hover:text-fg',
               )}
@@ -329,22 +296,6 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               <span>{isSeries ? 'Download Episodes' : 'Download Movie'}</span>
             </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                setViewMode('torrentio');
-                setSelectedServerId('torrentio');
-              }}
-              className={cn(
-                'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition',
-                selectedServerId === 'torrentio'
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-fg-muted hover:text-fg',
-              )}
-            >
-              <Sparkles className="size-3" />
-              <span>Torrentio</span>
-            </button>
 
             <div className="mx-1 h-3.5 w-px bg-line" />
 
@@ -370,7 +321,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
         </div>
 
         {/* Server Selector Bar (when in streaming mode) */}
-        {viewMode === 'stream' && selectedServerId !== 'torrentio' && (
+        {viewMode === 'stream' && (
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
             <div className="flex flex-wrap items-center gap-1.5">
                 {STREAMING_SERVERS.map((server) => {
@@ -396,23 +347,6 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   );
                 })}
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedServerId('torrentio');
-                    setViewMode('torrentio');
-                    setDirectVideoUrl(null);
-                  }}
-                  className={cn(
-                    'flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition',
-                    selectedServerId === 'torrentio'
-                      ? 'bg-indigo-600 text-white shadow-sm'
-                      : 'bg-surface-2 text-fg ring-1 ring-line hover:bg-surface-3',
-                  )}
-                >
-                  <Sparkles className="size-3" />
-                  <span>Torrentio (torrentio.org)</span>
-                </button>
               </div>
 
               <button
@@ -517,7 +451,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
         )}
 
         {/* VIEW 1: Video Player (Stream Mode) */}
-        {viewMode === 'stream' && selectedServerId !== 'torrentio' && (
+        {viewMode === 'stream' && (
           <div className="space-y-2">
             {/* Cinema Video Container */}
             <div className="relative aspect-video w-full transform-gpu overflow-hidden rounded-xl bg-black shadow-xl ring-1 ring-white/10 contain-paint">
@@ -739,21 +673,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               ) : null}
             </div>
 
-            {/* Clear explanation of in-site direct download */}
-            <div className="space-y-1.5 rounded-lg border border-line bg-surface-2 p-3 text-xs">
-              <div className="flex items-center gap-2 font-semibold text-fg">
-                <Info className="size-4 shrink-0 text-emerald-400" />
-                <span>مشاهدة وتحميل الفيديو مباشرة من الموقع (بدون برامج خارجية أو Stremio):</span>
-              </div>
-              <p className="leading-relaxed text-fg-muted">
-                • <strong>مشاهدة فورية بدون تقطيع</strong>: اضغط على تشغيل لمشاهدة الفيلم أو الحلقة مباشرة بجودة عالية وسرعة فائقة في المشغل.
-              </p>
-              <p className="leading-relaxed text-fg-muted">
-                • <strong>تحميل فيديو مباشر (MP4)</strong>: عند توفر رابط فيديو مباشر يتم تنزيله كملف فيديو MP4 فعلي إلى جهازك.
-              </p>
-              <p className="leading-relaxed text-fg-muted">
-                • <strong>تحميل الترجمة المتزامنة (.SRT)</strong>: يمكنك تنزيل ملف الترجمة العربية المزامنة مع الفيديو مباشرة.
-              </p>
+            {/* Clean one-line note */}
+            <div className="flex items-center gap-2 rounded-lg border border-line bg-surface-2 px-3 py-2 text-xs">
+              <Info className="size-3.5 shrink-0 text-emerald-400" />
+              <span className="text-fg-muted">اضغط تشغيل للمشاهدة مباشرة بجودة عالية، أو حمّل الفيديو MP4 لجهازك.</span>
             </div>
 
             {/* Direct Quality Downloads */}
@@ -821,10 +744,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                           variant="secondary"
                           onClick={() => handleWatchVideoNow(downloadOptions.fhd?.stream.url)}
                           className="flex h-7 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
-                          title="مشاهدة بدون برامج خارجية"
+                          title="مشاهدة مباشرة في المشغل"
                         >
                           <Play className="size-2.5 fill-current" />
-                          <span>مشاهدة فورية بدون Stremio</span>
+                          <span>▶ مشاهدة مباشرة</span>
                         </Button>
 
                         {bestArabicSub && (
@@ -900,10 +823,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                           variant="secondary"
                           onClick={() => handleWatchVideoNow(downloadOptions.hd?.stream.url)}
                           className="flex h-7 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
-                          title="مشاهدة بدون برامج خارجية"
+                          title="مشاهدة مباشرة في المشغل"
                         >
                           <Play className="size-2.5 fill-current" />
-                          <span>مشاهدة فورية بدون Stremio</span>
+                          <span>▶ مشاهدة مباشرة</span>
                         </Button>
 
                         {bestArabicSub && (
@@ -981,10 +904,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                           variant="secondary"
                           onClick={() => handleWatchVideoNow(downloadOptions.uhd?.stream.url)}
                           className="flex h-7 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
-                          title="مشاهدة بدون برامج خارجية"
+                          title="مشاهدة مباشرة في المشغل"
                         >
                           <Play className="size-2.5 fill-current" />
-                          <span>مشاهدة فورية بدون Stremio</span>
+                          <span>▶ مشاهدة مباشرة</span>
                         </Button>
 
                         {bestArabicSub && (
@@ -1042,168 +965,12 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
             <div className="flex items-center gap-2.5 rounded-lg border border-line bg-surface-2 p-3 text-xs text-fg-muted">
               <Check className="size-4 shrink-0 text-emerald-400" />
               <span>
-                الترجمة متوفرة تلقائياً في مشغل الموقع بجودة عالية ومتزامنة مع الصوت، كما تتضمن ملفات التورنت ترجمات متعددة اللغات مدمجة (Multi-Subtitles).
+                الترجمة متوفرة تلقائياً في المشغل ومتزامنة مع الصوت.
               </span>
             </div>
           </div>
         )}
 
-        {/* VIEW 3: Torrentio View */}
-        {(viewMode === 'torrentio' || selectedServerId === 'torrentio') && (
-          <div className="space-y-4 rounded-xl border border-line bg-surface-1 p-5 text-xs">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
-              <div className="flex items-center gap-2">
-                <Badge className="border-indigo-500/30 bg-indigo-500/20 font-bold text-indigo-300">
-                  Torrentio Streams
-                </Badge>
-                <a
-                  href="https://torrentio.org"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1 text-indigo-400 hover:underline"
-                >
-                  <span>torrentio.org</span>
-                  <ExternalLink className="size-3" />
-                </a>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => setIsConfigOpen(!isConfigOpen)}
-                  className="h-7 text-xs"
-                >
-                  <Settings className="size-3" />
-                  <span>{torrentioConfig ? 'Config Active' : 'Configure Debrid'}</span>
-                </Button>
-                <Button
-                  size="sm"
-                  variant="primary"
-                  onClick={() => {
-                    setViewMode('stream');
-                    setSelectedServerId('vidlink');
-                  }}
-                  className="h-7 text-xs"
-                >
-                  <Play className="size-3 fill-current" />
-                  <span>Watch Online</span>
-                </Button>
-              </div>
-            </div>
-
-            {isConfigOpen && (
-              <div className="space-y-2 rounded-lg border border-indigo-500/30 bg-indigo-950/20 p-3">
-                <div className="flex items-center gap-1.5 font-semibold text-indigo-300">
-                  <Info className="size-3.5" />
-                  <span>Real-Debrid / AllDebrid Config</span>
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={tempConfig}
-                    onChange={(e) => setTempConfig(e.target.value)}
-                    placeholder="providers=yts,1337x|realdebrid=TOKEN"
-                    className="flex-1 rounded-md border border-line bg-surface-2 px-2.5 py-1 text-xs text-fg focus:border-indigo-500 focus:outline-none"
-                  />
-                  <Button size="sm" onClick={handleSaveConfig} className="h-7 text-xs">
-                    Save
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {isTorrentLoading ? (
-              <div className="flex flex-col items-center justify-center space-y-2 py-8 text-center">
-                <Spinner className="size-6 text-indigo-500" />
-                <p className="text-fg-muted">Loading torrent streams...</p>
-              </div>
-            ) : torrentError && torrentStreams.length === 0 ? (
-              <div className="space-y-2 rounded-lg border border-line bg-surface-2 p-4 text-center">
-                <p className="font-medium text-fg">{torrentError}</p>
-                <Button
-                  size="sm"
-                  variant="primary"
-                  onClick={() => {
-                    setSelectedServerId('vidlink');
-                    setViewMode('stream');
-                  }}
-                  className="h-7 text-xs"
-                >
-                  <span>Switch to Server 1 (VidLink)</span>
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <div className="max-h-80 space-y-1.5 overflow-y-auto pr-1">
-                  {torrentStreams.map((s, idx) => (
-                    <div
-                      key={`${s.stream.infoHash}-${idx}`}
-                      className="flex flex-col justify-between gap-2 rounded-lg border border-line bg-surface-2 p-2.5 transition hover:border-indigo-500/40 sm:flex-row sm:items-center"
-                    >
-                      <div className="min-w-0 flex-1 space-y-0.5">
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          <Badge className="bg-indigo-500/20 text-[10px] font-bold text-indigo-300">
-                            {s.quality}
-                          </Badge>
-                          {s.size && <span className="font-mono text-fg-muted">{s.size}</span>}
-                          {s.seeders !== null && (
-                            <span className="font-medium text-emerald-400">
-                              👤 {s.seeders} seeds
-                            </span>
-                          )}
-                        </div>
-                        <p
-                          className="truncate font-mono text-[11px] text-fg"
-                          title={s.releaseTitle}
-                        >
-                          {s.releaseTitle}
-                        </p>
-                      </div>
-
-                      <div className="flex shrink-0 items-center gap-1.5">
-                        {s.isDirectStream && s.stream.url ? (
-                          <>
-                            <Button
-                              size="sm"
-                              onClick={() => {
-                                setDirectVideoUrl(s.stream.url!);
-                                setViewMode('stream');
-                              }}
-                              className="h-7 bg-indigo-600 px-2 text-xs hover:bg-indigo-700"
-                            >
-                              <Play className="size-3 fill-current" />
-                              <span>Stream</span>
-                            </Button>
-                            <Button
-                              size="sm"
-                              onClick={() => handleDownloadDirectVideo(s.stream.url!, details.title)}
-                              className="h-7 bg-emerald-600 px-2 text-xs text-white hover:bg-emerald-700"
-                              title="تحميل فيديو MP4 مباشر لجهازك"
-                            >
-                              <Download className="size-3" />
-                              <span>Download MP4</span>
-                            </Button>
-                          </>
-                        ) : (
-                          <Button
-                            size="sm"
-                            onClick={() => handleWatchVideoNow()}
-                            className="h-7 bg-emerald-600 px-2 text-xs text-white hover:bg-emerald-700"
-                            title="تشغيل الفيديو مباشرة في المشغل"
-                          >
-                            <Play className="size-3 fill-current" />
-                            <span>Watch Online</span>
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </section>
   );
