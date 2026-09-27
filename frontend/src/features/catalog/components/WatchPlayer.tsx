@@ -9,6 +9,8 @@ import {
   Play,
   RefreshCw,
   Server,
+  ShieldAlert,
+  ShieldCheck,
   SkipForward,
   Subtitles,
   Tv,
@@ -90,6 +92,9 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
 
   // Reload key to force iframe remount if stream gets stuck
   const [reloadKey, setReloadKey] = useState(0);
+
+  // Ad-Shield: blocks unwanted third-party popups, redirects, and malware ads from embed servers
+  const [isAdShieldActive, setIsAdShieldActive] = useState(true);
 
   const [torrentioConfig] = useState('');
 
@@ -537,7 +542,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 </video>
               ) : (
                 <iframe
-                  key={`${selectedServerId}-${currentSeason}-${currentEpisode}-${selectedSubLang}-${reloadKey}`}
+                  key={`${selectedServerId}-${currentSeason}-${currentEpisode}-${selectedSubLang}-${reloadKey}-${isAdShieldActive}`}
                   src={currentEmbedUrl}
                   title={`Watch ${details.title}`}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
@@ -545,6 +550,11 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   loading="lazy"
                   referrerPolicy="origin"
                   className="size-full border-0"
+                  sandbox={
+                    isAdShieldActive
+                      ? 'allow-scripts allow-same-origin allow-forms allow-presentation'
+                      : undefined
+                  }
                 />
               )}
             </div>
@@ -562,6 +572,35 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 <span className="rounded bg-emerald-500/20 px-2 py-0.5 font-medium text-emerald-400">
                   🟢 ترجمة {currentSubLangObj.nativeName} {currentLangSub ? 'متزامنة' : 'مدمجة'}
                 </span>
+
+                {/* Ad-Shield Badge & Toggle */}
+                <button
+                  type="button"
+                  onClick={() => setIsAdShieldActive(!isAdShieldActive)}
+                  className={cn(
+                    'flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-semibold transition',
+                    isAdShieldActive
+                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                      : 'bg-surface-2 text-fg-muted border border-line hover:text-fg',
+                  )}
+                  title={
+                    isAdShieldActive
+                      ? 'حماية ضد الإعلانات والنوافذ المنبثقة مفعلة (انقر لتعطيلها إذا لزم الأمر)'
+                      : 'تم تعطيل حماية الإعلانات (انقر لتفعيلها)'
+                  }
+                >
+                  {isAdShieldActive ? (
+                    <>
+                      <ShieldCheck className="size-3 text-emerald-400" />
+                      <span>حماية الإعلانات (ON)</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShieldAlert className="size-3 text-amber-400" />
+                      <span>حماية الإعلانات (OFF)</span>
+                    </>
+                  )}
+                </button>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">

@@ -25,7 +25,8 @@ export const STREAMING_SERVERS: StreamingServer[] = [
     description: 'Fast CDN with instant Arabic & multilingual subtitles.',
     supportsSubtitles: true,
     getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'ar', subFile }) => {
-      const subParam = subFile ? `&sub_file=${encodeURIComponent(subFile)}&sub_label=Arabic` : '';
+      const subLabel = subLang === 'ar' ? 'Arabic' : subLang === 'fr' ? 'French' : subLang === 'en' ? 'English' : subLang.toUpperCase();
+      const subParam = subFile ? `&sub_file=${encodeURIComponent(subFile)}&sub_label=${encodeURIComponent(subLabel)}` : '';
       return mediaType === 'movie'
         ? `https://vidlink.pro/movie/${tmdbId}?primaryColor=6366f1&secondaryColor=a855f7&iconColor=ffffff&title=true&poster=true&sub_lang=${subLang}${subParam}`
         : `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}?primaryColor=6366f1&secondaryColor=a855f7&iconColor=ffffff&title=true&poster=true&sub_lang=${subLang}${subParam}`;
