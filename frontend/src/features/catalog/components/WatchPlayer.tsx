@@ -546,6 +546,27 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 })}
               </div>
             </div>
+
+            {/* Ad & Streaming Guidance Alert */}
+            <div className="flex flex-wrap items-center justify-between gap-2.5 rounded-lg border border-purple-500/30 bg-purple-950/20 px-3 py-2 text-xs" dir="rtl">
+              <div className="flex items-center gap-2">
+                <Sparkles className="size-4 shrink-0 text-purple-400" />
+                <span className="text-fg-muted">
+                  إذا فتحت لك نافذة إضافية عند الضغط على Play لأول مرة، أغلقها فقط وسيعمل الفيديو فوراً. للمشاهدة بدون أي إعلانات نهائياً:
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setViewMode('torrentio');
+                  setDirectVideoUrl(null);
+                }}
+                className="flex items-center gap-1.5 rounded-md bg-purple-600 px-2.5 py-1 text-xs font-bold text-white shadow-sm hover:bg-purple-700 transition"
+              >
+                <Sparkles className="size-3" />
+                <span>جرّب سيرفرات Torrentio 4K (بدون إعلانات)</span>
+              </button>
+            </div>
           </div>
         )}
 
