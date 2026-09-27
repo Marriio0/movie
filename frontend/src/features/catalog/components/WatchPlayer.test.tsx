@@ -75,13 +75,12 @@ describe('WatchPlayer', () => {
 
     expect(screen.getByRole('heading', { name: /Watch Dune: Part Two/i })).toBeInTheDocument();
     expect(screen.getByText(/Subtitles \(CC\) Available/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Server 1 \(VidLink\)/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Server 1 \(Videasy Fast HD\)/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Server 2 \(VidSrc\)/i })).toBeInTheDocument();
 
-
     const iframe = screen.getByTitle(/Watch Dune: Part Two/i);
-    expect(iframe).toHaveAttribute('src', expect.stringContaining('vidlink.pro/movie/693134'));
-    expect(iframe).not.toHaveAttribute('sandbox');
+    expect(iframe).toHaveAttribute('src', expect.stringContaining('player.videasy.net/movie/693134'));
+    expect(iframe).toHaveAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-presentation');
   });
 
   it('switches between servers when clicked', async () => {
@@ -94,9 +93,9 @@ describe('WatchPlayer', () => {
     const iframe = screen.getByTitle(/Watch Dune: Part Two/i);
     expect(iframe).toHaveAttribute(
       'src',
-      expect.stringContaining('vidsrc.pm/embed/movie/693134'),
+      expect.stringContaining('vidsrc.me/embed/movie?tmdb=693134'),
     );
-    expect(iframe).not.toHaveAttribute('sandbox');
+    expect(iframe).toHaveAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-presentation');
   });
 
   it('renders series seasons and episodes and updates iframe src', async () => {
@@ -111,7 +110,7 @@ describe('WatchPlayer', () => {
     expect(screen.getByRole('heading', { name: /Watch S1 : E2/i })).toBeInTheDocument();
 
     const iframe = screen.getByTitle(/Watch Game of Thrones/i);
-    expect(iframe).toHaveAttribute('src', expect.stringContaining('vidlink.pro/tv/1399/1/2'));
+    expect(iframe).toHaveAttribute('src', expect.stringContaining('player.videasy.net/tv/1399/1/2'));
   });
 
 

@@ -46,8 +46,8 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
   // Active view mode: stream player or download center
   const [viewMode, setViewMode] = useState<ViewMode>('stream');
 
-  // Server selection (default Server 1: VidLink with multi-subs)
-  const [selectedServerId, setSelectedServerId] = useState<string>('vidlink');
+  // Server selection (default Server 1: Videasy Fast HD, zero ads)
+  const [selectedServerId, setSelectedServerId] = useState<string>('videasy');
 
   // Interactive Subtitle language preference (defaults to Arabic 'ar' or saved user preference)
   const [selectedSubLang, setSelectedSubLang] = useState<string>(() => {
@@ -594,6 +594,11 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="origin"
+                  sandbox={
+                    selectedServerId !== 'vidlink'
+                      ? 'allow-scripts allow-same-origin allow-forms allow-presentation'
+                      : undefined
+                  }
                   className="size-full border-0"
                 />
               )}
