@@ -1,0 +1,61 @@
+{
+  "adult": false,
+  "backdrop_path": "/eZ239CUp1d6OryZEBPnO2n87gMG.jpg",
+  "belongs_to_collection": {
+    "id": 726871,
+    "name": "Dune - Saga",
+    "poster_path": "/m7xCDl5PTG9A5LH7XLuBjGhgLuO.jpg",
+    "backdrop_path": "/fahk0Fu7VUUfK6IkTt1R3waOD9F.jpg"
+  },
+  "budget": 190000000,
+  "genres": [
+    {
+      "id": 878,
+      "name": "Science-Fiction"
+    },
+    {
+      "id": 12,
+      "name": "Aventure"
+    }
+  ],
+  "homepage": "",
+  "id": 693134,
+  "imdb_id": "tt15239678",
+  "origin_country": ["US"],
+  "original_language": "en",
+  "original_title": "Dune: Part Two",
+  "overview": "Le voyage mythique de Paul Atreides qui s'allie à Chani et aux Fremen dans sa quête de vengeance envers les conspirateurs qui ont anéanti sa famille. Devant choisir entre l'amour de sa vie et le destin de l'univers, il fera tout pour éviter un terrible futur que lui seul peut prédire.",
+  "popularity": 54.9596,
+  "poster_path": "/iRNbRAIGQQr5diGnjpwJFm0dgt4.jpg",
+  "production_companies": [
+    {
+      "id": 923,
+      "logo_path": "/5UQsZrfbfG2dYJbx8DxfoTr2Bvu.png",
+      "name": "Legendary Pictures",
+      "origin_country": "US"
+    }
+  ],
+  "production_countries": [
+    {
+      "iso_3166_1": "US",
+      "name": "United States of America"
+    }
+  ],
+  "release_date": "2024-02-27",
+  "revenue": 714844358,
+  "runtime": 165,
+  "softcore": false,
+  "spoken_languages": [
+    {
+      "english_name": "English",
+      "iso_639_1": "en",
+      "name": "English"
+    }
+  ],
+  "status": "Released",
+  "tagline": "Longue vie à la Rébellion !",
+  "title": "Dune : Deuxième partie",
+  "video": false,
+  "vote_average": 8.137,
+  "vote_count": 8622
+}

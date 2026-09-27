@@ -1,0 +1,92 @@
+{
+  "page": 1,
+  "results": [
+    {
+      "adult": false,
+      "backdrop_path": "/zRKQW58MBEY078AxkHxEJzUskCl.jpg",
+      "id": 438631,
+      "title": "Dune",
+      "original_title": "Dune",
+      "overview": "L'histoire de Paul Atreides, jeune homme aussi doué que brillant, voué à connaître un destin hors du commun qui le dépasse totalement. Car, s'il veut préserver l'avenir de sa famille et de son peuple, il devra se rendre sur Dune, la planète la plus dangereuse de l'Univers. Mais aussi la seule à même de fournir la ressource la plus précieuse capable de décupler la puissance de l'Humanité. Tandis que des forces maléfiques se disputent le contrôle de cette planète, seuls ceux qui parviennent à dominer leur peur pourront survivre…",
+      "poster_path": "/qpyaW4xUPeIiYA5ckg5zAZFHvsb.jpg",
+      "media_type": "movie",
+      "original_language": "en",
+      "genre_ids": [878, 12],
+      "popularity": 45.0375,
+      "release_date": "2021-09-15",
+      "softcore": false,
+      "video": false,
+      "vote_average": 7.8,
+      "vote_count": 15598
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/eZ239CUp1d6OryZEBPnO2n87gMG.jpg",
+      "id": 693134,
+      "title": "Dune : Deuxième partie",
+      "original_title": "Dune: Part Two",
+      "overview": "Le voyage mythique de Paul Atreides qui s'allie à Chani et aux Fremen dans sa quête de vengeance envers les conspirateurs qui ont anéanti sa famille. Devant choisir entre l'amour de sa vie et le destin de l'univers, il fera tout pour éviter un terrible futur que lui seul peut prédire.",
+      "poster_path": "/iRNbRAIGQQr5diGnjpwJFm0dgt4.jpg",
+      "media_type": "movie",
+      "original_language": "en",
+      "genre_ids": [878, 12],
+      "popularity": 54.2098,
+      "release_date": "2024-02-27",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.1,
+      "vote_count": 8622
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/lBoHzOgft2QfpjkVVvZCqeM4ttT.jpg",
+      "id": 90228,
+      "name": "Dune : Prophecy",
+      "original_name": "Dune: Prophecy",
+      "overview": "10 000 ans avant l'ascension de Paul Atreides, les Sœurs Harkonnen combattent des forces qui menacent l'avenir de l'humanité et établissent la secte légendaire connue sous le nom de Bene Gesserit.",
+      "poster_path": "/vVhx4SP0eyDOmYRJdUNIQ24fGL5.jpg",
+      "media_type": "tv",
+      "original_language": "en",
+      "genre_ids": [10765, 18, 10759],
+      "popularity": 26.7854,
+      "first_air_date": "2024-11-17",
+      "softcore": false,
+      "vote_average": 7.206,
+      "vote_count": 652,
+      "origin_country": ["US"]
+    },
+    {
+      "adult": false,
+      "id": 3084139,
+      "name": "Aggy Dune",
+      "original_name": "Aggy Dune",
+      "media_type": "person",
+      "popularity": 0.5535,
+      "gender": 2,
+      "known_for_department": "Acting",
+      "profile_path": null,
+      "known_for": [
+        {
+          "adult": false,
+          "backdrop_path": "/5WpDhpCOAsrkVMehbwjXLQY4Fut.jpg",
+          "id": 782150,
+          "title": "Workhorse Queen",
+          "original_title": "Workhorse Queen",
+          "overview": "",
+          "poster_path": "/rnZ5w0rGf8qDS4XZepsBgDCl924.jpg",
+          "media_type": "movie",
+          "original_language": "en",
+          "genre_ids": [99],
+          "popularity": 1.752,
+          "release_date": "2021-05-08",
+          "softcore": false,
+          "video": false,
+          "vote_average": 5.571,
+          "vote_count": 7
+        }
+      ]
+    }
+  ],
+  "total_pages": 65,
+  "total_results": 1286
+}

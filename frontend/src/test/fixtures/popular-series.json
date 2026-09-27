@@ -1,0 +1,58 @@
+{
+  "page": 1,
+  "results": [
+    {
+      "adult": false,
+      "backdrop_path": "/uc1p1PEbEMpdIHqnU9TESNC6Jhp.jpg",
+      "genre_ids": [18],
+      "id": 275102,
+      "origin_country": ["KR"],
+      "original_language": "ko",
+      "original_name": "스캔들",
+      "overview": "Durant la période Joseon, une proposition secrète éveille les désirs d'une aristocrate talentueuse, d'un séducteur notoire et d'une jeune femme naïve prise au piège d'un jeu cruel.",
+      "popularity": 1726.3005,
+      "poster_path": "/8ra17h8Z3NX14qdWaOKn0scURJR.jpg",
+      "first_air_date": "2026-09-18",
+      "softcore": false,
+      "name": "The Scandal",
+      "vote_average": 7.2,
+      "vote_count": 13
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/dyFTt1a9ZpFdKE96kPlE9fQvXOJ.jpg",
+      "genre_ids": [10751, 35, 18],
+      "id": 91759,
+      "origin_country": ["HK"],
+      "original_language": "cn",
+      "original_name": "愛·回家之開心速遞",
+      "overview": "Hung Sue Gan partant du bas, a créé sa propre entreprise de logistique, qui fonctionne maintenant bien. Sa seule préoccupation maintenant, ce sont ses trois filles. Sa fille aînée a immigré à l'étranger. Sa deuxième fille, Hung Yeuk Shui, a atteint l'âge du mariage, mais n'a aucun espoir de se marier de si tôt.  Hung Sue Yan, le frère de Hung Sue Gan, emménage avec la famille, mettant temporairement fin à sa vie de photographe nomade. Il rejoint l'entreprise de Hung Yeuk Shui et rencontre Ko Pak Fei, le directeur d'une boutique en ligne. Depuis que Hung Sue Yan a emménagé, une série d'événements étranges se sont produits dans la famille. Après enquête, la source est retrouvée jusqu'à Lung Ging Fung, un jeune homme prometteur qui est le fils du magnat des grands magasins Lung Gam Wai.",
+      "popularity": 882.9541,
+      "poster_path": "/lgD4j9gUGmMckZpWWRJjorWqGVT.jpg",
+      "first_air_date": "2017-02-20",
+      "softcore": false,
+      "name": "Come Home Love: Lo and Behold",
+      "vote_average": 5.435,
+      "vote_count": 46
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/hINekSpbcBxjnjGqmIm6I4bz2ab.jpg",
+      "genre_ids": [10767, 35],
+      "id": 22980,
+      "origin_country": ["US"],
+      "original_language": "en",
+      "original_name": "Watch What Happens Live with Andy Cohen",
+      "overview": "Andy Cohen, directeur du réseau Bravo, discute de sujets liés à la culture pop avec des célébrités et des personnalités de téléréalité.",
+      "popularity": 758.8042,
+      "poster_path": "/onSD9UXfJwrMXWhq7UY7hGF2S1h.jpg",
+      "first_air_date": "2009-07-16",
+      "softcore": false,
+      "name": "Watch What Happens Live with Andy Cohen",
+      "vote_average": 4.99,
+      "vote_count": 97
+    }
+  ],
+  "total_pages": 1001,
+  "total_results": 20001
+}

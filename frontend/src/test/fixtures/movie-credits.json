@@ -1,0 +1,75 @@
+{
+  "id": 693134,
+  "cast": [
+    {
+      "adult": false,
+      "gender": 2,
+      "id": 1190668,
+      "known_for_department": "Acting",
+      "name": "Timothée Chalamet",
+      "original_name": "Timothée Chalamet",
+      "popularity": 7.3986,
+      "profile_path": "/dFxpwRpmzpVfP1zjluH68DeQhyj.jpg",
+      "cast_id": 2,
+      "character": "Paul Atreides",
+      "credit_id": "5e959c45955c6500159f1c98",
+      "order": 0
+    },
+    {
+      "adult": false,
+      "gender": 1,
+      "id": 505710,
+      "known_for_department": "Acting",
+      "name": "Zendaya",
+      "original_name": "Zendaya",
+      "popularity": 11.2493,
+      "profile_path": "/1qup8tSt95HLbcy2c2xrx4iJNxv.jpg",
+      "cast_id": 3,
+      "character": "Chani",
+      "credit_id": "5e959c5caf58cb001adc1c94",
+      "order": 1
+    },
+    {
+      "adult": false,
+      "gender": 1,
+      "id": 933238,
+      "known_for_department": "Acting",
+      "name": "Rebecca Ferguson",
+      "original_name": "Rebecca Ferguson",
+      "popularity": 9.5275,
+      "profile_path": "/ra53cM1aNmdH0aFhj8yBqPOj2fb.jpg",
+      "cast_id": 8,
+      "character": "Jessica",
+      "credit_id": "5f193d28519bbb003570317b",
+      "order": 2
+    }
+  ],
+  "crew": [
+    {
+      "adult": false,
+      "gender": 2,
+      "id": 137427,
+      "known_for_department": "Directing",
+      "name": "Denis Villeneuve",
+      "original_name": "Denis Villeneuve",
+      "popularity": 3.9763,
+      "profile_path": "/zdDx9Xs93UIrJFWYApYR28J8M6b.jpg",
+      "credit_id": "5e959beedb72c00012ad7dcf",
+      "department": "Directing",
+      "job": "Director"
+    },
+    {
+      "adult": false,
+      "gender": 2,
+      "id": 53114,
+      "known_for_department": "Art",
+      "name": "Shane Vieau",
+      "original_name": "Shane Vieau",
+      "popularity": 0.895,
+      "profile_path": "/4h6TMP2W66ihiEQQ0jvhkHjmevW.jpg",
+      "credit_id": "624075fb5a9915005d51398d",
+      "department": "Art",
+      "job": "Set Decoration"
+    }
+  ]
+}

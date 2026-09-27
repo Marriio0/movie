@@ -1,0 +1,107 @@
+/*
+ * Runtime design tokens.
+ *
+ * These values change with the theme, so they live as plain CSS variables and are mapped to
+ * Tailwind utilities in theme.css (`bg-canvas`, `text-fg-muted`, `shadow-card`, …).
+ * Components never use raw hex values; they use those utilities.
+ *
+ * Dark is the default and brand theme. Light is an opt-in alternative.
+ */
+
+:root,
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* Surfaces: page → raised → overlay → hover */
+  --canvas: #0b0b0d;
+  --canvas-deep: #070708;
+  --surface-1: #121215;
+  --surface-2: #17171b;
+  --surface-3: #1f1f24;
+
+  /* Borders */
+  --line: rgb(255 255 255 / 0.08);
+  --line-strong: rgb(255 255 255 / 0.16);
+
+  /* Text (contrast measured on --canvas) */
+  --fg: #f4f1ea; /* ≈ 17:1 */
+  --fg-muted: #a8a59d; /* ≈ 8:1 */
+  --fg-subtle: #85827b; /* ≈ 5:1, captions only */
+
+  /* Accent: warm projector amber, the only saturated color in the UI */
+  --accent: #f5b544;
+  --accent-hover: #ffc862;
+  --accent-fg: #1c1305; /* text on accent fills */
+  --accent-text: #f5b544; /* accent used as text or icon on canvas */
+  --focus-ring: #ffd37a;
+
+  /* Status */
+  --danger: #f2555a;
+  --danger-soft: rgb(242 85 90 / 0.12);
+  --success: #4cc38a;
+
+  /* Elevation */
+  --elev-card: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 8px 24px -12px rgb(0 0 0 / 0.6);
+  --elev-pop: 0 24px 48px -16px rgb(0 0 0 / 0.75), 0 0 0 1px var(--line);
+
+  /* Skeleton shimmer highlight */
+  --shimmer: rgb(255 255 255 / 0.05);
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+
+  --canvas: #f6f4ef;
+  --canvas-deep: #ece9e2;
+  --surface-1: #ffffff;
+  --surface-2: #ffffff;
+  --surface-3: #efece5;
+
+  --line: rgb(20 18 14 / 0.09);
+  --line-strong: rgb(20 18 14 / 0.18);
+
+  --fg: #151412; /* ≈ 17:1 */
+  --fg-muted: #54514b; /* ≈ 7.5:1 */
+  --fg-subtle: #6c6962; /* ≈ 5:1 */
+
+  --accent: #f5b544;
+  --accent-hover: #eaa632;
+  --accent-fg: #1c1305;
+  --accent-text: #8a5a00; /* amber is too light for text on paper */
+  --focus-ring: #8a5a00;
+
+  --danger: #c62f35;
+  --danger-soft: rgb(198 47 53 / 0.08);
+  --success: #1f7a4d;
+
+  --elev-card: 0 1px 2px rgb(20 18 14 / 0.06), 0 8px 24px -14px rgb(20 18 14 / 0.25);
+  --elev-pop: 0 24px 48px -20px rgb(20 18 14 / 0.3), 0 0 0 1px var(--line);
+
+  --shimmer: rgb(255 255 255 / 0.6);
+}
+
+/* Theme-independent layout and motion tokens */
+:root {
+  --nav-h: 4rem;
+  --gutter: clamp(1rem, 4vw, 3rem);
+  --container-max: 90rem;
+  --section-y: clamp(2.5rem, 5vw, 3.5rem);
+
+  --dur-1: 120ms; /* press, color */
+  --dur-2: 200ms; /* hover, focus */
+  --dur-3: 320ms; /* menus, sheets */
+  --dur-4: 560ms; /* image fade-in, hero */
+
+  --z-nav: 40;
+  --z-overlay: 50;
+  --z-toast: 60;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 0ms;
+    --dur-2: 0ms;
+    --dur-3: 0ms;
+    --dur-4: 0ms;
+  }
+}

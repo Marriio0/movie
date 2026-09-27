@@ -43,14 +43,14 @@ public class TmdbService {
 
     public Map getMovieDetails(Long movieId) {
         return restClient.get()
-            .uri("/movie/" + movieId + "?language=fr-FR")
+            .uri("/movie/" + movieId + "?language=fr-FR&append_to_response=external_ids")
             .retrieve()
             .body(Map.class);
     }
 
     public Map getSeriesDetails(Long seriesId) {
         return restClient.get()
-            .uri("/tv/" + seriesId + "?language=fr-FR")
+            .uri("/tv/" + seriesId + "?language=fr-FR&append_to_response=external_ids")
             .retrieve()
             .body(Map.class);
     }
@@ -65,6 +65,37 @@ public class TmdbService {
     public Map getSeriesCredits(Long seriesId) {
         return restClient.get()
             .uri("/tv/" + seriesId + "/credits?language=fr-FR")
+            .retrieve()
+            .body(Map.class);
+    }
+
+    // Trailers and teasers: French videos first, plus English and language-less ones,
+    // because many titles have no French trailer.
+    public Map getMovieVideos(Long movieId) {
+        return restClient.get()
+            .uri("/movie/" + movieId + "/videos?language=fr-FR&include_video_language=fr,en,null")
+            .retrieve()
+            .body(Map.class);
+    }
+
+    public Map getSeriesVideos(Long seriesId) {
+        return restClient.get()
+            .uri("/tv/" + seriesId + "/videos?language=fr-FR&include_video_language=fr,en,null")
+            .retrieve()
+            .body(Map.class);
+    }
+
+    // Legal streaming/rent/buy providers per country (data by JustWatch, via TMDB).
+    public Map getMovieWatchProviders(Long movieId) {
+        return restClient.get()
+            .uri("/movie/" + movieId + "/watch/providers")
+            .retrieve()
+            .body(Map.class);
+    }
+
+    public Map getSeriesWatchProviders(Long seriesId) {
+        return restClient.get()
+            .uri("/tv/" + seriesId + "/watch/providers")
             .retrieve()
             .body(Map.class);
     }

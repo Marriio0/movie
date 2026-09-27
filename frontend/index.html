@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Discover films and series, and keep a watchlist worth coming back to."
+    />
+    <meta name="theme-color" content="#0b0b0d" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Marquee</title>
+    <script>
+      // Applies the saved theme before first paint to avoid a flash of the wrong theme.
+      // Keep the storage key, default and colors in sync with src/shared/theme/theme-store.ts.
+      (function () {
+        var preference = 'dark';
+        try {
+          var stored = localStorage.getItem('marquee:theme');
+          if (stored === 'light' || stored === 'dark' || stored === 'system') preference = stored;
+        } catch (e) {}
+        var resolved =
+          preference === 'system'
+            ? window.matchMedia('(prefers-color-scheme: light)').matches
+              ? 'light'
+              : 'dark'
+            : preference;
+        document.documentElement.dataset.theme = resolved;
+        if (resolved === 'light') {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f6f4ef');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

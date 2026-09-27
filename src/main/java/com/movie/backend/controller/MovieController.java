@@ -51,6 +51,26 @@ public class MovieController {
         return ResponseEntity.ok(tmdbService.getSeriesCredits(id));
     }
 
+    @GetMapping("/movies/{id}/videos")
+    public ResponseEntity<Map> getMovieVideos(@PathVariable Long id) {
+        return ResponseEntity.ok(tmdbService.getMovieVideos(id));
+    }
+
+    @GetMapping("/series/{id}/videos")
+    public ResponseEntity<Map> getSeriesVideos(@PathVariable Long id) {
+        return ResponseEntity.ok(tmdbService.getSeriesVideos(id));
+    }
+
+    @GetMapping("/movies/{id}/watch-providers")
+    public ResponseEntity<Map> getMovieWatchProviders(@PathVariable Long id) {
+        return ResponseEntity.ok(tmdbService.getMovieWatchProviders(id));
+    }
+
+    @GetMapping("/series/{id}/watch-providers")
+    public ResponseEntity<Map> getSeriesWatchProviders(@PathVariable Long id) {
+        return ResponseEntity.ok(tmdbService.getSeriesWatchProviders(id));
+    }
+
     @GetMapping("/health")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("OK");

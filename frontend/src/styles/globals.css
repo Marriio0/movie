@@ -1,0 +1,66 @@
+@import 'tailwindcss';
+@import './tokens.css';
+@import './theme.css';
+
+/* `dark:` follows the resolved data-theme, not the OS setting. Use it rarely, because tokens
+   already switch with the theme. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+@layer base {
+  html {
+    background-color: var(--canvas);
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-canvas font-sans text-fg antialiased;
+    min-height: 100dvh;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--accent);
+    color: var(--accent-fg);
+  }
+
+  /* Programmatic focus targets (e.g. <main tabindex="-1">) should not show a ring. */
+  [tabindex='-1']:focus {
+    outline: none;
+  }
+}
+
+/* Centered page column with responsive gutters. */
+@utility container-page {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Soft amber glow from the top edge. Used behind the auth screens. */
+@utility glow-top {
+  background-image: radial-gradient(
+    60rem 36rem at 50% -12%,
+    color-mix(in oklab, var(--accent) 14%, transparent),
+    transparent 70%
+  );
+}
+
+/* Loading placeholder with a moving highlight. It becomes static under reduced motion. */
+@utility skeleton {
+  background-color: var(--surface-3);
+  background-image: linear-gradient(90deg, transparent 0%, var(--shimmer) 50%, transparent 100%);
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: var(--animate-shimmer);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    background-image: none;
+  }
+}

@@ -1,0 +1,123 @@
+/*
+ * Tailwind theme.
+ *
+ * `@theme inline` maps the runtime tokens from tokens.css to utilities. The generated classes
+ * reference the variables directly, so switching data-theme restyles everything with no extra
+ * utility variants.
+ * `@theme` holds static scales that don't change with the theme.
+ */
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-canvas-deep: var(--canvas-deep);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-text: var(--accent-text);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-success: var(--success);
+  --color-focus: var(--focus-ring);
+
+  --shadow-card: var(--elev-card);
+  --shadow-pop: var(--elev-pop);
+}
+
+@theme {
+  /* Typography */
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Instrument Serif', ui-serif, Georgia, 'Times New Roman', serif;
+
+  --text-display-sm: 2.25rem;
+  --text-display-sm--line-height: 1.05;
+  --text-display-sm--letter-spacing: -0.01em;
+  --text-display-md: clamp(2.5rem, 5vw, 3.5rem);
+  --text-display-md--line-height: 1;
+  --text-display-md--letter-spacing: -0.015em;
+  --text-display-lg: clamp(3rem, 7vw, 5.5rem);
+  --text-display-lg--line-height: 0.95;
+  --text-display-lg--letter-spacing: -0.02em;
+
+  /* Breakpoints: xs is added; the rest are Tailwind's defaults, restated for reference */
+  --breakpoint-xs: 30rem; /* 480 */
+  --breakpoint-sm: 40rem; /* 640 */
+  --breakpoint-md: 48rem; /* 768 */
+  --breakpoint-lg: 64rem; /* 1024 */
+  --breakpoint-xl: 80rem; /* 1280 */
+  --breakpoint-2xl: 96rem; /* 1536 */
+
+  /* Radius */
+  --radius-sm: 0.375rem; /* 6  — chips, focus outline */
+  --radius-md: 0.625rem; /* 10 — buttons, inputs, posters */
+  --radius-lg: 0.875rem; /* 14 — cards, panels */
+  --radius-xl: 1.25rem; /* 20 — dialogs, sheets */
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --animate-fade-in: fade-in var(--dur-3) var(--ease-out);
+  --animate-fade-out: fade-out var(--dur-2) var(--ease-in-out);
+  --animate-sheet-in: sheet-in var(--dur-3) var(--ease-out);
+  --animate-sheet-out: sheet-out var(--dur-2) var(--ease-in-out);
+  --animate-pop-in: pop-in var(--dur-2) var(--ease-out);
+  --animate-progress: progress 8s var(--ease-out) forwards;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-pulse-soft: pulse-soft 1.8s var(--ease-in-out) infinite;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes sheet-in {
+    from {
+      transform: translateX(100%);
+    }
+  }
+  @keyframes sheet-out {
+    to {
+      transform: translateX(100%);
+    }
+  }
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.98);
+    }
+  }
+  @keyframes progress {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(0.9);
+    }
+  }
+  @keyframes shimmer {
+    from {
+      background-position: 150% 0;
+    }
+    to {
+      background-position: -50% 0;
+    }
+  }
+  @keyframes pulse-soft {
+    50% {
+      opacity: 0.45;
+    }
+  }
+}
