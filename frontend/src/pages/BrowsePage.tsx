@@ -85,13 +85,13 @@ function Browse({ mediaType }: { mediaType: MediaType }) {
       <header className="max-w-2xl space-y-2">
         <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
           <Sparkles className="size-3.5" />
-          <span>تصفح بدون حدود • Unlimited Streaming Catalog</span>
+          <span>Unlimited Streaming Catalog</span>
         </div>
         <h1 className="font-display text-display-md text-fg">{title}</h1>
         <p className="text-fg-muted">
           {mediaType === 'tv'
-            ? 'أقوى المسلسلات العالمية والعربية بجودة عالية مع مواسم وحلقات متجددة.'
-            : 'أحدث وأقوى الأفلام السينمائية بأعلى جودة متوفرة.'}
+            ? 'Browse the latest and most popular series in high quality with full seasons.'
+            : 'The latest blockbuster movies available in the highest quality.'}
         </p>
       </header>
 

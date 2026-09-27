@@ -75,8 +75,8 @@ describe('WatchPlayer', () => {
 
     expect(screen.getByRole('heading', { name: /Watch Dune: Part Two/i })).toBeInTheDocument();
     expect(screen.getByText(/Subtitles \(CC\) Available/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Torrentio 4K \(بدون إعلانات\)/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /سيرفرات بديلة/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Premium \(No Ads\)/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Servers \(1-5\)/i })).toBeInTheDocument();
 
     // Default stream mode shows servers and video player iframe immediately
     expect(screen.getByRole('button', { name: /Server 1 \(Videasy Fast HD\)/i })).toBeInTheDocument();
@@ -89,10 +89,10 @@ describe('WatchPlayer', () => {
     const user = userEvent.setup();
     renderWatchPlayer(mockMovie);
 
-    const torrentioBtn = screen.getByRole('button', { name: /Torrentio 4K \(بدون إعلانات\)/i });
+    const torrentioBtn = screen.getByRole('button', { name: /Premium \(No Ads\)/i });
     await user.click(torrentioBtn);
 
-    expect(screen.getAllByText(/سيرفرات تورنتيو فائقة الجودة/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Premium Servers/i).length).toBeGreaterThanOrEqual(1);
   });
 
   it('switches between servers when clicked in stream mode', async () => {
@@ -142,13 +142,13 @@ describe('WatchPlayer', () => {
     const user = userEvent.setup();
     renderWatchPlayer(mockMovie);
 
-    const downloadTabs = screen.getAllByRole('button', { name: /تحميل/i });
+    const downloadTabs = screen.getAllByRole('button', { name: /Download/i });
     expect(downloadTabs[0]).toBeDefined();
     await user.click(downloadTabs[0]!);
 
-    expect(screen.getByText(/تحميل: Dune: Part Two/i)).toBeInTheDocument();
+    expect(screen.getByText(/Download: Dune: Part Two/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/الترجمة متوفرة تلقائياً في المشغل/i),
+      screen.getByText(/Subtitles are automatically available and synchronized in the player/i),
     ).toBeInTheDocument();
   });
 
@@ -168,13 +168,13 @@ describe('WatchPlayer', () => {
     localStorage.setItem('marquee:preferred-view-mode', 'stream');
     renderWatchPlayer(mockMovie);
 
-    const downloadTabs = screen.getAllByRole('button', { name: /تحميل/i });
+    const downloadTabs = screen.getAllByRole('button', { name: /Download/i });
     await user.click(downloadTabs[0]!);
 
     const frBtn = screen.getByRole('button', { name: /Français/i });
     await user.click(frBtn);
 
-    const serversBtn = screen.getByRole('button', { name: /سيرفرات بديلة/i });
+    const serversBtn = screen.getByRole('button', { name: /Servers \(1-5\)/i });
     await user.click(serversBtn);
 
     expect(screen.getByTitle(/Watch Dune: Part Two/i)).toHaveAttribute(
@@ -188,14 +188,14 @@ describe('WatchPlayer', () => {
     const user = userEvent.setup();
     renderWatchPlayer(mockMovie);
 
-    const downloadTabs = screen.getAllByRole('button', { name: /تحميل/i });
+    const downloadTabs = screen.getAllByRole('button', { name: /Download/i });
     await user.click(downloadTabs[0]!);
 
-    const installBtn = screen.getByRole('button', { name: /تثبيت التطبيق الآن/i });
+    const installBtn = screen.getByRole('button', { name: /Install Now/i });
     await user.click(installBtn);
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getAllByText(/تثبيت تطبيق/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Install/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/هواتف آيفون وآيباد/i)).toBeInTheDocument();
     expect(screen.getByText(/أندرويد/i)).toBeInTheDocument();
   });

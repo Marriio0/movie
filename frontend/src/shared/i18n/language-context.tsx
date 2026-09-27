@@ -35,8 +35,8 @@ export const TRANSLATIONS = {
     loadMore: 'تحميل المزيد من العناوين...',
     loading: 'جاري التحميل...',
     noMoreResults: 'وصلت إلى نهاية القائمة',
-    torrentioUnderDev: 'سيرفرات 4K (قيد التجهيز)',
-    torrentioDesc: 'نعمل حالياً على تجهيز خوادم تورنتيو فائقة السرعة بدون إعلانات.',
+    torrentioUnderDev: 'سيرفر بدون إعلانات (قيد التجهيز)',
+    torrentioDesc: 'نعمل على تجهيز خوادم فائقة السرعة بدون إعلانات.',
     expandPlayer: 'توسيع المشغل',
     minimizePlayer: 'تصغير المشغل',
     subtitlesReady: 'الترجمة متزامنة وتلقائية داخل المشغل',
@@ -63,8 +63,8 @@ export const TRANSLATIONS = {
     loadMore: 'Charger plus de titres...',
     loading: 'Chargement en cours...',
     noMoreResults: 'Fin des résultats',
-    torrentioUnderDev: 'Serveurs 4K (En cours)',
-    torrentioDesc: 'Nos serveurs 4K ultra-rapides sans pubs sont en cours de configuration.',
+    torrentioUnderDev: 'Serveur sans pub (En cours)',
+    torrentioDesc: 'Nos serveurs ultra-rapides sans pubs sont en configuration.',
     expandPlayer: 'Agrandir le lecteur',
     minimizePlayer: 'Réduire le lecteur',
     subtitlesReady: 'Sous-titres automatiques et synchronisés',
@@ -91,8 +91,8 @@ export const TRANSLATIONS = {
     loadMore: 'Load More Titles...',
     loading: 'Loading...',
     noMoreResults: 'You’ve reached the end',
-    torrentioUnderDev: '4K Servers (In Progress)',
-    torrentioDesc: 'High-speed ad-free 4K servers are currently under active setup.',
+    torrentioUnderDev: 'Ad-Free Server (Coming Soon)',
+    torrentioDesc: 'High-speed ad-free servers are under active setup.',
     expandPlayer: 'Expand Player',
     minimizePlayer: 'Standard View',
     subtitlesReady: 'Subtitles are ready and synchronized in player',
@@ -125,10 +125,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       if (saved && (saved === 'ar' || saved === 'fr' || saved === 'en')) {
         return saved;
       }
-      // Default to Arabic for Netfarjo audience
-      return 'ar';
+      // Default to English
+      return 'en';
     } catch {
-      return 'ar';
+      return 'en';
     }
   });
 
@@ -152,7 +152,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, [language, langObj.dir]);
 
   const t = (key: TranslationKey): string => {
-    return TRANSLATIONS[language]?.[key] || TRANSLATIONS.ar[key] || key;
+    return TRANSLATIONS[language]?.[key] || TRANSLATIONS.en[key] || key;
   };
 
   const value = useMemo(
@@ -175,11 +175,11 @@ export function useLanguage() {
     // Graceful fallback for components rendered outside provider in isolated tests
     const defaultObj = SUPPORTED_LANGUAGES[0]!;
     return {
-      language: 'ar' as AppLanguage,
+      language: 'en' as AppLanguage,
       setLanguage: () => {},
       langObj: defaultObj,
-      t: (key: TranslationKey) => TRANSLATIONS.ar[key] || key,
-      tmdbLang: 'ar-SA',
+      t: (key: TranslationKey) => TRANSLATIONS.en[key] || key,
+      tmdbLang: 'en-US',
     };
   }
   return context;

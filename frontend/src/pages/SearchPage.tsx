@@ -67,7 +67,7 @@ export function SearchPage() {
     <div className="container-page py-(--section-y)">
       <header className="space-y-1">
         <h1 className="font-display text-display-md text-fg">Search</h1>
-        <p className="text-xs text-fg-muted">ابحث عن أي فيلم أو مسلسل، أو اختر من الاقتراحات الشائعة بالأسفل</p>
+        <p className="text-xs text-fg-muted">Search for any movie or series, or pick from today's trending titles below</p>
       </header>
 
       <form role="search" className="mt-6 max-w-2xl" onSubmit={(event) => event.preventDefault()}>
@@ -146,7 +146,7 @@ export function SearchPage() {
               <div className="flex items-center gap-2 text-fg">
                 <Sparkles className="size-4 text-accent" />
                 <h2 className="text-base font-bold sm:text-lg">
-                  عناوين مقترحة وشائعة اليوم • Trending Titles
+                  Trending Titles
                 </h2>
               </div>
               <MediaGrid

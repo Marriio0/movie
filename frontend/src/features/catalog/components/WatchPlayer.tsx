@@ -451,7 +451,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               )}
             >
               <Sparkles className="size-3" />
-              <span>⚡ Torrentio 4K (بدون إعلانات)</span>
+              <span>⚡ Premium (No Ads)</span>
             </button>
 
             <button
@@ -468,7 +468,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               )}
             >
               <Server className="size-3" />
-              <span>سيرفرات بديلة (Servers 1-5)</span>
+              <span>Servers (1-5)</span>
             </button>
 
             <button
@@ -482,7 +482,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               )}
             >
               <Download className="size-3" />
-              <span>{isSeries ? 'تحميل الحلقات' : 'تحميل الفيلم'}</span>
+              <span>{isSeries ? 'Download Episodes' : 'Download'}</span>
             </button>
 
 
@@ -543,11 +543,11 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                     setViewMode('torrentio');
                     setDirectVideoUrl(null);
                   }}
-                  className="flex items-center gap-1.5 rounded-md bg-purple-950/60 px-2.5 py-1 text-xs font-semibold text-purple-300 ring-1 ring-purple-500/40 hover:bg-purple-900/60 transition"
-                  title="سيرفرات تورنتيو فائقة الجودة 4K"
+                  className="flex items-center gap-1.5 rounded-md bg-emerald-950/60 px-2.5 py-1 text-xs font-semibold text-emerald-300 ring-1 ring-emerald-500/40 hover:bg-emerald-900/60 transition"
+                  title="Premium Ad-Free Server"
                 >
-                  <Sparkles className="size-3 text-purple-400" />
-                  <span>Torrentio (4K/HQ)</span>
+                  <Sparkles className="size-3 text-emerald-400" />
+                  <span>Ad-Free (4K/HQ)</span>
                 </button>
               </div>
 
@@ -566,7 +566,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="flex items-center gap-1 font-medium text-fg-muted shrink-0">
                   <Subtitles className="size-3.5 text-emerald-400" />
-                  <span>الترجمة:</span>
+                  <span>Subtitles:</span>
                 </span>
                 <div className="flex flex-wrap items-center gap-1">
                   {SUPPORTED_SUBTITLE_LANGUAGES.map((lang) => {
@@ -601,32 +601,19 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                     ? 'bg-accent text-accent-fg ring-1 ring-accent'
                     : 'bg-surface-2 text-fg ring-1 ring-line hover:bg-surface-3 hover:text-accent',
                 )}
-                title="تكبير وتوسيع مشغل الفيديو لعرض عريض"
+                title="Expand video player to cinema wide view"
               >
                 {isWidePlayer ? <Minimize2 className="size-3.5" /> : <Maximize2 className="size-3.5" />}
-                <span>{isWidePlayer ? 'تصغير المشغل' : '🔍 تكبير الفيديو (Cinema Wide)'}</span>
+                <span>{isWidePlayer ? 'Standard View' : 'Cinema Wide'}</span>
               </button>
             </div>
 
-            {/* Ad & Streaming Guidance Alert */}
-            <div className="flex flex-wrap items-center justify-between gap-2.5 rounded-lg border border-purple-500/30 bg-purple-950/20 px-3 py-2 text-xs" dir="rtl">
-              <div className="flex items-center gap-2">
-                <Sparkles className="size-4 shrink-0 text-purple-400" />
-                <span className="text-fg-muted">
-                  إذا فتحت لك نافذة إضافية عند الضغط على Play لأول مرة، أغلقها فقط وسيعمل الفيديو فوراً. للمشاهدة بدون أي إعلانات نهائياً:
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setViewMode('torrentio');
-                  setDirectVideoUrl(null);
-                }}
-                className="flex items-center gap-1.5 rounded-md bg-purple-600 px-2.5 py-1 text-xs font-bold text-white shadow-sm hover:bg-purple-700 transition"
-              >
-                <Sparkles className="size-3" />
-                <span>جرّب سيرفرات Torrentio 4K</span>
-              </button>
+            {/* Quick tip about pop-ups */}
+            <div className="flex items-center gap-2.5 rounded-lg border border-line/60 bg-surface-2/80 px-3 py-2 text-xs">
+              <Info className="size-4 shrink-0 text-accent" />
+              <span className="text-fg-muted">
+                If a pop-up appears on first play, just close it — the video will start immediately.
+              </span>
             </div>
           </div>
         )}
@@ -765,10 +752,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 <span>•</span>
                 <span className="flex items-center gap-1 font-semibold text-emerald-400">
                   <Subtitles className="size-3.5" />
-                  الترجمة متوفرة تلقائياً في المشغل (CC)
+                  Subtitles (CC) Active
                 </span>
                 <span className="rounded bg-emerald-500/20 px-2 py-0.5 font-medium text-emerald-400">
-                  🟢 ترجمة {currentSubLangObj.nativeName} {currentLangSub ? 'متزامنة' : 'مدمجة'}
+                  🟢 {currentSubLangObj.nativeName} {currentLangSub ? 'synced' : 'embedded'}
                 </span>
               </div>
 
@@ -779,10 +766,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   onClick={handleDownloadSelectedSub}
                   disabled={isDownloadingSub}
                   className="h-6 px-2 text-[11px] font-semibold text-emerald-400 hover:text-emerald-300"
-                  title={`تحميل ملف الترجمة (${currentSubLangObj.nativeName}) المتزامن مع الصوت مباشرة`}
+                  title={`Download subtitle file (${currentSubLangObj.nativeName})`}
                 >
                   <Download className="size-3" />
-                  <span>تحميل الترجمة ({currentSubLangObj.nativeName}) (.SRT)</span>
+                  <span>Download Subs ({currentSubLangObj.nativeName}) .SRT</span>
                 </Button>
 
                 <Button
@@ -800,10 +787,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   variant="secondary"
                   onClick={() => setViewMode('torrentio')}
                   className="h-6 px-2 text-xs font-semibold text-purple-400 hover:text-purple-300"
-                  title="سيرفرات تورنتيو فائقة الجودة"
+                  title="Premium ad-free server"
                 >
                   <Sparkles className="size-3" />
-                  <span>Torrentio 4K</span>
+                  <span>Ad-Free 4K</span>
                 </Button>
 
                 <Button
@@ -813,7 +800,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   className="h-6 px-2 text-xs font-semibold text-emerald-400 hover:text-emerald-300"
                 >
                   <Download className="size-3" />
-                  <span>{isSeries ? `تحميل وترجمة الحلقة ${currentEpisode}` : 'سيرفرات التحميل والترجمة'}</span>
+                  <span>{isSeries ? `Download E${currentEpisode}` : 'Download Center'}</span>
                 </Button>
               </div>
             </div>
@@ -828,8 +815,8 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 <Download className="size-4 text-emerald-400" />
                 <h3 className="text-base font-bold text-fg">
                   {isSeries
-                    ? `تحميل الحلقات: الموسم ${currentSeason} - الحلقة ${currentEpisode}`
-                    : `تحميل: ${details.title}`}
+                    ? `Download: Season ${currentSeason} – Episode ${currentEpisode}`
+                    : `Download: ${details.title}`}
                 </h3>
               </div>
 
@@ -851,7 +838,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   <div className="flex items-center gap-2">
                     <Tv className="size-3.5 text-emerald-400" />
                     <span className="font-semibold text-fg">
-                      اختر الحلقة لتحميلها: الموسم {currentSeason} • الحلقة {currentEpisode}
+                      Select episode: Season {currentSeason} • Episode {currentEpisode}
                     </span>
                   </div>
 
@@ -864,7 +851,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                       className="h-6 text-xs"
                     >
                       <ChevronLeft className="size-3" />
-                      <span>الحلقة السابقة</span>
+                      <span>Previous</span>
                     </Button>
                     <Button
                       size="sm"
@@ -875,7 +862,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                       }
                       className="h-6 text-xs"
                     >
-                      <span>الحلقة التالية</span>
+                      <span>Next</span>
                       <ChevronRight className="size-3" />
                     </Button>
                   </div>
@@ -883,7 +870,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
 
                 {availableSeasons.length > 1 && (
                   <div className="flex flex-wrap items-center gap-1.5 border-t border-line/60 pt-2">
-                    <span className="font-medium text-fg-muted">الموسم:</span>
+                    <span className="font-medium text-fg-muted">Season:</span>
                     {availableSeasons.map((seasonNum) => {
                       const isSelected = currentSeason === seasonNum;
                       return (
@@ -938,16 +925,16 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 <Download className="size-4 shrink-0 text-emerald-400" />
                 <div>
                   <p className="font-semibold text-fg">
-                    تثبيت تطبيق <bdi className="font-bold text-accent">Netfarjo</bdi> على جهازك
+                    Install <bdi className="font-bold text-accent">Netfarjo</bdi> on your device
                   </p>
                   <p className="text-fg-muted">
-                    ثبّت الموقع كتطبيق أصلي على هاتفك أو حاسوبك لتشغيل وتنزيل الأفلام والمسلسلات مباشرة بدون متصفح
+                    Install as a native app on your phone or computer to stream and download movies directly.
                   </p>
                 </div>
               </div>
               {isInstalled ? (
                 <span className="rounded bg-emerald-500/20 px-2.5 py-1 text-xs font-semibold text-emerald-400">
-                  ✓ التطبيق مثبت على جهازك
+                  ✓ App installed
                 </span>
               ) : (
                 <Button
@@ -956,7 +943,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   className="h-8 bg-emerald-600 px-3.5 text-xs font-bold text-white hover:bg-emerald-700 shadow-sm transition"
                 >
                   <Download className="size-3.5 mr-1" />
-                  <span>تثبيت التطبيق الآن</span>
+                  <span>Install Now</span>
                 </Button>
               )}
             </div>
@@ -964,14 +951,14 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
             {/* Clean one-line note */}
             <div className="flex items-center gap-2 rounded-lg border border-line bg-surface-2 px-3 py-2 text-xs" dir="rtl">
               <Info className="size-3.5 shrink-0 text-emerald-400" />
-              <span className="text-fg-muted">اختر الجودة أدناه للمشاهدة المباشرة فائقة السرعة أو تنزيل ملف الترجمة المتزامن.</span>
+              <span className="text-fg-muted">Select quality below to stream in HD or download the subtitle file.</span>
             </div>
 
             {/* Direct Quality Downloads */}
             {isTorrentLoading ? (
               <div className="flex flex-col items-center justify-center space-y-2 py-8">
                 <Spinner className="size-5 text-emerald-400" />
-                <p className="text-xs text-fg-muted">جاري البحث عن روابط التحميل المباشرة...</p>
+                <p className="text-xs text-fg-muted">Searching for direct download links...</p>
               </div>
             ) : torrentStreams.length > 0 ? (
               <div className="grid gap-3 sm:grid-cols-3">
@@ -1008,20 +995,20 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                             )
                           }
                           className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-emerald-600 px-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700"
-                          title="تحميل فيديو MP4 مباشر لجهازك"
+                          title="Download MP4 to device"
                         >
                           <Download className="size-3.5" />
-                          <span>تحميل فيديو مباشر (MP4)</span>
+                          <span>Download MP4</span>
                         </Button>
                       ) : (
                         <Button
                           type="button"
                           onClick={() => handleWatchVideoNow()}
                           className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-emerald-600 px-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700"
-                          title="مشاهدة وتشغيل الفيديو فوراً في المشغل"
+                          title="Play in browser"
                         >
                           <Play className="size-3.5 fill-current" />
-                          <span>تشغيل الفيديو (1080p)</span>
+                          <span>Play (1080p)</span>
                         </Button>
                       )}
 
@@ -1032,10 +1019,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                           variant="secondary"
                           onClick={() => handleWatchVideoNow(downloadOptions.fhd?.stream.url)}
                           className="flex h-7 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
-                          title="مشاهدة مباشرة في المشغل"
+                          title="Watch directly in player"
                         >
                           <Play className="size-2.5 fill-current" />
-                          <span>▶ مشاهدة مباشرة ({currentSubLangObj.nativeName})</span>
+                          <span>▶ Watch ({currentSubLangObj.nativeName})</span>
                         </Button>
 
                         <Button
@@ -1045,10 +1032,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                           onClick={handleDownloadSelectedSub}
                           disabled={!currentLangSub && !bestArabicSub}
                           className="h-7 px-2.5 text-xs text-emerald-400 hover:text-emerald-300"
-                          title={`تحميل ملف الترجمة (${currentSubLangObj.nativeName}) المزامنة (.SRT)`}
+                          title={`Download subtitle (${currentSubLangObj.nativeName}) .SRT`}
                         >
                           <Download className="size-3" />
-                          <span>الترجمة ({currentSubLangObj.nativeName})</span>
+                          <span>Subs ({currentSubLangObj.nativeName})</span>
                         </Button>
                       </div>
                     </div>
@@ -1086,20 +1073,20 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                             )
                           }
                           className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-emerald-600 px-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700"
-                          title="تحميل فيديو MP4 مباشر لجهازك"
+                          title="Download MP4 to device"
                         >
                           <Download className="size-3.5" />
-                          <span>تحميل فيديو مباشر (MP4)</span>
+                          <span>Download MP4</span>
                         </Button>
                       ) : (
                         <Button
                           type="button"
                           onClick={() => handleWatchVideoNow()}
                           className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-emerald-600 px-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700"
-                          title="مشاهدة وتشغيل الفيديو فوراً في المشغل"
+                          title="Play in browser"
                         >
                           <Play className="size-3.5 fill-current" />
-                          <span>تشغيل الفيديو (720p)</span>
+                          <span>Play (720p)</span>
                         </Button>
                       )}
 
@@ -1110,10 +1097,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                           variant="secondary"
                           onClick={() => handleWatchVideoNow(downloadOptions.hd?.stream.url)}
                           className="flex h-7 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
-                          title="مشاهدة مباشرة في المشغل"
+                          title="Watch directly in player"
                         >
                           <Play className="size-2.5 fill-current" />
-                          <span>▶ مشاهدة مباشرة ({currentSubLangObj.nativeName})</span>
+                          <span>▶ Watch ({currentSubLangObj.nativeName})</span>
                         </Button>
 
                         <Button
@@ -1123,10 +1110,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                           onClick={handleDownloadSelectedSub}
                           disabled={!currentLangSub && !bestArabicSub}
                           className="h-7 px-2.5 text-xs text-emerald-400 hover:text-emerald-300"
-                          title={`تحميل ملف الترجمة (${currentSubLangObj.nativeName}) المزامنة (.SRT)`}
+                          title={`Download subtitle (${currentSubLangObj.nativeName}) .SRT`}
                         >
                           <Download className="size-3" />
-                          <span>الترجمة ({currentSubLangObj.nativeName})</span>
+                          <span>Subs ({currentSubLangObj.nativeName})</span>
                         </Button>
                       </div>
                     </div>
@@ -1166,20 +1153,20 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                             )
                           }
                           className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-purple-600 px-2 text-xs font-bold text-white shadow-sm transition hover:bg-purple-700"
-                          title="تحميل فيديو MP4 مباشر لجهازك"
+                          title="Download MP4 to device"
                         >
                           <Download className="size-3.5" />
-                          <span>تحميل فيديو مباشر (MP4)</span>
+                          <span>Download MP4</span>
                         </Button>
                       ) : (
                         <Button
                           type="button"
                           onClick={() => handleWatchVideoNow()}
                           className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-purple-600 px-2 text-xs font-bold text-white shadow-sm transition hover:bg-purple-700"
-                          title="مشاهدة وتشغيل الفيديو فوراً في المشغل"
+                          title="Play in browser"
                         >
                           <Play className="size-3.5 fill-current" />
-                          <span>تشغيل الفيديو (4K)</span>
+                          <span>Play (4K)</span>
                         </Button>
                       )}
 
@@ -1190,10 +1177,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                           variant="secondary"
                           onClick={() => handleWatchVideoNow(downloadOptions.uhd?.stream.url)}
                           className="flex h-7 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
-                          title="مشاهدة مباشرة في المشغل"
+                          title="Watch directly in player"
                         >
                           <Play className="size-2.5 fill-current" />
-                          <span>▶ مشاهدة مباشرة ({currentSubLangObj.nativeName})</span>
+                          <span>▶ Watch ({currentSubLangObj.nativeName})</span>
                         </Button>
 
                         <Button
@@ -1203,10 +1190,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                           onClick={handleDownloadSelectedSub}
                           disabled={!currentLangSub && !bestArabicSub}
                           className="h-7 px-2.5 text-xs text-emerald-400 hover:text-emerald-300"
-                          title={`تحميل ملف الترجمة (${currentSubLangObj.nativeName}) المزامنة (.SRT)`}
+                          title={`Download subtitle (${currentSubLangObj.nativeName}) .SRT`}
                         >
                           <Download className="size-3" />
-                          <span>الترجمة ({currentSubLangObj.nativeName})</span>
+                          <span>Subs ({currentSubLangObj.nativeName})</span>
                         </Button>
                       </div>
                     </div>
@@ -1216,8 +1203,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
             ) : (
               <div className="rounded-lg border border-line bg-surface-2 p-4 text-center text-xs text-fg-muted">
                 <span>
-                  روابط التنزيل المباشرة التلقائية غير متوفرة لهذا العنوان حالياً. يمكنك الاستمتاع
-                  بالمشاهدة المباشرة بجودة عالية عبر المشغل في الأعلى.
+Direct download links are not available for this title. You can watch it directly using the player above.
                 </span>
               </div>
             )}
@@ -1227,7 +1213,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-emerald-500/20 pb-2.5">
                 <div className="flex items-center gap-2">
                   <Subtitles className="size-4 text-emerald-400 shrink-0" />
-                  <span className="font-bold text-fg">اختر لغة الترجمة للتحميل والمشاهدة:</span>
+                  <span className="font-bold text-fg">Choose subtitle language:</span>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-1" dir="ltr">
@@ -1258,7 +1244,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="size-2 rounded-full bg-emerald-400 shrink-0" />
                   <span className="font-semibold text-fg shrink-0">
-                    ملف ترجمة {currentSubLangObj.nativeName} المتزامن (.SRT):
+                    {currentSubLangObj.nativeName} subtitle file (.SRT):
                   </span>
                   <span className="text-emerald-400 font-mono text-[11px] truncate">
                     {currentLangSub?.subtitleFileName || `${details.title} ${currentSubLangObj.name}`}
@@ -1270,10 +1256,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   onClick={handleDownloadSelectedSub}
                   disabled={isDownloadingSub || (!currentLangSub && !bestArabicSub)}
                   className="h-7 bg-emerald-600 px-3 text-xs text-white hover:bg-emerald-700 font-semibold shrink-0 shadow-sm"
-                  title={`تحميل ملف الترجمة (${currentSubLangObj.nativeName}) .SRT لجهازك`}
+                  title={`Download subtitle (${currentSubLangObj.nativeName}) .SRT`}
                 >
                   <Download className="size-3" />
-                  <span>تحميل ملف الترجمة ({currentSubLangObj.nativeName}) (.SRT)</span>
+                  <span>Download {currentSubLangObj.nativeName} Subtitles (.SRT)</span>
                 </Button>
               </div>
             </div>
@@ -1282,7 +1268,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
             <div className="flex items-center gap-2.5 rounded-lg border border-line bg-surface-2 p-3 text-xs text-fg-muted" dir="rtl">
               <Check className="size-4 shrink-0 text-emerald-400" />
               <span>
-                الترجمة متوفرة تلقائياً في المشغل ومتزامنة مع الصوت.
+                Subtitles are automatically available and synchronized in the player.
               </span>
             </div>
           </div>
@@ -1304,14 +1290,14 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                       <Sparkles className="size-4 animate-spin text-purple-400" />
                     </span>
                     <h3 className="text-sm sm:text-base font-bold text-fg">
-                      سيرفرات Torrentio 4K فائقة السرعة (قيد التجهيز والتطوير • En cours)
+                      Premium Ad-Free Servers (Coming Soon)
                     </h3>
                     <span className="rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-400/30">
                       Bientôt disponible
                     </span>
                   </div>
                   <p className="text-xs text-fg-muted max-w-2xl leading-relaxed">
-                    نعمل حالياً على تجهيز وربط خوادم تورنتيو السريعة المباشرة (4K HDR وبدون إعلانات) لتعمل بشكل فوري داخل الموقع وبدون الحاجة لبرامج خارجية. في هذه الأثناء، يمكنك الاستمتاع بالمشاهدة السريعة الفورية عبر السيرفرات البديلة (سيرفر 1 - 5) أو عبر قسم التحميل المباشر.
+                    We're setting up high-speed ad-free 4K servers for direct in-site playback. Meanwhile, use Servers 1-5 or the Download Center.
                   </p>
                 </div>
 
@@ -1321,7 +1307,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                     className="gap-1.5 bg-accent text-accent-fg hover:bg-accent-hover font-bold text-xs shadow-md"
                   >
                     <Play className="size-3.5 fill-current" />
-                    <span>الانتقال للمشغل المباشر (سيرفرات 1-5)</span>
+                    <span>Go to Player (Servers 1-5)</span>
                   </Button>
                   <Button
                     variant="secondary"
@@ -1329,7 +1315,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                     className="gap-1.5 text-xs font-semibold text-emerald-400 hover:text-emerald-300"
                   >
                     <Download className="size-3.5" />
-                    <span>سيرفرات التحميل</span>
+                    <span>Download Center</span>
                   </Button>
                 </div>
               </div>
@@ -1343,13 +1329,13 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-bold text-fg sm:text-base">سيرفرات تورنتيو فائقة الجودة (Torrentio 4K / 1080p)</h3>
+                    <h3 className="text-sm font-bold text-fg sm:text-base">Premium ad-free server (Ad-Free 4K / 1080p)</h3>
                     <Badge className="bg-purple-500/20 text-[10px] font-bold text-purple-300">
-                      {torrentStreams.length > 0 ? `${torrentStreams.length} سيرفر متوفر` : 'Torrentio HQ'}
+                      {torrentStreams.length > 0 ? `${torrentStreams.length} available` : 'Premium HQ'}
                     </Badge>
                   </div>
                   <p className="text-xs text-fg-muted">
-                    سيرفرات سريعة بدقة 4K و 1080p بدون إعلانات نهائياً مع أعلى جودة صوت وصورة.
+                    High-speed 4K and 1080p servers with zero ads and top quality audio/video.
                   </p>
                 </div>
               </div>
@@ -1360,10 +1346,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   variant="secondary"
                   onClick={() => setIsConfigOpen((prev) => !prev)}
                   className="flex items-center gap-1.5 text-xs text-fg-muted hover:text-fg"
-                  title="إعدادات Debrid / Torrentio"
+                  title="Debrid settings"
                 >
                   <Settings className="size-3.5" />
-                  <span>{torrentioConfig ? 'Debrid مفعل' : 'إعداد Debrid'}</span>
+                  <span>{torrentioConfig ? 'Debrid active' : 'Setup Debrid'}</span>
                 </Button>
 
                 <Button
@@ -1372,7 +1358,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   className="flex items-center gap-1.5 bg-brand-primary text-xs font-semibold text-white hover:bg-brand-primary/90"
                 >
                   <Play className="size-3.5 fill-current" />
-                  <span>المشغل العادي</span>
+                  <span>Standard Player</span>
                 </Button>
               </div>
             </div>
@@ -1381,24 +1367,24 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
             {isConfigOpen && (
               <div className="rounded-lg border border-purple-500/30 bg-purple-950/20 p-3.5 text-xs" dir="rtl">
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="font-semibold text-purple-300">إعدادات مزود Debrid (RealDebrid / Torbox) لتشغيل مباشر:</span>
+                  <span className="font-semibold text-purple-300">Debrid Provider Settings (RealDebrid / Torbox):</span>
                   <button
                     type="button"
                     onClick={() => setIsConfigOpen(false)}
                     className="text-fg-subtle hover:text-fg"
                   >
-                    إغلاق ✕
+                    Close ✕
                   </button>
                 </div>
                 <p className="mb-2 text-fg-muted">
-                  إذا كان لديك حساب RealDebrid أو AllDebrid أو Torbox، أدخل كود الإعداد من موقع Torrentio للحصول على تشغيل فوري 4K بدون تحميل:
+                  If you have a RealDebrid, AllDebrid, or Torbox account, enter your Torrentio config code for instant 4K playback:
                 </p>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={tempConfig}
                     onChange={(e) => setTempConfig(e.target.value)}
-                    placeholder="مثال: realdebrid=APIKEY أو torbox=APIKEY"
+                    placeholder="e.g. realdebrid=APIKEY or torbox=APIKEY"
                     className="flex-1 rounded-md border border-line bg-surface-2 px-3 py-1.5 text-xs text-fg outline-none focus:border-purple-500 font-mono"
                     dir="ltr"
                   />
@@ -1407,7 +1393,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                     onClick={handleSaveTorrentioConfig}
                     className="bg-purple-600 px-3 text-xs text-white hover:bg-purple-700"
                   >
-                    حفظ
+                    Save
                   </Button>
                 </div>
               </div>
@@ -1439,14 +1425,14 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 </div>
                 <div className="flex items-center justify-between rounded-lg border border-line bg-surface-2 p-2.5 text-xs" dir="rtl">
                   <span className="font-semibold text-purple-300">
-                    جاري التشغيل المباشر فالموقع بجودة 4K أصلية وبدون إعلانات (Direct Stream)
+                    Playing directly in-site in original 4K quality — ad-free (Direct Stream)
                   </span>
                   <button
                     type="button"
                     onClick={() => setDirectVideoUrl(null)}
                     className="text-xs text-fg-subtle hover:text-fg font-medium"
                   >
-                    إغلاق المشغل ✕
+                    Close Player ✕
                   </button>
                 </div>
               </div>
@@ -1456,9 +1442,9 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
             {isSeries && (
               <div className="space-y-2 rounded-lg border border-line bg-surface-2 p-3" dir="rtl">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-fg">اختر الموسم والحلقة:</span>
+                  <span className="font-semibold text-fg">Select season and episode:</span>
                   <span className="text-fg-muted font-mono">
-                    الموسم {currentSeason} - الحلقة {currentEpisode}
+                    Season {currentSeason} – Episode {currentEpisode}
                   </span>
                 </div>
 
@@ -1481,7 +1467,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                               : 'bg-surface-3 text-fg-muted hover:bg-surface-1 hover:text-fg',
                           )}
                         >
-                          الموسم {seasonNum}
+                          Season {seasonNum}
                         </button>
                       );
                     })}
@@ -1504,7 +1490,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                         )}
                       >
                         <Play className="size-2.5 fill-current" />
-                        <span>الحلقة {epNum}</span>
+                        <span>Episode {epNum}</span>
                       </button>
                     );
                   })}
@@ -1516,21 +1502,21 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
             {isTorrentLoading ? (
               <div className="flex flex-col items-center justify-center space-y-3 py-12">
                 <Spinner className="size-6 text-purple-400" />
-                <p className="text-xs text-fg-muted">جاري فحص وتجهيز سيرفرات تورنتيو فائقة الجودة...</p>
+                <p className="text-xs text-fg-muted">Searching for premium streams...</p>
               </div>
             ) : torrentStreams.length === 0 ? (
               <div className="flex flex-col items-center justify-center space-y-3 rounded-lg border border-line bg-surface-2 p-8 text-center" dir="rtl">
                 <Info className="size-8 text-fg-subtle" />
                 <div className="space-y-1">
-                  <p className="text-sm font-semibold text-fg">لم يتم العثور على سيرفرات تورنتيو لهذا العنوان</p>
-                  <p className="text-xs text-fg-muted">يمكنك استخدام المشغل العادي (سيرفر 1 أو 2) لمشاهدة الفيلم مباشرة بجودة عالية وبدون إعلانات.</p>
+                  <p className="text-sm font-semibold text-fg">No premium streams found for this title</p>
+                  <p className="text-xs text-fg-muted">You can use the standard player (Server 1 or 2) to watch in high quality.</p>
                 </div>
                 <Button
                   size="sm"
                   onClick={() => setViewMode('stream')}
                   className="bg-brand-primary text-xs text-white"
                 >
-                  الرجوع للمشغل المباشر
+                  Back to Player
                 </Button>
               </div>
             ) : (
@@ -1598,10 +1584,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                                 size="sm"
                                 onClick={() => handleWatchVideoNow(s.stream.url)}
                                 className="h-8 gap-1.5 bg-purple-600 px-3 text-xs font-bold text-white shadow-sm hover:bg-purple-700"
-                                title="تشغيل مباشر في المشغل بدون تحميل"
+                                title="Play directly in browser"
                               >
                                 <Play className="size-3 fill-current" />
-                                <span>▶ تشغيل مباشر</span>
+                                <span>▶ Play Now</span>
                               </Button>
 
                               <Button
@@ -1609,10 +1595,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                                 variant="secondary"
                                 onClick={() => handleDownloadDirectVideo(s.stream.url!, downloadFilename)}
                                 className="h-8 px-2.5 text-xs text-emerald-400 hover:text-emerald-300"
-                                title="تحميل ملف MP4 مباشر"
+                                title="Download MP4 file"
                               >
                                 <Download className="size-3" />
-                                <span>تحميل MP4</span>
+                                <span>Download MP4</span>
                               </Button>
                             </>
                           ) : (
@@ -1621,10 +1607,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                                 size="sm"
                                 onClick={() => handleWatchVideoNow()}
                                 className="h-8 gap-1.5 bg-purple-600 px-3 text-xs font-bold text-white shadow-sm hover:bg-purple-700"
-                                title="تشغيل في مشغل الموقع فوراً بدون أي برامج"
+                                title="Play in site player"
                               >
                                 <Play className="size-3 fill-current" />
-                                <span>▶ تشغيل في الموقع</span>
+                                <span>▶ Play in Browser</span>
                               </Button>
 
                               <Button
@@ -1637,10 +1623,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                                     ? 'bg-emerald-600 text-white'
                                     : 'bg-surface-3 text-fg hover:bg-surface-1',
                                 )}
-                                title="نسخ رابط Magnet"
+                                title="Copy Magnet link"
                               >
                                 {isCopied ? <Check className="size-3 text-white" /> : <Copy className="size-3" />}
-                                <span>{isCopied ? 'تم النسخ ✔' : 'نسخ Magnet'}</span>
+                                <span>{isCopied ? 'Copied ✔' : 'Copy Magnet'}</span>
                               </Button>
                             </>
                           )}
@@ -1656,7 +1642,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
             <div className="flex items-center gap-2.5 rounded-lg border border-line bg-surface-2 p-3 text-xs text-fg-muted" dir="rtl">
               <Info className="size-4 shrink-0 text-purple-400" />
               <span>
-                سيرفرات تورنتيو تجلب ملفات الفيديو الأصلية بأعلى نقاوة (4K HDR / 1080p). اضغط تشغيل لمشاهدة الفيلم فوراً في مشغل الموقع، أو أدخل كود Debrid لتشغيلها مباشرة بجودة MP4 وبدون إعلانات.
+                Premium servers fetch original video files in top quality (4K HDR / 1080p). Press Play to watch instantly, or enter a Debrid code for direct MP4 playback.
               </span>
             </div>
           </div>
