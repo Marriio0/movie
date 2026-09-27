@@ -757,6 +757,20 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               </div>
             )}
 
+            {/* Clear explanation of how to download video to device */}
+            <div className="space-y-2 rounded-lg border border-line bg-surface-2 p-3 text-xs">
+              <div className="flex items-center gap-2 font-semibold text-fg">
+                <Info className="size-4 text-emerald-400 shrink-0" />
+                <span>طريقة تنزيل الفيديو لجهازك (الهاتف أو الحاسوب):</span>
+              </div>
+              <p className="text-fg-muted leading-relaxed">
+                • <strong>تحميل فوري عبر برامج التحميل</strong>: اضغط على <strong>تحميل مباشر</strong> وسيبدأ التنزيل تلقائياً في برنامج التحميل عندك (مثل <strong>uTorrent</strong> أو <strong>BitTorrent</strong> أو <strong>IDM</strong> أو <strong>1DM</strong> في أندرويد).
+              </p>
+              <p className="text-fg-muted leading-relaxed">
+                • <strong>تحميل سحابي بدون برامج</strong>: اضغط <strong>نسخ الرابط</strong> واستعمل خدمة التحميل المباشر المجانية <a href="https://www.seedr.cc" target="_blank" rel="noreferrer" className="text-emerald-400 font-semibold underline">Seedr.cc</a> لتيليشارجي الفيديو MP4 ديريكت فـ المتصفح.
+              </p>
+            </div>
+
             {/* Direct Quality Downloads */}
             {isTorrentLoading ? (
               <div className="flex flex-col items-center justify-center space-y-2 py-8">
