@@ -127,13 +127,13 @@ describe('WatchPlayer', () => {
     expect(iframe).toHaveAttribute('src', expect.stringContaining('player.videasy.net/tv/1399/1/2'));
   });
 
-  it('configures default Arabic subtitles in player and displays CC indicator', () => {
+  it('configures default English subtitles in player and displays CC indicator', () => {
     localStorage.setItem('marquee:preferred-view-mode', 'stream');
     renderWatchPlayer(mockMovie);
 
     expect(screen.getByTitle(/Watch Dune: Part Two/i)).toHaveAttribute(
       'src',
-      expect.stringContaining('sub_lang=ar'),
+      expect.stringContaining('sub_lang=en'),
     );
     expect(screen.getByText(/Subtitles \(CC\) Available/i)).toBeInTheDocument();
   });

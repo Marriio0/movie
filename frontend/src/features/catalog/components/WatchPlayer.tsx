@@ -75,12 +75,12 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
   // Server selection (default Server 1: Videasy Fast HD)
   const [selectedServerId, setSelectedServerId] = useState<string>('videasy');
 
-  // Interactive Subtitle language preference (defaults to Arabic 'ar' or saved user preference)
+  // Interactive Subtitle language preference (defaults to English 'en' or saved user preference)
   const [selectedSubLang, setSelectedSubLang] = useState<string>(() => {
     try {
-      return localStorage.getItem(PREFERRED_SUB_LANG_KEY) || 'ar';
+      return localStorage.getItem(PREFERRED_SUB_LANG_KEY) || 'en';
     } catch {
-      return 'ar';
+      return 'en';
     }
   });
 
@@ -301,7 +301,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
   // Compute active embed player URL with subtitle preference and live sub_file injection
   const currentEmbedUrl = useMemo(() => {
     if (!activeServer) return '';
-    const activeSubFile = currentLangSub?.url || (selectedSubLang === 'ar' ? bestArabicSub?.url : undefined);
+    const activeSubFile = currentLangSub?.url || bestArabicSub?.url;
     return activeServer.getUrl({
       mediaType: details.mediaType,
       tmdbId: details.id,
@@ -716,8 +716,8 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               className={cn(
                 'relative w-full transform-gpu overflow-hidden rounded-xl bg-black shadow-2xl ring-1 ring-white/10 contain-paint transition-all duration-300',
                 isWidePlayer
-                  ? 'h-[58vh] sm:h-[72vh] md:h-[82vh] w-full max-w-full'
-                  : 'aspect-video w-full min-h-[290px] sm:min-h-[440px] md:min-h-[520px]',
+                  ? 'h-[70vh] sm:h-[80vh] md:h-[90vh] w-full max-w-full'
+                  : 'aspect-video w-full min-h-[320px] sm:min-h-[480px] md:min-h-[560px]',
               )}
             >
               {directVideoUrl ? (

@@ -24,7 +24,7 @@ export const STREAMING_SERVERS: StreamingServer[] = [
     badge: '★ Recommended',
     description: 'Ultra fast streaming with built-in subtitles and zero ads.',
     supportsSubtitles: true,
-    getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'ar' }) =>
+    getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'en' }) =>
       mediaType === 'movie'
         ? `https://player.videasy.net/movie/${tmdbId}?color=6366f1&sub_lang=${subLang}`
         : `https://player.videasy.net/tv/${tmdbId}/${season}/${episode}?color=6366f1&sub_lang=${subLang}`,
@@ -35,7 +35,7 @@ export const STREAMING_SERVERS: StreamingServer[] = [
     badge: 'Fast Mirror',
     description: 'High definition fast stream mirror with subtitle tracks.',
     supportsSubtitles: true,
-    getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'ar' }) =>
+    getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'en' }) =>
       mediaType === 'movie'
         ? `https://vidsrc.me/embed/movie?tmdb=${tmdbId}&ds_lang=${subLang}`
         : `https://vidsrc.me/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}&ds_lang=${subLang}`,
@@ -46,7 +46,7 @@ export const STREAMING_SERVERS: StreamingServer[] = [
     badge: '1080p Mirror',
     description: 'High quality 1080p mirror for movies and series.',
     supportsSubtitles: true,
-    getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'ar' }) =>
+    getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'en' }) =>
       mediaType === 'movie'
         ? `https://vidsrc.to/embed/movie/${tmdbId}?sub_lang=${subLang}`
         : `https://vidsrc.to/embed/tv/${tmdbId}/${season}/${episode}?sub_lang=${subLang}`,
@@ -68,7 +68,7 @@ export const STREAMING_SERVERS: StreamingServer[] = [
     badge: 'Arabic / Multi-Subs',
     description: 'Fast CDN with instant Arabic & multilingual subtitles.',
     supportsSubtitles: true,
-    getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'ar', subFile }) => {
+    getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'en', subFile }) => {
       const subLabel =
         subLang === 'ar'
           ? 'Arabic'
