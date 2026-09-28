@@ -2,6 +2,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Film,
+  Flame,
   Info,
   Play,
   Sparkles,
@@ -149,16 +150,21 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
               <span>{t('vipBadge')}</span>
             </div>
 
-            {activeItem.rating !== null && activeItem.rating >= 7.5 ? (
-              <Badge tone="accent" className="flex items-center gap-1.5 shadow-sm font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                <Sparkles className="size-3.5 text-amber-400" />
-                <span>★ IMDb {activeItem.rating.toFixed(1)} • Top Rated</span>
-              </Badge>
-            ) : (
-              <Badge tone="accent" className="flex items-center gap-1.5 shadow-sm font-semibold">
-                <Sparkles className="size-3.5" />
-                <span>{t('trendingRank')} • #{currentIndex + 1}</span>
-              </Badge>
+            {/* Viral on the web badge */}
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/40 bg-rose-500/15 px-3 py-1 text-xs font-bold text-rose-300 shadow-sm shadow-rose-500/20">
+              <Flame className="size-3.5 fill-current text-rose-400 animate-pulse" />
+              <span>{t('viralHit')}</span>
+            </div>
+
+            <Badge tone="accent" className="flex items-center gap-1.5 shadow-sm font-semibold">
+              <Sparkles className="size-3.5" />
+              <span>{t('trendingRank')} • #{currentIndex + 1}</span>
+            </Badge>
+
+            {activeItem.rating !== null && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/15 px-2 py-0.5 font-bold text-amber-300 border border-amber-500/30">
+                <span className="text-amber-400">★</span> IMDb {activeItem.rating.toFixed(1)}
+              </span>
             )}
 
             <span className="rounded-md bg-surface-2/80 px-2 py-0.5 font-medium text-fg-muted backdrop-blur-sm border border-line">

@@ -53,14 +53,17 @@ export function HomePage() {
       }
     };
 
-    // 1. Featured movie at position 0 (ensures stable test assertions)
-    if (featuredMovie) {
-      seen.add(`${featuredMovie.mediaType}:${featuredMovie.id}`);
-      rawList.push(featuredMovie);
-    }
-
-    // 2. Viral trending today on the web (movies + series)
+    // 1. Highest priority: Viral trending today on the web (movies + series blowing up right now)
     addItems(trendingToday.data?.items);
+
+    // 2. Popular featured movie
+    if (featuredMovie) {
+      const key = `${featuredMovie.mediaType}:${featuredMovie.id}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        rawList.push(featuredMovie);
+      }
+    }
 
     // 3. Top-rated on IMDb / TMDB (movies + series)
     addItems(topRatedMovies.data?.items);
@@ -77,7 +80,7 @@ export function HomePage() {
     // 6. Currently playing in theaters
     addItems(nowPlaying.data?.items);
 
-    return rawList.slice(0, 20); // Top 20 blockbuster titles rotating seamlessly
+    return rawList.slice(0, 24); // Top 24 viral and blockbuster titles rotating seamlessly
   }, [
     featuredMovie,
     trendingToday.data?.items,
