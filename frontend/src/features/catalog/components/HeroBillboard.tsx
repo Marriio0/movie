@@ -4,7 +4,6 @@ import {
   Film,
   Info,
   Play,
-  Sparkles,
   Volume2,
   VolumeX,
   X,
@@ -172,11 +171,17 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
       {/* Billboard Hero Body */}
       <div className={HERO_BODY}>
         <div className="max-w-2xl space-y-4">
-          {/* Clean, minimalist category indicator */}
-          <div className="flex items-center gap-2 text-xs">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1 font-bold text-accent border border-accent/30 shadow-sm">
-              <Sparkles className="size-3.5" />
-              <span>{t('trendingRank')} • #{currentIndex + 1}</span>
+          {/* Authentic Streaming-style Top 10 / Trending Badge */}
+          <div className="flex items-center gap-2.5">
+            <span className="inline-flex items-center justify-center rounded bg-red-600 px-2 py-0.5 text-[11px] font-black tracking-wider text-white shadow-sm uppercase">
+              {currentIndex < 10 ? 'TOP 10' : 'TRENDING'}
+            </span>
+            <span className="text-sm font-bold tracking-tight text-fg drop-shadow-sm">
+              {language === 'ar'
+                ? `المرتبة #${currentIndex + 1} في ${activeItem.mediaType === 'movie' ? t('movies') : t('series')} اليوم`
+                : language === 'fr'
+                  ? `N° ${currentIndex + 1} des ${activeItem.mediaType === 'movie' ? t('movies') : t('series')} aujourd'hui`
+                  : `#${currentIndex + 1} in ${activeItem.mediaType === 'movie' ? t('movies') : t('series')} Today`}
             </span>
           </div>
 
