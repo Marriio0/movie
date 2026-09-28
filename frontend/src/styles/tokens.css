@@ -51,33 +51,39 @@
 [data-theme='light'] {
   color-scheme: light;
 
-  --canvas: #f6f4ef;
-  --canvas-deep: #ece9e2;
+  /* Surfaces: modern, crisp slate-white studio */
+  --canvas: #f8fafc;
+  --canvas-deep: #f1f5f9;
   --surface-1: #ffffff;
   --surface-2: #ffffff;
-  --surface-3: #efece5;
+  --surface-3: #f1f5f9;
 
-  --line: rgb(20 18 14 / 0.09);
-  --line-strong: rgb(20 18 14 / 0.18);
+  /* Crisp subtle borders */
+  --line: rgb(15 23 42 / 0.08);
+  --line-strong: rgb(15 23 42 / 0.16);
 
-  --fg: #151412; /* ≈ 17:1 */
-  --fg-muted: #54514b; /* ≈ 7.5:1 */
-  --fg-subtle: #6c6962; /* ≈ 5:1 */
+  /* Deep slate contrast text */
+  --fg: #0f172a; /* Slate 900 ≈ 18:1 contrast */
+  --fg-muted: #475569; /* Slate 600 ≈ 7.5:1 contrast */
+  --fg-subtle: #64748b; /* Slate 500 ≈ 5:1 contrast */
 
-  --accent: #f5b544;
-  --accent-hover: #eaa632;
-  --accent-fg: #1c1305;
-  --accent-text: #8a5a00; /* amber is too light for text on paper */
-  --focus-ring: #8a5a00;
+  /* Vibrant amber gold accent */
+  --accent: #f59e0b;
+  --accent-hover: #d97706;
+  --accent-fg: #000000;
+  --accent-text: #b45309; /* High-contrast text on light surfaces */
+  --focus-ring: #d97706;
 
-  --danger: #c62f35;
-  --danger-soft: rgb(198 47 53 / 0.08);
-  --success: #1f7a4d;
+  /* Status */
+  --danger: #ef4444;
+  --danger-soft: rgb(239 68 68 / 0.08);
+  --success: #10b981;
 
-  --elev-card: 0 1px 2px rgb(20 18 14 / 0.06), 0 8px 24px -14px rgb(20 18 14 / 0.25);
-  --elev-pop: 0 24px 48px -20px rgb(20 18 14 / 0.3), 0 0 0 1px var(--line);
+  /* Soft modern elevation */
+  --elev-card: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --elev-pop: 0 12px 30px -6px rgb(0 0 0 / 0.12), 0 0 0 1px var(--line);
 
-  --shimmer: rgb(255 255 255 / 0.6);
+  --shimmer: rgb(255 255 255 / 0.7);
 }
 
 /* Theme-independent layout and motion tokens */

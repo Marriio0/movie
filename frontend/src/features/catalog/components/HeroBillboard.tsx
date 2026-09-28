@@ -155,9 +155,9 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
           </div>
         )}
 
-        {/* Layer 3: Dynamic Animated Ambient Neon Glows */}
-        <div className="pointer-events-none absolute -top-24 -start-24 z-1 size-96 rounded-full bg-accent/20 blur-3xl animate-pulse" />
-        <div className="pointer-events-none absolute top-1/3 -end-24 z-1 size-80 rounded-full bg-purple-600/20 blur-3xl" />
+        {/* Layer 3: Dynamic Animated Ambient Neon Glows (Dark Mode Only) */}
+        <div className="pointer-events-none absolute -top-24 -start-24 z-1 size-96 rounded-full bg-accent/20 blur-3xl animate-pulse dark:block hidden" />
+        <div className="pointer-events-none absolute top-1/3 -end-24 z-1 size-80 rounded-full bg-purple-600/20 blur-3xl dark:block hidden" />
 
         {/* Layer 4: Multi-Directional Gradient Overlays (Ensures title & text remain 100% readable) */}
         {/* Heavy fade from text side (left in LTR, right in RTL) */}
@@ -207,7 +207,7 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
             {activeItem.rating !== null && (
               <>
                 <span className="text-fg-subtle">•</span>
-                <span className="inline-flex items-center gap-1 font-semibold text-amber-400">
+                <span className="inline-flex items-center gap-1 font-semibold text-amber-500 dark:text-amber-400">
                   <span>★</span> {activeItem.rating.toFixed(1)}
                 </span>
               </>

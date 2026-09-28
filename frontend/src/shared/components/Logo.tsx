@@ -23,7 +23,7 @@ export function LogoMark({ className }: { className?: string }) {
         </linearGradient>
       </defs>
       {/* Background soft glow shield */}
-      <rect x="2" y="2" width="24" height="24" rx="6" fill="#17171b" stroke="url(#nf-grad-1)" strokeWidth="1.5" />
+      <rect x="2" y="2" width="24" height="24" rx="6" fill="var(--surface-2)" stroke="url(#nf-grad-1)" strokeWidth="1.5" />
       {/* Dynamic N & Play Ribbon */}
       <path
         d="M8 8V20L13.5 12V20L20 8"
@@ -47,7 +47,7 @@ export function Logo({ className }: { className?: string }) {
         <span className="text-xl font-extrabold tracking-tight text-fg font-sans">
           {APP_NAME.slice(0, 3)}<span className="text-accent">{APP_NAME.slice(3)}</span>
         </span>
-        <span className="hidden xs:inline-flex items-center rounded bg-accent/15 px-1.5 py-0.5 text-[10px] font-semibold text-accent border border-accent/25">
+        <span className="hidden xs:inline-flex items-center rounded bg-accent/15 px-1.5 py-0.5 text-[10px] font-semibold text-accent-text border border-accent/25">
           نتفرجو
         </span>
       </span>

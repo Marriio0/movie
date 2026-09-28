@@ -16,10 +16,11 @@ export interface ThemeSnapshot {
 }
 
 export const THEME_STORAGE_KEY = 'marquee:theme';
-export const DEFAULT_THEME: ThemePreference = 'dark';
+export const DEFAULT_THEME: ThemePreference = 'system';
 
-const THEME_COLORS: Record<ResolvedTheme, string> = { dark: '#0b0b0d', light: '#f6f4ef' };
+const THEME_COLORS: Record<ResolvedTheme, string> = { dark: '#0b0b0d', light: '#f8fafc' };
 const LIGHT_QUERY = '(prefers-color-scheme: light)';
+const DARK_QUERY = '(prefers-color-scheme: dark)';
 
 export const isThemePreference = (value: unknown): value is ThemePreference =>
   value === 'light' || value === 'dark' || value === 'system';
@@ -33,9 +34,19 @@ function readStoredPreference(): ThemePreference {
   }
 }
 
-function resolve(preference: ThemePreference): ResolvedTheme {
-  if (preference !== 'system') return preference;
-  return window.matchMedia(LIGHT_QUERY).matches ? 'light' : 'dark';
+export function resolve(preference: ThemePreference): ResolvedTheme {
+  if (preference === 'light') return 'light';
+  if (preference === 'dark') return 'dark';
+
+  // System mode: Check OS desktop preference or local time of day ("3la hssab le time 3ando")
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    if (window.matchMedia(LIGHT_QUERY).matches) return 'light';
+    if (window.matchMedia(DARK_QUERY).matches) return 'dark';
+  }
+
+  // Device clock fallback: daytime (7am to 7pm) = light, nighttime = dark
+  const hour = new Date().getHours();
+  return hour >= 7 && hour < 19 ? 'light' : 'dark';
 }
 
 function applyToDocument(resolved: ResolvedTheme): void {
