@@ -5,6 +5,8 @@ import {
   Info,
   Play,
   Sparkles,
+  Volume2,
+  VolumeX,
   X,
 } from 'lucide-react';
 import { Dialog } from 'radix-ui';
@@ -19,8 +21,7 @@ import { Skeleton } from '@/shared/ui/Skeleton';
 import { useTitleTrailer } from '../catalog.hooks';
 import type { MediaSummary } from '../catalog.types';
 import { TMDB_CONTENT_LANG } from '../catalog.types';
-import { youtubeEmbedUrl } from '../lib/youtube';
-import { Backdrop } from './Backdrop';
+import { youtubeBackgroundTrailerUrl, youtubeEmbedUrl } from '../lib/youtube';
 
 export interface HeroBillboardProps {
   media?: MediaSummary & { backdropPath: string };
@@ -28,7 +29,7 @@ export interface HeroBillboardProps {
 }
 
 const HERO_BODY =
-  'container-page relative z-10 flex min-h-[min(82vh,46rem)] flex-col justify-end pb-12 pt-28 sm:pb-16 md:pt-36';
+  'container-page relative z-10 flex min-h-[min(85vh,48rem)] flex-col justify-end pb-12 pt-28 sm:pb-16 md:pt-36';
 
 export function HeroBillboard({ media, items }: HeroBillboardProps) {
   const headingId = useId();
@@ -38,6 +39,8 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
   const [trailerOpen, setTrailerOpen] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [isMuted, setIsMuted] = useState(true);
+  const [bgVideoReady, setBgVideoReady] = useState(false);
 
   const thumbnailContainerRef = useRef<HTMLDivElement>(null);
   const activeThumbnailRef = useRef<HTMLButtonElement>(null);
@@ -59,14 +62,19 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
 
   const activeItem = list[currentIndex] || list[0];
 
-  // Auto-advance billboard carousel every 7s with smooth animated progress bar
+  // Reset background video loading state when active title changes
+  useEffect(() => {
+    setBgVideoReady(false);
+  }, [activeItem?.id]);
+
+  // Auto-advance billboard carousel every 8s with smooth animated progress bar
   useEffect(() => {
     if (list.length <= 1 || isPaused || trailerOpen) {
       setProgress(0);
       return;
     }
 
-    const duration = 7000;
+    const duration = 8000;
     const intervalTime = 50;
     const increment = (intervalTime / duration) * 100;
 
@@ -111,28 +119,55 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
   return (
     <section
       aria-labelledby={headingId}
-      className="relative overflow-hidden bg-canvas"
+      className="relative overflow-hidden bg-canvas min-h-[min(85vh,48rem)]"
       onPointerEnter={() => setIsPaused(true)}
       onPointerLeave={() => setIsPaused(false)}
     >
-      {/* High-definition cinematic backdrop with subtle zoom and multi-stop gradient masks */}
-      <div className="relative overflow-hidden transition-all duration-1000 ease-out">
-        <div className="transform transition-transform duration-10000 ease-out scale-105">
-          <Backdrop
-            key={activeItem.id}
-            path={activeItem.backdropPath}
-            className="animate-fade-in"
+      {/* Absolute Full-Bleed Background Container: Backdrop Poster + Live Ambient Video Trailer */}
+      <div className="absolute inset-0 size-full overflow-hidden pointer-events-none select-none z-0">
+        {/* Layer 1: High-Definition Backdrop Poster Image (Reliable, instantaneous base) */}
+        {activeItem.backdropPath ? (
+          <img
+            key={`backdrop-${activeItem.id}`}
+            src={`https://image.tmdb.org/t/p/original${activeItem.backdropPath}`}
+            alt=""
+            className="size-full object-cover object-center scale-105 transition-transform duration-10000 ease-out"
           />
-        </div>
+        ) : (
+          <div className="size-full bg-surface-1" />
+        )}
+
+        {/* Layer 2: Live Seamless Video Trailer in Background (Netflix / Apple TV+ style) */}
+        {trailer?.youtubeKey && (
+          <div
+            className={cn(
+              'absolute inset-0 size-full overflow-hidden transition-opacity duration-1000 ease-out',
+              bgVideoReady ? 'opacity-85' : 'opacity-0',
+            )}
+          >
+            <iframe
+              key={`bg-trailer-${activeItem.id}-${trailer.youtubeKey}-${isMuted ? 'muted' : 'unmuted'}`}
+              src={youtubeBackgroundTrailerUrl(trailer.youtubeKey, isMuted)}
+              title={`${activeItem.title} Ambient Trailer`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              onLoad={() => setBgVideoReady(true)}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160%] h-[160%] min-w-[100vw] min-h-[56.25vw] pointer-events-none border-0"
+            />
+          </div>
+        )}
+
+        {/* Layer 3: Dynamic Animated Ambient Neon Glows */}
+        <div className="pointer-events-none absolute -top-24 -start-24 z-1 size-96 rounded-full bg-accent/20 blur-3xl animate-pulse" />
+        <div className="pointer-events-none absolute top-1/3 -end-24 z-1 size-80 rounded-full bg-purple-600/20 blur-3xl" />
+
+        {/* Layer 4: Multi-Directional Gradient Overlays (Ensures title & text remain 100% readable) */}
+        {/* Heavy fade from text side (left in LTR, right in RTL) */}
+        <div className="pointer-events-none absolute inset-0 z-1 bg-gradient-to-t from-canvas via-canvas/60 to-canvas/20 md:bg-gradient-to-r md:from-canvas md:via-canvas/80 md:via-40% md:to-transparent" />
+        {/* Bottom seamless blend into rails below */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-2 h-36 bg-gradient-to-t from-canvas via-canvas/80 to-transparent" />
+        {/* Top header navigation shade */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-2 h-28 bg-gradient-to-b from-canvas/90 via-canvas/40 to-transparent" />
       </div>
-
-      {/* Dynamic Animated Ambient Neon Glows */}
-      <div className="pointer-events-none absolute -top-24 -start-24 z-1 size-96 rounded-full bg-accent/20 blur-3xl animate-pulse" />
-      <div className="pointer-events-none absolute top-1/3 -end-24 z-1 size-80 rounded-full bg-purple-600/20 blur-3xl" />
-
-      {/* Atmospheric ambient top and bottom glow */}
-      <div className="pointer-events-none absolute inset-0 z-1 bg-gradient-to-t from-canvas via-canvas/50 to-canvas/20 md:bg-gradient-to-r md:from-canvas md:via-canvas/80 md:to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-2 h-24 bg-gradient-to-t from-canvas to-transparent" />
 
       {/* Billboard Hero Body */}
       <div className={HERO_BODY}>
@@ -213,6 +248,30 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
               <Film className="size-5 text-accent" />
               <span>{t('watchTrailer')}</span>
             </Button>
+
+            {/* Ambient Video Trailer Sound Toggle (Netflix style) */}
+            {trailer?.youtubeKey && (
+              <Button
+                type="button"
+                variant="secondary"
+                size="lg"
+                onClick={() => setIsMuted((prev) => !prev)}
+                className="bg-surface-2/90 backdrop-blur-md border border-line-strong hover:bg-surface-3 transition-colors text-fg font-medium gap-2 hover:border-accent"
+                title={isMuted ? t('unmuteTrailer') : t('muteTrailer')}
+              >
+                {isMuted ? (
+                  <>
+                    <VolumeX className="size-5 text-fg-muted" />
+                    <span>{t('unmuteTrailer')}</span>
+                  </>
+                ) : (
+                  <>
+                    <Volume2 className="size-5 text-accent animate-pulse" />
+                    <span>{t('muteTrailer')}</span>
+                  </>
+                )}
+              </Button>
+            )}
 
             {/* View Details Link */}
             <ButtonLink

@@ -56,6 +56,8 @@ export const TRANSLATIONS = {
     noResults: 'لا توجد نتائج مطابقة',
     signIn: 'تسجيل الدخول',
     installApp: 'تثبيت التطبيق',
+    muteTrailer: 'كتم الصوت',
+    unmuteTrailer: 'تشغيل الصوت',
   },
   fr: {
     home: 'Accueil',
@@ -95,6 +97,8 @@ export const TRANSLATIONS = {
     noResults: 'Aucun résultat trouvé',
     signIn: 'Connexion',
     installApp: 'Installer l’application',
+    muteTrailer: 'Couper le son',
+    unmuteTrailer: 'Activer le son',
   },
   en: {
     home: 'Home',
@@ -134,6 +138,8 @@ export const TRANSLATIONS = {
     noResults: 'No matches found',
     signIn: 'Sign in',
     installApp: 'Install App',
+    muteTrailer: 'Mute audio',
+    unmuteTrailer: 'Unmute audio',
   },
 } as const;
 
