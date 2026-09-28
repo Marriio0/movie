@@ -13,6 +13,7 @@ import { paths } from '@/shared/config/paths';
 import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
 import { useOnlineStatus } from '@/shared/hooks/useOnlineStatus';
 
+import { useMemo } from 'react';
 import { useLanguage } from '@/shared/i18n/language-context';
 
 const hasBackdrop = (media: MediaSummary): media is MediaSummary & { backdropPath: string } =>
@@ -27,23 +28,67 @@ export function HomePage() {
   const trendingMovies = useTrendingMovies();
   const trendingSeries = useTrendingSeries();
   const topRatedMovies = useTopRated('movie');
+  const topRatedSeries = useTopRated('tv');
   const nowPlaying = useNowPlaying();
   const online = useOnlineStatus();
 
   // Combine top featured items with backdrop for the rotating hero billboard:
   // Primary popular movie first (ensuring test assertions and prominent titles),
-  // followed by trending titles today and popular series.
+  // followed by viral trending today, IMDb top rated, and top popular series.
   const featuredMovie = movies.data?.items.find(hasBackdrop);
-  const spotlightItems = [
-    ...(featuredMovie ? [featuredMovie] : []),
-    ...(trendingToday.data?.items.filter(
-      (item): item is MediaSummary & { backdropPath: string } =>
-        hasBackdrop(item) && item.id !== featuredMovie?.id,
-    ) ?? []),
-    ...(series.data?.items.filter(
-      (item): item is MediaSummary & { backdropPath: string } => hasBackdrop(item),
-    ) ?? []),
-  ].slice(0, 8);
+  const spotlightItems = useMemo(() => {
+    const rawList: (MediaSummary & { backdropPath: string })[] = [];
+    const seen = new Set<string>();
+
+    const addItems = (items?: MediaSummary[]) => {
+      if (!items) return;
+      for (const item of items) {
+        if (hasBackdrop(item)) {
+          const key = `${item.mediaType}:${item.id}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            rawList.push(item);
+          }
+        }
+      }
+    };
+
+    // 1. Featured movie at position 0 (ensures stable test assertions)
+    if (featuredMovie) {
+      seen.add(`${featuredMovie.mediaType}:${featuredMovie.id}`);
+      rawList.push(featuredMovie);
+    }
+
+    // 2. Viral trending today on the web (movies + series)
+    addItems(trendingToday.data?.items);
+
+    // 3. Top-rated on IMDb / TMDB (movies + series)
+    addItems(topRatedMovies.data?.items);
+    addItems(topRatedSeries.data?.items);
+
+    // 4. Hit popular series & movies
+    addItems(series.data?.items);
+    addItems(movies.data?.items);
+
+    // 5. Trending series & movies
+    addItems(trendingSeries.data?.items);
+    addItems(trendingMovies.data?.items);
+
+    // 6. Currently playing in theaters
+    addItems(nowPlaying.data?.items);
+
+    return rawList.slice(0, 20); // Top 20 blockbuster titles rotating seamlessly
+  }, [
+    featuredMovie,
+    trendingToday.data?.items,
+    topRatedMovies.data?.items,
+    topRatedSeries.data?.items,
+    series.data?.items,
+    movies.data?.items,
+    trendingSeries.data?.items,
+    trendingMovies.data?.items,
+    nowPlaying.data?.items,
+  ]);
 
   return (
     <>

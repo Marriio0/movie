@@ -8,7 +8,7 @@ import {
   X,
 } from 'lucide-react';
 import { Dialog } from 'radix-ui';
-import { useId, useEffect, useState } from 'react';
+import { useId, useEffect, useRef, useState } from 'react';
 import { useLanguage } from '@/shared/i18n/language-context';
 import { paths } from '@/shared/config/paths';
 import { cn } from '@/shared/lib/cn';
@@ -40,6 +40,24 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
   const [trailerOpen, setTrailerOpen] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(0);
+
+  const thumbnailContainerRef = useRef<HTMLDivElement>(null);
+  const activeThumbnailRef = useRef<HTMLButtonElement>(null);
+
+  // Auto-scroll the thumbnail rail to keep the active preview centered
+  useEffect(() => {
+    if (
+      activeThumbnailRef.current &&
+      thumbnailContainerRef.current &&
+      typeof activeThumbnailRef.current.scrollIntoView === 'function'
+    ) {
+      activeThumbnailRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
+    }
+  }, [currentIndex]);
 
   const activeItem = list[currentIndex] || list[0];
 
@@ -131,10 +149,17 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
               <span>{t('vipBadge')}</span>
             </div>
 
-            <Badge tone="accent" className="flex items-center gap-1.5 shadow-sm font-semibold">
-              <Sparkles className="size-3.5" />
-              <span>{t('trendingRank')} • #{currentIndex + 1}</span>
-            </Badge>
+            {activeItem.rating !== null && activeItem.rating >= 7.5 ? (
+              <Badge tone="accent" className="flex items-center gap-1.5 shadow-sm font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                <Sparkles className="size-3.5 text-amber-400" />
+                <span>★ IMDb {activeItem.rating.toFixed(1)} • Top Rated</span>
+              </Badge>
+            ) : (
+              <Badge tone="accent" className="flex items-center gap-1.5 shadow-sm font-semibold">
+                <Sparkles className="size-3.5" />
+                <span>{t('trendingRank')} • #{currentIndex + 1}</span>
+              </Badge>
+            )}
 
             <span className="rounded-md bg-surface-2/80 px-2 py-0.5 font-medium text-fg-muted backdrop-blur-sm border border-line">
               {activeItem.mediaType === 'movie' ? t('movieSingular') : t('seriesSingular')}
@@ -253,12 +278,16 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
             </div>
 
             {/* Slide Indicators / Thumbnails with Live Active Progress Bar */}
-            <div className="flex items-center gap-2.5 overflow-x-auto py-1">
+            <div
+              ref={thumbnailContainerRef}
+              className="flex items-center gap-2.5 overflow-x-auto py-1 scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
               {list.map((item, idx) => {
                 const isActive = idx === currentIndex;
                 return (
                   <button
                     key={`${item.mediaType}:${item.id}`}
+                    ref={isActive ? activeThumbnailRef : undefined}
                     onClick={() => handleSelectIndex(idx)}
                     className={cn(
                       'group relative flex h-11 w-24 sm:w-28 items-center justify-center overflow-hidden rounded-lg border text-xs transition-all duration-300',
