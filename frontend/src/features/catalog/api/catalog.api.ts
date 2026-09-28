@@ -49,8 +49,8 @@ async function getPublic<Raw, Result>(
   { params, signal }: { params?: Record<string, string>; signal?: AbortSignal } = {},
 ): Promise<Result> {
   try {
-    const language = getStoredTmdbLang();
-    const mergedParams = { language, ...params };
+    const isVideos = path.endsWith('/videos');
+    const mergedParams = isVideos ? { ...params } : { language: getStoredTmdbLang(), ...params };
     const { data } = await httpClient.get<Raw>(path, { params: mergedParams, signal });
     return map(data);
   } catch (error) {

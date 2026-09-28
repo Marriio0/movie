@@ -38,13 +38,13 @@ function getTmdbPath(pathname, searchParams) {
   m = pathname.match(/^\/api\/public\/movies\/(\d+)\/videos$/);
   if (m)
     return {
-      path: `/movie/${m[1]}/videos?language=${lang}&include_video_language=ar,fr,en,null`,
+      path: `/movie/${m[1]}/videos?include_video_language=en,fr,ar,null`,
     };
 
   m = pathname.match(/^\/api\/public\/series\/(\d+)\/videos$/);
   if (m)
     return {
-      path: `/tv/${m[1]}/videos?language=${lang}&include_video_language=ar,fr,en,null`,
+      path: `/tv/${m[1]}/videos?include_video_language=en,fr,ar,null`,
     };
 
   m = pathname.match(/^\/api\/public\/movies\/(\d+)\/watch-providers$/);

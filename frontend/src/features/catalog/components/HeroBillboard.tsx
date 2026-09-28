@@ -2,7 +2,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Film,
-  Flame,
   Info,
   Play,
   Sparkles,
@@ -13,7 +12,6 @@ import { useId, useEffect, useRef, useState } from 'react';
 import { useLanguage } from '@/shared/i18n/language-context';
 import { paths } from '@/shared/config/paths';
 import { cn } from '@/shared/lib/cn';
-import { Badge } from '@/shared/ui/Badge';
 import { Button } from '@/shared/ui/Button';
 import { ButtonLink } from '@/shared/ui/ButtonLink';
 import { IconButton } from '@/shared/ui/IconButton';
@@ -23,7 +21,6 @@ import type { MediaSummary } from '../catalog.types';
 import { TMDB_CONTENT_LANG } from '../catalog.types';
 import { youtubeEmbedUrl } from '../lib/youtube';
 import { Backdrop } from './Backdrop';
-import { Rating } from './Rating';
 
 export interface HeroBillboardProps {
   media?: MediaSummary & { backdropPath: string };
@@ -140,39 +137,11 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
       {/* Billboard Hero Body */}
       <div className={HERO_BODY}>
         <div className="max-w-2xl space-y-4">
-          {/* Spotlight Badges with Live Ping VIP Indicator */}
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/15 px-3 py-1 text-xs font-bold text-accent shadow-sm shadow-accent/20">
-              <span className="relative flex size-2">
-                <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-75" />
-                <span className="relative inline-flex size-2 rounded-full bg-accent" />
-              </span>
-              <span>{t('vipBadge')}</span>
-            </div>
-
-            {/* Viral on the web badge */}
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/40 bg-rose-500/15 px-3 py-1 text-xs font-bold text-rose-300 shadow-sm shadow-rose-500/20">
-              <Flame className="size-3.5 fill-current text-rose-400 animate-pulse" />
-              <span>{t('viralHit')}</span>
-            </div>
-
-            <Badge tone="accent" className="flex items-center gap-1.5 shadow-sm font-semibold">
+          {/* Clean, minimalist category indicator */}
+          <div className="flex items-center gap-2 text-xs">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1 font-bold text-accent border border-accent/30 shadow-sm">
               <Sparkles className="size-3.5" />
               <span>{t('trendingRank')} • #{currentIndex + 1}</span>
-            </Badge>
-
-            {activeItem.rating !== null && (
-              <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/15 px-2 py-0.5 font-bold text-amber-300 border border-amber-500/30">
-                <span className="text-amber-400">★</span> IMDb {activeItem.rating.toFixed(1)}
-              </span>
-            )}
-
-            <span className="rounded-md bg-surface-2/80 px-2 py-0.5 font-medium text-fg-muted backdrop-blur-sm border border-line">
-              {activeItem.mediaType === 'movie' ? t('movieSingular') : t('seriesSingular')}
-            </span>
-
-            <span className="rounded-md bg-surface-2/80 px-2 py-0.5 font-semibold text-fg-muted backdrop-blur-sm border border-line">
-              4K Ultra HD
             </span>
           </div>
 
@@ -184,26 +153,28 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
             {activeItem.title}
           </h2>
 
-          {/* Metadata row */}
-          <div className="flex flex-wrap items-center gap-3 text-sm text-fg-muted">
+          {/* Clean Metadata row */}
+          <div className="flex flex-wrap items-center gap-3 text-sm text-fg-muted font-medium">
             <span className="font-semibold text-fg">
               {activeItem.mediaType === 'movie' ? t('movieSingular') : t('seriesSingular')}
             </span>
             {activeItem.year && (
               <>
                 <span className="text-fg-subtle">•</span>
-                <span className="tabular-nums font-medium">{activeItem.year}</span>
+                <span className="tabular-nums font-semibold text-fg">{activeItem.year}</span>
               </>
             )}
             {activeItem.rating !== null && (
               <>
                 <span className="text-fg-subtle">•</span>
-                <Rating value={activeItem.rating} />
+                <span className="inline-flex items-center gap-1 font-semibold text-amber-400">
+                  <span>★</span> {activeItem.rating.toFixed(1)}
+                </span>
               </>
             )}
             <span className="text-fg-subtle">•</span>
-            <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-xs font-bold text-emerald-400 border border-emerald-500/30">
-              Top Pick
+            <span className="rounded border border-line px-1.5 py-0.5 text-[11px] font-bold text-fg-muted uppercase">
+              HD
             </span>
           </div>
 
@@ -232,18 +203,16 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
               </span>
             </ButtonLink>
 
-            {/* Watch Live Trailer Modal Button (Clean, no ads) */}
-            {trailer ? (
-              <Button
-                variant="secondary"
-                size="lg"
-                onClick={() => setTrailerOpen(true)}
-                className="bg-surface-2/90 backdrop-blur-md border border-line-strong hover:bg-surface-3 transition-colors text-fg font-medium gap-2 hover:border-accent"
-              >
-                <Film className="size-5 text-accent" />
-                <span>{t('watchTrailer')}</span>
-              </Button>
-            ) : null}
+            {/* Watch Live Trailer Modal Button (Always accessible) */}
+            <Button
+              variant="secondary"
+              size="lg"
+              onClick={() => setTrailerOpen(true)}
+              className="bg-surface-2/90 backdrop-blur-md border border-line-strong hover:bg-surface-3 transition-colors text-fg font-medium gap-2 hover:border-accent"
+            >
+              <Film className="size-5 text-accent" />
+              <span>{t('watchTrailer')}</span>
+            </Button>
 
             {/* View Details Link */}
             <ButtonLink
@@ -335,59 +304,73 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
       </div>
 
       {/* Cinematic Live Trailer Dialog (100% Ad-Free, Pure YouTube Theater Experience) */}
-      {trailer && (
-        <Dialog.Root open={trailerOpen} onOpenChange={setTrailerOpen}>
-          <Dialog.Portal>
-            <Dialog.Overlay className="fixed inset-0 z-(--z-overlay) bg-black/90 backdrop-blur-md data-[state=closed]:animate-fade-out data-[state=open]:animate-fade-in" />
-            <Dialog.Content className="fixed top-1/2 left-1/2 z-(--z-overlay) w-[min(72rem,calc(100vw-2*var(--gutter)))] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-line bg-surface-1 p-4 shadow-pop outline-none data-[state=closed]:animate-fade-out data-[state=open]:animate-fade-in">
-              <div className="mb-3 flex items-center justify-between gap-4">
-                <Dialog.Title className="flex items-center gap-2.5 truncate text-base font-semibold text-fg">
-                  <Film className="size-5 text-accent shrink-0" />
-                  <span className="truncate font-bold">
-                    {activeItem.title} · {trailer.name || t('watchTrailer')}
-                  </span>
-                </Dialog.Title>
+      <Dialog.Root open={trailerOpen} onOpenChange={setTrailerOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-(--z-overlay) bg-black/90 backdrop-blur-md data-[state=closed]:animate-fade-out data-[state=open]:animate-fade-in" />
+          <Dialog.Content className="fixed top-1/2 left-1/2 z-(--z-overlay) w-[min(72rem,calc(100vw-2*var(--gutter)))] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-line bg-surface-1 p-4 shadow-pop outline-none data-[state=closed]:animate-fade-out data-[state=open]:animate-fade-in">
+            <div className="mb-3 flex items-center justify-between gap-4">
+              <Dialog.Title className="flex items-center gap-2.5 truncate text-base font-semibold text-fg">
+                <Film className="size-5 text-accent shrink-0" />
+                <span className="truncate font-bold">
+                  {activeItem.title} · {trailer?.name || t('watchTrailer')}
+                </span>
+              </Dialog.Title>
 
-                <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
+                <ButtonLink
+                  to={paths.title(activeItem.mediaType, activeItem.id)}
+                  size="sm"
+                  className="gap-1.5 bg-accent text-accent-fg font-bold text-xs"
+                >
+                  <Play className="size-3.5 fill-current" />
+                  <span>{t('watchNow')}</span>
+                </ButtonLink>
+
+                <Dialog.Close asChild>
+                  <IconButton
+                    label={t('closeTrailer')}
+                    className="text-fg-muted hover:bg-surface-3 hover:text-fg"
+                  >
+                    <X className="size-5" />
+                  </IconButton>
+                </Dialog.Close>
+              </div>
+            </div>
+
+            <Dialog.Description className="sr-only">
+              {`Trailer for ${activeItem.title}, streamed directly in high quality without advertisements.`}
+            </Dialog.Description>
+
+            <div className="aspect-video w-full overflow-hidden rounded-xl bg-black shadow-2xl ring-1 ring-white/10 flex items-center justify-center">
+              {trailerOpen && trailer?.youtubeKey ? (
+                <iframe
+                  src={youtubeEmbedUrl(trailer.youtubeKey, language)}
+                  title={`${activeItem.title} Trailer`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+                  allowFullScreen
+                  className="size-full border-0"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center p-8 text-center space-y-4">
+                  <Film className="size-12 text-accent animate-pulse" />
+                  <p className="text-sm font-semibold text-fg">{activeItem.title}</p>
+                  <p className="text-xs text-fg-muted max-w-sm">
+                    {activeItem.overview || 'Stream full high-definition content directly:'}
+                  </p>
                   <ButtonLink
                     to={paths.title(activeItem.mediaType, activeItem.id)}
-                    size="sm"
-                    className="gap-1.5 bg-accent text-accent-fg font-bold text-xs"
+                    size="lg"
+                    className="gap-2 bg-accent text-accent-fg font-bold"
                   >
-                    <Play className="size-3.5 fill-current" />
+                    <Play className="size-5 fill-current" />
                     <span>{t('watchNow')}</span>
                   </ButtonLink>
-
-                  <Dialog.Close asChild>
-                    <IconButton
-                      label={t('closeTrailer')}
-                      className="text-fg-muted hover:bg-surface-3 hover:text-fg"
-                    >
-                      <X className="size-5" />
-                    </IconButton>
-                  </Dialog.Close>
                 </div>
-              </div>
-
-              <Dialog.Description className="sr-only">
-                {`Trailer for ${activeItem.title}, streamed directly in high quality without advertisements.`}
-              </Dialog.Description>
-
-              <div className="aspect-video w-full overflow-hidden rounded-xl bg-black shadow-2xl ring-1 ring-white/10">
-                {trailerOpen && (
-                  <iframe
-                    src={youtubeEmbedUrl(trailer.youtubeKey, language)}
-                    title={`${activeItem.title} Trailer`}
-                    allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-                    allowFullScreen
-                    className="size-full border-0"
-                  />
-                )}
-              </div>
-            </Dialog.Content>
-          </Dialog.Portal>
-        </Dialog.Root>
-      )}
+              )}
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </section>
   );
 }

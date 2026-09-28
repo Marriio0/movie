@@ -143,13 +143,16 @@ const rankOf = <T>(list: readonly T[], value: T) => {
  * official before unofficial, newest first. Clips and featurettes are ignored.
  */
 export function pickTrailer(raw: TmdbVideos): Trailer | null {
-  const candidates = raw.results.filter(
-    (video) =>
-      video.site === 'YouTube' &&
-      video.key &&
-      (TRAILER_TYPES as readonly string[]).includes(video.type),
+  if (!raw?.results || raw.results.length === 0) return null;
+  const youtubeVideos = raw.results.filter((v) => v.site === 'YouTube' && v.key);
+  if (youtubeVideos.length === 0) return null;
+
+  const candidates = youtubeVideos.filter((video) =>
+    (TRAILER_TYPES as readonly string[]).includes(video.type),
   );
-  candidates.sort(
+  const pool = candidates.length > 0 ? candidates : youtubeVideos;
+
+  pool.sort(
     (a, b) =>
       rankOf(TRAILER_TYPES as readonly string[], a.type) -
         rankOf(TRAILER_TYPES as readonly string[], b.type) ||
@@ -158,7 +161,7 @@ export function pickTrailer(raw: TmdbVideos): Trailer | null {
       Number(b.official) - Number(a.official) ||
       b.published_at.localeCompare(a.published_at),
   );
-  const best = candidates[0];
+  const best = pool[0];
   if (!best) return null;
   return {
     youtubeKey: best.key,
