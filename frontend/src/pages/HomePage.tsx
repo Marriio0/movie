@@ -33,63 +33,63 @@ export function HomePage() {
   const online = useOnlineStatus();
 
   // Combine top featured items with backdrop for the rotating hero billboard:
-  // Primary popular movie first (ensuring test assertions and prominent titles),
-  // followed by viral trending today, IMDb top rated, and top popular series.
+  // Strictly alternating between movies and series so viewers see both one after another with fixed timing!
   const featuredMovie = movies.data?.items.find(hasBackdrop);
   const spotlightItems = useMemo(() => {
-    const rawList: (MediaSummary & { backdropPath: string })[] = [];
+    const movieList: (MediaSummary & { backdropPath: string })[] = [];
+    const seriesList: (MediaSummary & { backdropPath: string })[] = [];
     const seen = new Set<string>();
 
-    const addItems = (items?: MediaSummary[]) => {
-      if (!items) return;
-      for (const item of items) {
-        if (hasBackdrop(item)) {
-          const key = `${item.mediaType}:${item.id}`;
-          if (!seen.has(key)) {
-            seen.add(key);
-            rawList.push(item);
-          }
-        }
+    const addMedia = (item?: MediaSummary | null) => {
+      if (!item || !hasBackdrop(item)) return;
+      const key = `${item.mediaType}:${item.id}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      if (item.mediaType === 'movie') {
+        movieList.push(item);
+      } else {
+        seriesList.push(item);
       }
     };
 
-    // 1. Highest priority: Viral trending today on the web (movies + series blowing up right now)
-    addItems(trendingToday.data?.items);
+    const addList = (items?: MediaSummary[]) => {
+      if (!items) return;
+      for (const item of items) addMedia(item);
+    };
 
-    // 2. Popular featured movie
-    if (featuredMovie) {
-      const key = `${featuredMovie.mediaType}:${featuredMovie.id}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        rawList.push(featuredMovie);
-      }
+    // 1. First ensure featuredMovie is first in movieList for tests and prominence
+    if (featuredMovie) addMedia(featuredMovie);
+
+    // 2. Collect trending, popular, and top rated titles
+    addList(trendingToday.data?.items);
+    addList(series.data?.items);
+    addList(movies.data?.items);
+    addList(trendingSeries.data?.items);
+    addList(trendingMovies.data?.items);
+    addList(topRatedSeries.data?.items);
+    addList(topRatedMovies.data?.items);
+    addList(nowPlaying.data?.items);
+
+    // 3. Strictly alternate: Movie, Series, Movie, Series...
+    const alternated: (MediaSummary & { backdropPath: string })[] = [];
+    const maxLen = Math.max(movieList.length, seriesList.length);
+    for (let i = 0; i < maxLen; i++) {
+      const movie = movieList[i];
+      const show = seriesList[i];
+      if (movie) alternated.push(movie);
+      if (show) alternated.push(show);
     }
 
-    // 3. Top-rated on IMDb / TMDB (movies + series)
-    addItems(topRatedMovies.data?.items);
-    addItems(topRatedSeries.data?.items);
-
-    // 4. Hit popular series & movies
-    addItems(series.data?.items);
-    addItems(movies.data?.items);
-
-    // 5. Trending series & movies
-    addItems(trendingSeries.data?.items);
-    addItems(trendingMovies.data?.items);
-
-    // 6. Currently playing in theaters
-    addItems(nowPlaying.data?.items);
-
-    return rawList.slice(0, 24); // Top 24 viral and blockbuster titles rotating seamlessly
+    return alternated.slice(0, 24); // Top 24 titles rotating one after another
   }, [
     featuredMovie,
     trendingToday.data?.items,
-    topRatedMovies.data?.items,
-    topRatedSeries.data?.items,
     series.data?.items,
     movies.data?.items,
     trendingSeries.data?.items,
     trendingMovies.data?.items,
+    topRatedSeries.data?.items,
+    topRatedMovies.data?.items,
     nowPlaying.data?.items,
   ]);
 

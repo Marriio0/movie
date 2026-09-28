@@ -66,14 +66,14 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
     setBgVideoReady(false);
   }, [activeItem?.id]);
 
-  // Auto-advance billboard carousel every 8s with smooth animated progress bar
+  // Auto-advance billboard carousel every 6.5s with smooth animated progress bar
   useEffect(() => {
     if (list.length <= 1 || isPaused || trailerOpen) {
       setProgress(0);
       return;
     }
 
-    const duration = 8000;
+    const duration = 6500;
     const intervalTime = 50;
     const increment = (intervalTime / duration) * 100;
 
@@ -119,8 +119,6 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
     <section
       aria-labelledby={headingId}
       className="relative overflow-hidden bg-canvas min-h-[min(85vh,48rem)]"
-      onPointerEnter={() => setIsPaused(true)}
-      onPointerLeave={() => setIsPaused(false)}
     >
       {/* Absolute Full-Bleed Background Container: Backdrop Poster + Live Ambient Video Trailer */}
       <div className="absolute inset-0 size-full overflow-hidden pointer-events-none select-none z-0">
@@ -319,6 +317,8 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
             {/* Slide Indicators / Thumbnails with Live Active Progress Bar */}
             <div
               ref={thumbnailContainerRef}
+              onPointerEnter={() => setIsPaused(true)}
+              onPointerLeave={() => setIsPaused(false)}
               className="flex items-center gap-2.5 overflow-x-auto py-1 scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               {list.map((item, idx) => {
