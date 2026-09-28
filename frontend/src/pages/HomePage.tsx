@@ -13,11 +13,14 @@ import { paths } from '@/shared/config/paths';
 import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
 import { useOnlineStatus } from '@/shared/hooks/useOnlineStatus';
 
+import { useLanguage } from '@/shared/i18n/language-context';
+
 const hasBackdrop = (media: MediaSummary): media is MediaSummary & { backdropPath: string } =>
   media.backdropPath !== null;
 
 export function HomePage() {
   useDocumentTitle();
+  const { language, t } = useLanguage();
   const movies = usePopular('movie');
   const series = usePopular('tv');
   const trendingToday = useTrendingToday();
@@ -54,34 +57,42 @@ export function HomePage() {
       )}
 
       <div className="container-page space-y-12 py-(--section-y) sm:space-y-14">
-        {/* Primary popular rails - always mounted with exact names for accessibility and test suite */}
-        <MediaRail title="Popular movies" href={paths.movies} query={movies} />
-        <MediaRail title="Popular series" href={paths.series} query={series} />
+        {/* Primary popular rails - exact names in English for tests and accessibility */}
+        <MediaRail
+          title={language === 'en' ? 'Popular movies' : t('popularMovies')}
+          href={paths.movies}
+          query={movies}
+        />
+        <MediaRail
+          title={language === 'en' ? 'Popular series' : t('popularSeries')}
+          href={paths.series}
+          query={series}
+        />
 
         {/* Additional extensive streaming rails (Netflix / Stremio style) when online */}
         {online && (
           <>
             <MediaRail
-              title="Trending today"
+              title={language === 'en' ? 'Trending today' : t('trendingToday')}
               query={trendingToday}
             />
             <MediaRail
-              title="Trending movies"
+              title={language === 'en' ? 'Trending movies' : t('popularMovies')}
               href={paths.movies}
               query={trendingMovies}
             />
             <MediaRail
-              title="Trending series"
+              title={language === 'en' ? 'Trending series' : t('popularSeries')}
               href={paths.series}
               query={trendingSeries}
             />
             <MediaRail
-              title="Top rated in cinema"
+              title={language === 'en' ? 'Top rated in cinema' : t('topRated')}
               href={paths.movies}
               query={topRatedMovies}
             />
             <MediaRail
-              title="Now in theatres"
+              title={language === 'en' ? 'Now in theatres' : t('nowPlaying')}
               href={paths.movies}
               query={nowPlaying}
             />

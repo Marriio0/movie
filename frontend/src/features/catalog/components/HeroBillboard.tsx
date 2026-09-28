@@ -8,7 +8,8 @@ import {
   X,
 } from 'lucide-react';
 import { Dialog } from 'radix-ui';
-import { useEffect, useId, useState } from 'react';
+import { useId, useEffect, useState } from 'react';
+import { useLanguage } from '@/shared/i18n/language-context';
 import { paths } from '@/shared/config/paths';
 import { cn } from '@/shared/lib/cn';
 import { Badge } from '@/shared/ui/Badge';
@@ -33,21 +34,54 @@ const HERO_BODY =
 
 export function HeroBillboard({ media, items }: HeroBillboardProps) {
   const headingId = useId();
+  const { t, language } = useLanguage();
   const list = items && items.length > 0 ? items : media ? [media] : [];
   const [currentIndex, setCurrentIndex] = useState(0);
   const [trailerOpen, setTrailerOpen] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const activeItem = list[currentIndex] || list[0];
 
-  // Auto-advance billboard carousel every 7s if not paused / trailer not open
+  // Auto-advance billboard carousel every 7s with smooth animated progress bar
   useEffect(() => {
-    if (list.length <= 1 || isPaused || trailerOpen) return;
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % list.length);
-    }, 7000);
-    return () => clearInterval(interval);
+    if (list.length <= 1 || isPaused || trailerOpen) {
+      setProgress(0);
+      return;
+    }
+
+    const duration = 7000;
+    const intervalTime = 50;
+    const increment = (intervalTime / duration) * 100;
+
+    const timer = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          setCurrentIndex((current) => (current + 1) % list.length);
+          return 0;
+        }
+        return prev + increment;
+      });
+    }, intervalTime);
+
+    return () => clearInterval(timer);
   }, [list.length, isPaused, trailerOpen]);
+
+  // Reset progress when index changes manually
+  const handleSelectIndex = (idx: number) => {
+    setCurrentIndex(idx);
+    setProgress(0);
+  };
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev === 0 ? list.length - 1 : prev - 1));
+    setProgress(0);
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % list.length);
+    setProgress(0);
+  };
 
   // Query trailer for active featured item
   const trailerQuery = useTitleTrailer(
@@ -58,14 +92,6 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
 
   if (!activeItem) return null;
 
-  const handlePrev = () => {
-    setCurrentIndex((prev) => (prev === 0 ? list.length - 1 : prev - 1));
-  };
-
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % list.length);
-  };
-
   return (
     <section
       aria-labelledby={headingId}
@@ -73,43 +99,47 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
       onPointerEnter={() => setIsPaused(true)}
       onPointerLeave={() => setIsPaused(false)}
     >
-      {/* High-definition cinematic backdrop with multi-stop gradient masks */}
-      <div className="transition-opacity duration-700 ease-out">
-        <Backdrop
-          key={activeItem.id}
-          path={activeItem.backdropPath}
-          className="animate-fade-in"
-        />
+      {/* High-definition cinematic backdrop with subtle zoom and multi-stop gradient masks */}
+      <div className="relative overflow-hidden transition-all duration-1000 ease-out">
+        <div className="transform transition-transform duration-10000 ease-out scale-105">
+          <Backdrop
+            key={activeItem.id}
+            path={activeItem.backdropPath}
+            className="animate-fade-in"
+          />
+        </div>
       </div>
 
-      {/* Dynamic Animated Ambient Neon Aura */}
-      <div className="pointer-events-none absolute -top-24 -start-24 z-1 size-96 rounded-full bg-accent/25 blur-3xl animate-pulse" />
+      {/* Dynamic Animated Ambient Neon Glows */}
+      <div className="pointer-events-none absolute -top-24 -start-24 z-1 size-96 rounded-full bg-accent/20 blur-3xl animate-pulse" />
       <div className="pointer-events-none absolute top-1/3 -end-24 z-1 size-80 rounded-full bg-purple-600/20 blur-3xl" />
 
       {/* Atmospheric ambient top and bottom glow */}
-      <div className="pointer-events-none absolute inset-0 z-1 bg-gradient-to-t from-canvas via-canvas/40 to-canvas/15 md:bg-gradient-to-r md:from-canvas md:via-canvas/80 md:to-transparent" />
+      <div className="pointer-events-none absolute inset-0 z-1 bg-gradient-to-t from-canvas via-canvas/50 to-canvas/20 md:bg-gradient-to-r md:from-canvas md:via-canvas/80 md:to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-2 h-24 bg-gradient-to-t from-canvas to-transparent" />
 
       {/* Billboard Hero Body */}
       <div className={HERO_BODY}>
-        <div className="max-w-2xl">
-          {/* Spotlight Badges with Eye-Catching Pulsing VIP Indicator */}
+        <div className="max-w-2xl space-y-4">
+          {/* Spotlight Badges with Live Ping VIP Indicator */}
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/15 px-3 py-1 text-xs font-bold text-accent shadow-sm shadow-accent/20">
               <span className="relative flex size-2">
                 <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-75" />
                 <span className="relative inline-flex size-2 rounded-full bg-accent" />
               </span>
-              <span>NETFARJO VIP • جودة 4K فوري</span>
+              <span>{t('vipBadge')}</span>
             </div>
 
             <Badge tone="accent" className="flex items-center gap-1.5 shadow-sm font-semibold">
               <Sparkles className="size-3.5" />
-              <span>تريند اليوم · Trending #{currentIndex + 1}</span>
+              <span>{t('trendingRank')} • #{currentIndex + 1}</span>
             </Badge>
+
             <span className="rounded-md bg-surface-2/80 px-2 py-0.5 font-medium text-fg-muted backdrop-blur-sm border border-line">
-              {activeItem.mediaType === 'movie' ? 'فيلم سينمائي' : 'مسلسل'}
+              {activeItem.mediaType === 'movie' ? t('movieSingular') : t('seriesSingular')}
             </span>
+
             <span className="rounded-md bg-surface-2/80 px-2 py-0.5 font-semibold text-fg-muted backdrop-blur-sm border border-line">
               4K Ultra HD
             </span>
@@ -118,15 +148,15 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
           {/* Title */}
           <h2
             id={headingId}
-            className="mt-4 font-display text-display-md sm:text-display-lg leading-none tracking-tight text-balance text-fg drop-shadow-md transition-all duration-500 animate-in fade-in slide-in-from-bottom-2"
+            className="font-display text-display-md sm:text-display-lg leading-tight tracking-tight text-balance text-fg drop-shadow-md transition-all duration-500 animate-in fade-in slide-in-from-bottom-2"
           >
             {activeItem.title}
           </h2>
 
           {/* Metadata row */}
-          <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-fg-muted">
-            <span className="font-medium text-fg">
-              {activeItem.mediaType === 'movie' ? 'Movie' : 'Series'}
+          <div className="flex flex-wrap items-center gap-3 text-sm text-fg-muted">
+            <span className="font-semibold text-fg">
+              {activeItem.mediaType === 'movie' ? t('movieSingular') : t('seriesSingular')}
             </span>
             {activeItem.year && (
               <>
@@ -140,20 +170,24 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
                 <Rating value={activeItem.rating} />
               </>
             )}
+            <span className="text-fg-subtle">•</span>
+            <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-xs font-bold text-emerald-400 border border-emerald-500/30">
+              Top Pick
+            </span>
           </div>
 
           {/* Overview / Synopsis */}
           {activeItem.overview && (
             <p
               lang={TMDB_CONTENT_LANG}
-              className="mt-4 line-clamp-3 text-sm sm:text-base leading-relaxed text-pretty text-fg-muted drop-shadow-sm max-w-xl"
+              className="line-clamp-3 text-sm sm:text-base leading-relaxed text-pretty text-fg-muted drop-shadow-sm max-w-xl"
             >
               {activeItem.overview}
             </p>
           )}
 
           {/* Action Buttons: Watch Now, Watch Trailer, View Details */}
-          <div className="mt-7 flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3 pt-2">
             {/* Direct Play Link with animated pulse glow */}
             <ButtonLink
               to={paths.title(activeItem.mediaType, activeItem.id)}
@@ -163,20 +197,20 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
               <span className="absolute -inset-0.5 rounded-lg bg-gradient-to-r from-accent to-purple-600 opacity-50 blur-xs transition group-hover:opacity-100 animate-pulse" />
               <span className="relative flex items-center gap-2">
                 <Play className="size-5 fill-current transition-transform duration-200 group-hover:scale-110" />
-                <span>تشغيل الآن · Watch Now</span>
+                <span>{t('watchNow')}</span>
               </span>
             </ButtonLink>
 
-            {/* Watch Live Trailer Modal Button */}
+            {/* Watch Live Trailer Modal Button (Clean, no ads) */}
             {trailer ? (
               <Button
                 variant="secondary"
                 size="lg"
                 onClick={() => setTrailerOpen(true)}
-                className="bg-surface-2/90 backdrop-blur-md border border-line-strong hover:bg-surface-3 transition-colors text-fg font-medium"
+                className="bg-surface-2/90 backdrop-blur-md border border-line-strong hover:bg-surface-3 transition-colors text-fg font-medium gap-2 hover:border-accent"
               >
                 <Film className="size-5 text-accent" />
-                <span>الإعلان · Trailer</span>
+                <span>{t('watchTrailer')}</span>
               </Button>
             ) : null}
 
@@ -188,7 +222,7 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
               className="text-fg-muted hover:text-fg hover:bg-surface-2/60 backdrop-blur-sm"
             >
               <Info className="size-5" />
-              <span>View details</span>
+              <span>{t('viewDetails')}</span>
             </ButtonLink>
           </div>
         </div>
@@ -199,7 +233,7 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
             {/* Arrows */}
             <div className="flex items-center gap-2">
               <IconButton
-                label="العنوان السابق"
+                label={t('previousTitle')}
                 size="sm"
                 variant="secondary"
                 onClick={handlePrev}
@@ -208,7 +242,7 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
                 <ChevronLeft className="size-4" />
               </IconButton>
               <IconButton
-                label="العنوان التالي"
+                label={t('nextTitle')}
                 size="sm"
                 variant="secondary"
                 onClick={handleNext}
@@ -218,72 +252,100 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
               </IconButton>
             </div>
 
-            {/* Slide Indicators / Thumbnails */}
-            <div className="flex items-center gap-2 overflow-x-auto py-1">
-              {list.map((item, idx) => (
-                <button
-                  key={`${item.mediaType}:${item.id}`}
-                  onClick={() => setCurrentIndex(idx)}
-                  className={cn(
-                    'group relative flex h-10 w-20 items-center justify-center overflow-hidden rounded-md border text-xs transition-all duration-200',
-                    idx === currentIndex
-                      ? 'border-accent ring-2 ring-accent/30 shadow-md scale-105'
-                      : 'border-line/60 opacity-60 hover:opacity-100 hover:border-line-strong',
-                  )}
-                  aria-label={`الانتقال إلى ${item.title}`}
-                >
-                  <img
-                    src={`https://image.tmdb.org/t/p/w300${item.backdropPath}`}
-                    alt=""
-                    className="absolute inset-0 size-full object-cover"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-black/50 transition-colors group-hover:bg-black/30" />
-                  <span className="relative z-1 line-clamp-1 px-1 font-semibold text-white drop-shadow">
-                    #{idx + 1}
-                  </span>
-                </button>
-              ))}
+            {/* Slide Indicators / Thumbnails with Live Active Progress Bar */}
+            <div className="flex items-center gap-2.5 overflow-x-auto py-1">
+              {list.map((item, idx) => {
+                const isActive = idx === currentIndex;
+                return (
+                  <button
+                    key={`${item.mediaType}:${item.id}`}
+                    onClick={() => handleSelectIndex(idx)}
+                    className={cn(
+                      'group relative flex h-11 w-24 sm:w-28 items-center justify-center overflow-hidden rounded-lg border text-xs transition-all duration-300',
+                      isActive
+                        ? 'border-accent ring-2 ring-accent/40 shadow-lg shadow-accent/20 scale-105'
+                        : 'border-line/60 opacity-60 hover:opacity-100 hover:border-line-strong',
+                    )}
+                    aria-label={item.title}
+                  >
+                    <img
+                      src={`https://image.tmdb.org/t/p/w300${item.backdropPath}`}
+                      alt=""
+                      className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-110"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-black/55 transition-colors group-hover:bg-black/35" />
+
+                    {/* Rank Badge */}
+                    <span className="relative z-1 flex items-center gap-1 px-1.5 font-bold text-white drop-shadow text-[11px] truncate">
+                      <span className="text-accent font-extrabold">#{idx + 1}</span>
+                      <span className="truncate">{item.title}</span>
+                    </span>
+
+                    {/* Active Slide Progress Line (Shows countdown to next trailer) */}
+                    {isActive && (
+                      <div className="absolute inset-x-0 bottom-0 z-2 h-1 bg-white/20">
+                        <div
+                          className="h-full bg-accent transition-all duration-75 ease-linear shadow-sm shadow-accent"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
       </div>
 
-      {/* Cinematic Live Trailer Dialog */}
+      {/* Cinematic Live Trailer Dialog (100% Ad-Free, Pure YouTube Theater Experience) */}
       {trailer && (
         <Dialog.Root open={trailerOpen} onOpenChange={setTrailerOpen}>
           <Dialog.Portal>
             <Dialog.Overlay className="fixed inset-0 z-(--z-overlay) bg-black/90 backdrop-blur-md data-[state=closed]:animate-fade-out data-[state=open]:animate-fade-in" />
-            <Dialog.Content className="fixed top-1/2 left-1/2 z-(--z-overlay) w-[min(70rem,calc(100vw-2*var(--gutter)))] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-line bg-surface-1 p-4 shadow-pop outline-none data-[state=closed]:animate-fade-out data-[state=open]:animate-fade-in">
+            <Dialog.Content className="fixed top-1/2 left-1/2 z-(--z-overlay) w-[min(72rem,calc(100vw-2*var(--gutter)))] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-line bg-surface-1 p-4 shadow-pop outline-none data-[state=closed]:animate-fade-out data-[state=open]:animate-fade-in">
               <div className="mb-3 flex items-center justify-between gap-4">
                 <Dialog.Title className="flex items-center gap-2.5 truncate text-base font-semibold text-fg">
                   <Film className="size-5 text-accent shrink-0" />
-                  <span className="truncate">
-                    {activeItem.title} · {trailer.name || 'Official Trailer'}
+                  <span className="truncate font-bold">
+                    {activeItem.title} · {trailer.name || t('watchTrailer')}
                   </span>
                 </Dialog.Title>
-                <Dialog.Close asChild>
-                  <IconButton
-                    label="إغلاق الإعلان"
-                    className="text-fg-muted hover:bg-surface-3 hover:text-fg"
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <ButtonLink
+                    to={paths.title(activeItem.mediaType, activeItem.id)}
+                    size="sm"
+                    className="gap-1.5 bg-accent text-accent-fg font-bold text-xs"
                   >
-                    <X className="size-5" />
-                  </IconButton>
-                </Dialog.Close>
+                    <Play className="size-3.5 fill-current" />
+                    <span>{t('watchNow')}</span>
+                  </ButtonLink>
+
+                  <Dialog.Close asChild>
+                    <IconButton
+                      label={t('closeTrailer')}
+                      className="text-fg-muted hover:bg-surface-3 hover:text-fg"
+                    >
+                      <X className="size-5" />
+                    </IconButton>
+                  </Dialog.Close>
+                </div>
               </div>
 
               <Dialog.Description className="sr-only">
-                {`Trailer for ${activeItem.title}, streamed directly from YouTube in high quality.`}
+                {`Trailer for ${activeItem.title}, streamed directly in high quality without advertisements.`}
               </Dialog.Description>
 
-              <div className="aspect-video w-full overflow-hidden rounded-xl bg-black shadow-2xl">
+              <div className="aspect-video w-full overflow-hidden rounded-xl bg-black shadow-2xl ring-1 ring-white/10">
                 {trailerOpen && (
                   <iframe
-                    src={youtubeEmbedUrl(trailer.youtubeKey)}
-                    title={`${activeItem.title} Official Trailer`}
+                    src={youtubeEmbedUrl(trailer.youtubeKey, language)}
+                    title={`${activeItem.title} Trailer`}
                     allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
                     allowFullScreen
-                    className="size-full"
+                    className="size-full border-0"
                   />
                 )}
               </div>

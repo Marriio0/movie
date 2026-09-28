@@ -26,6 +26,16 @@ export const TRANSLATIONS = {
     searchPlaceholder: 'ابحث عن فيلم أو مسلسل مباشرة...',
     quickSearch: 'بحث سريع',
     watchNow: 'مشاهدة الآن',
+    watchTrailer: 'العرض الترويجي',
+    viewDetails: 'التفاصيل',
+    vipBadge: 'نتفرجو VIP • دقة 4K فائقة',
+    trendingRank: 'تريند اليوم',
+    movieSingular: 'فيلم سينمائي',
+    seriesSingular: 'مسلسل تلفزيوني',
+    previousTitle: 'السابق',
+    nextTitle: 'التالي',
+    closeTrailer: 'إغلاق العرض الترويجي',
+    seeAll: 'عرض الكل',
     moreInfo: 'تفاصيل الفيلم',
     trendingToday: 'الرائج اليوم',
     popularMovies: 'أفلام شائعة',
@@ -54,6 +64,16 @@ export const TRANSLATIONS = {
     searchPlaceholder: 'Rechercher un film ou une série...',
     quickSearch: 'Recherche rapide',
     watchNow: 'Regarder',
+    watchTrailer: 'Bande-annonce',
+    viewDetails: 'Détails',
+    vipBadge: 'NETFARJO VIP • 4K ULTRA',
+    trendingRank: 'Tendances du jour',
+    movieSingular: 'Film',
+    seriesSingular: 'Série TV',
+    previousTitle: 'Précédent',
+    nextTitle: 'Suivant',
+    closeTrailer: 'Fermer la bande-annonce',
+    seeAll: 'Voir tout',
     moreInfo: 'Plus d’infos',
     trendingToday: 'Tendances du jour',
     popularMovies: 'Films populaires',
@@ -82,10 +102,20 @@ export const TRANSLATIONS = {
     searchPlaceholder: 'Search movies & series instantly...',
     quickSearch: 'Quick search',
     watchNow: 'Watch Now',
+    watchTrailer: 'Watch Trailer',
+    viewDetails: 'View details',
+    vipBadge: 'NETFARJO VIP • 4K ULTRA',
+    trendingRank: 'Trending Today',
+    movieSingular: 'Movie',
+    seriesSingular: 'TV Series',
+    previousTitle: 'Previous',
+    nextTitle: 'Next',
+    closeTrailer: 'Close Trailer',
+    seeAll: 'See all',
     moreInfo: 'More Info',
     trendingToday: 'Trending Today',
-    popularMovies: 'Popular Movies',
-    popularSeries: 'Popular Series',
+    popularMovies: 'Popular movies',
+    popularSeries: 'Popular series',
     topRated: 'Top Rated',
     nowPlaying: 'Now in Theatres',
     loadMore: 'Load More Titles...',
@@ -173,7 +203,7 @@ export function useLanguage() {
   const context = useContext(LanguageContext);
   if (!context) {
     // Graceful fallback for components rendered outside provider in isolated tests
-    const defaultObj = SUPPORTED_LANGUAGES[0]!;
+    const defaultObj = SUPPORTED_LANGUAGES[2]!; // default English
     return {
       language: 'en' as AppLanguage,
       setLanguage: () => {},
@@ -184,3 +214,21 @@ export function useLanguage() {
   }
   return context;
 }
+
+export function getStoredLanguage(): AppLanguage {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY) as AppLanguage | null;
+    if (saved === 'ar' || saved === 'fr' || saved === 'en') return saved;
+    return 'en';
+  } catch {
+    return 'en';
+  }
+}
+
+export function getStoredTmdbLang(): string {
+  const code = getStoredLanguage();
+  if (code === 'ar') return 'ar-SA';
+  if (code === 'fr') return 'fr-FR';
+  return 'en-US';
+}
+

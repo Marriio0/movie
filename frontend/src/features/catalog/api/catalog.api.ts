@@ -30,6 +30,8 @@ import type {
   TmdbWatchProviders,
 } from './tmdb.types';
 
+import { getStoredTmdbLang } from '@/shared/i18n/language-context';
+
 /** URL segment the backend uses for each media type (MovieController). */
 const segment = (mediaType: MediaType) => (mediaType === 'movie' ? 'movies' : 'series');
 
@@ -47,7 +49,9 @@ async function getPublic<Raw, Result>(
   { params, signal }: { params?: Record<string, string>; signal?: AbortSignal } = {},
 ): Promise<Result> {
   try {
-    const { data } = await httpClient.get<Raw>(path, { params, signal });
+    const language = getStoredTmdbLang();
+    const mergedParams = { language, ...params };
+    const { data } = await httpClient.get<Raw>(path, { params: mergedParams, signal });
     return map(data);
   } catch (error) {
     if (isApiError(error) && error.kind === 'unauthorized') {

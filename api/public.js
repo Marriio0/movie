@@ -5,7 +5,7 @@ const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 function getTmdbPath(pathname, searchParams) {
   if (pathname === '/api/public/health') return { isHealth: true };
 
-  const lang = searchParams.get('language') || 'fr-FR';
+  const lang = searchParams.get('language') || 'en-US';
   const page = searchParams.get('page') || '1';
 
   if (pathname === '/api/public/movies/popular')
