@@ -60,6 +60,8 @@ export const handlers = [
       ? HttpResponse.json(fixtures.seriesCredits)
       : maskedBackendError(),
   ),
+  http.get('/api/public/movies/:id/similar', () => HttpResponse.json(fixtures.popularMovies)),
+  http.get('/api/public/series/:id/similar', () => HttpResponse.json(fixtures.popularSeries)),
   http.get('/api/public/movies/:id', ({ params }) =>
     params.id === String(FIXTURE_IDS.movie)
       ? HttpResponse.json(fixtures.movieDetails)

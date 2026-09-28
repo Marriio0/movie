@@ -1,11 +1,12 @@
 import { Film, Loader2, Sparkles, Tv } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { catalogApi } from '@/features/catalog/api/catalog.api';
 import { usePopular } from '@/features/catalog/catalog.hooks';
 import type { MediaSummary } from '@/features/catalog/catalog.types';
 import { MediaGrid } from '@/features/catalog/components/MediaGrid';
 import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
 import { useLanguage } from '@/shared/i18n/language-context';
+import { cn } from '@/shared/lib/cn';
 import type { MediaType } from '@/shared/types/media';
 import { Button } from '@/shared/ui/Button';
 
@@ -14,11 +15,24 @@ const COPY: Record<MediaType, { title: string; noun: string }> = {
   tv: { title: 'Series', noun: 'series' },
 };
 
+const GENRE_PILLS = [
+  { id: 'all', en: 'All', ar: 'الكل', fr: 'Tous' },
+  { id: 28, tvId: 10759, en: 'Action', ar: 'أكشن', fr: 'Action' },
+  { id: 35, tvId: 35, en: 'Comedy', ar: 'كوميديا', fr: 'Comédie' },
+  { id: 18, tvId: 18, en: 'Drama', ar: 'دراما', fr: 'Drame' },
+  { id: 27, tvId: 9648, en: 'Horror', ar: 'رعب', fr: 'Horreur' },
+  { id: 878, tvId: 10765, en: 'Sci-Fi', ar: 'خيال علمي', fr: 'Sci-Fi' },
+  { id: 16, tvId: 16, en: 'Animation', ar: 'أنمي ورسوم', fr: 'Animation' },
+  { id: 80, tvId: 80, en: 'Crime', ar: 'جريمة', fr: 'Crime' },
+  { id: 53, tvId: 9648, en: 'Thriller', ar: 'إثارة', fr: 'Thriller' },
+];
+
 function Browse({ mediaType }: { mediaType: MediaType }) {
   const { title, noun } = COPY[mediaType];
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   useDocumentTitle(title);
   const query = usePopular(mediaType);
+  const [selectedGenre, setSelectedGenre] = useState<string | number>('all');
 
   // Paginated extra items for infinite browsing
   const [extraItems, setExtraItems] = useState<MediaSummary[]>([]);
@@ -26,11 +40,12 @@ function Browse({ mediaType }: { mediaType: MediaType }) {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
-  // Reset pagination state when media type changes
+  // Reset pagination & filter state when media type changes
   useEffect(() => {
     setExtraItems([]);
     setPage(1);
     setHasMore(true);
+    setSelectedGenre('all');
   }, [mediaType]);
 
   const loadMore = useCallback(async () => {
@@ -80,6 +95,16 @@ function Browse({ mediaType }: { mediaType: MediaType }) {
 
   const allItems = [...(query.data?.items ?? []), ...extraItems];
 
+  const displayedItems = useMemo(() => {
+    if (selectedGenre === 'all') return allItems;
+    const targetPill = GENRE_PILLS.find((p) => p.id === selectedGenre);
+    if (!targetPill) return allItems;
+    const targetId = mediaType === 'tv' && targetPill.tvId ? targetPill.tvId : targetPill.id;
+    return allItems.filter((item) =>
+      item.genreIds ? item.genreIds.includes(Number(targetId)) : true,
+    );
+  }, [allItems, selectedGenre, mediaType]);
+
   return (
     <div className="container-page py-(--section-y)">
       <header className="max-w-2xl space-y-2">
@@ -95,10 +120,34 @@ function Browse({ mediaType }: { mediaType: MediaType }) {
         </p>
       </header>
 
+      {/* Category & Genre Pills Bar */}
+      <div className="mt-6 flex items-center gap-2 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {GENRE_PILLS.map((pill) => {
+          const isSelected = selectedGenre === pill.id;
+          const label =
+            language === 'ar' ? pill.ar : language === 'fr' ? pill.fr : pill.en;
+          return (
+            <button
+              key={String(pill.id)}
+              type="button"
+              onClick={() => setSelectedGenre(pill.id)}
+              className={cn(
+                'flex-none rounded-full px-4 py-1.5 text-xs font-semibold transition-all duration-200 shadow-sm cursor-pointer',
+                isSelected
+                  ? 'bg-accent text-accent-fg shadow-accent/20 scale-105'
+                  : 'bg-surface-2 text-fg-muted hover:bg-surface-3 hover:text-fg border border-line',
+              )}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
+
       <div className="mt-8 sm:mt-10">
         <MediaGrid
           query={query}
-          items={allItems}
+          items={displayedItems}
           errorTitle={`Couldn’t load popular ${noun}`}
           empty={{
             icon: mediaType === 'movie' ? Film : Tv,

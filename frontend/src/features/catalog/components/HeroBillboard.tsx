@@ -21,6 +21,7 @@ import { useTitleTrailer } from '../catalog.hooks';
 import type { MediaSummary } from '../catalog.types';
 import { TMDB_CONTENT_LANG } from '../catalog.types';
 import { youtubeBackgroundTrailerUrl, youtubeEmbedUrl } from '../lib/youtube';
+import { SurpriseModal } from './SurpriseModal';
 
 export interface HeroBillboardProps {
   media?: MediaSummary & { backdropPath: string };
@@ -275,6 +276,9 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
                 )}
               </Button>
             )}
+
+            {/* Surprise Me / Random Hit Generator */}
+            <SurpriseModal items={list} />
 
             {/* View Details Link */}
             <ButtonLink

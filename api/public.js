@@ -35,6 +35,12 @@ function getTmdbPath(pathname, searchParams) {
   m = pathname.match(/^\/api\/public\/series\/(\d+)\/credits$/);
   if (m) return { path: `/tv/${m[1]}/credits?language=${lang}` };
 
+  m = pathname.match(/^\/api\/public\/movies\/(\d+)\/similar$/);
+  if (m) return { path: `/movie/${m[1]}/recommendations?language=${lang}` };
+
+  m = pathname.match(/^\/api\/public\/series\/(\d+)\/similar$/);
+  if (m) return { path: `/tv/${m[1]}/recommendations?language=${lang}` };
+
   m = pathname.match(/^\/api\/public\/movies\/(\d+)\/videos$/);
   if (m)
     return {

@@ -112,3 +112,10 @@ export const watchProvidersQuery = (mediaType: MediaType, id: number) =>
     queryFn: ({ signal }) => catalogApi.watchProviders(mediaType, id, signal),
     staleTime: 60 * MINUTE,
   });
+
+export const similarQuery = (mediaType: MediaType, id: number) =>
+  queryOptions({
+    queryKey: [...catalogKeys.all, 'similar', mediaType, id] as const,
+    queryFn: ({ signal }) => catalogApi.similar(mediaType, id, signal),
+    staleTime: 30 * MINUTE,
+  });

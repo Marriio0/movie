@@ -8,6 +8,7 @@ import {
   nowPlayingQuery,
   popularQuery,
   searchQuery,
+  similarQuery,
   topRatedQuery,
   trailerQuery,
   trendingMoviesQuery,
@@ -47,6 +48,9 @@ export const useTitleTrailer = (mediaType: MediaType, id: number) =>
 
 export const useWatchProviders = (mediaType: MediaType, id: number) =>
   useQuery(watchProvidersQuery(mediaType, id));
+
+export const useSimilarTitles = (mediaType: MediaType, id: number) =>
+  useQuery(similarQuery(mediaType, id));
 
 /** Warms the detail page cache when a card is hovered or focused. Errors are ignored. */
 export function usePrefetchTitle() {

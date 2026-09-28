@@ -14,6 +14,7 @@ export interface MediaSummary {
   /** TMDB vote average out of 10; null when nobody has voted. */
   rating: number | null;
   voteCount: number;
+  genreIds?: number[];
 }
 
 export interface Genre {

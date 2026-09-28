@@ -35,6 +35,7 @@ import { Badge } from '@/shared/ui/Badge';
 import { Button } from '@/shared/ui/Button';
 import { IconButton } from '@/shared/ui/IconButton';
 import { Spinner } from '@/shared/ui/Spinner';
+import { saveContinueWatching } from '../lib/continue-watching';
 
 export interface WatchPlayerProps {
   details: MediaDetails;
@@ -110,6 +111,21 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
   // Season and episode state for series
   const [currentSeason, setCurrentSeason] = useState<number>(1);
   const [currentEpisode, setCurrentEpisode] = useState<number>(1);
+
+  // Automatically save playback progress to Continue Watching
+  useEffect(() => {
+    saveContinueWatching({
+      id: details.id,
+      mediaType: details.mediaType,
+      title: details.title,
+      posterPath: details.posterPath,
+      backdropPath: details.backdropPath,
+      rating: details.rating,
+      year: details.year,
+      season: isSeries ? currentSeason : undefined,
+      episode: isSeries ? currentEpisode : undefined,
+    });
+  }, [details, isSeries, currentSeason, currentEpisode]);
 
   // Theater / Cinema mode
   const [isTheater, setIsTheater] = useState(false);
@@ -629,28 +645,28 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 </span>
               </div>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <Button
                   size="sm"
                   variant="secondary"
                   disabled={currentEpisode <= 1}
                   onClick={() => setCurrentEpisode((prev) => Math.max(1, prev - 1))}
-                  className="h-7 text-xs"
+                  className="h-8 px-2.5 text-xs font-semibold gap-1"
                 >
-                  <ChevronLeft className="size-3" />
-                  <span>Previous Ep</span>
+                  <ChevronLeft className="size-3.5" />
+                  <span>{currentEpisode > 1 ? `Ep ${currentEpisode - 1}` : 'Previous Ep'}</span>
                 </Button>
                 <Button
                   size="sm"
-                  variant="secondary"
+                  variant={currentEpisode < episodesInCurrentSeason ? 'primary' : 'secondary'}
                   disabled={currentEpisode >= episodesInCurrentSeason}
                   onClick={() =>
                     setCurrentEpisode((prev) => Math.min(episodesInCurrentSeason, prev + 1))
                   }
-                  className="h-7 text-xs"
+                  className="h-8 px-3 text-xs font-bold gap-1 shadow-sm"
                 >
-                  <span>Next Ep</span>
-                  <ChevronRight className="size-3" />
+                  <span>{currentEpisode < episodesInCurrentSeason ? `Next Ep ${currentEpisode + 1}` : 'Last Episode'}</span>
+                  <ChevronRight className="size-3.5" />
                 </Button>
               </div>
             </div>

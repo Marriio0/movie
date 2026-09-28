@@ -55,6 +55,7 @@ export function toMediaSummary(
     year: yearOf(releaseDate),
     rating: raw.vote_count > 0 ? raw.vote_average : null,
     voteCount: raw.vote_count,
+    genreIds: Array.isArray(raw.genre_ids) ? raw.genre_ids : [],
   };
 }
 

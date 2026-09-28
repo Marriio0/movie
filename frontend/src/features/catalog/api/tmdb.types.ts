@@ -20,6 +20,7 @@ interface TmdbMediaBase {
   overview: string; // '' when TMDB has no translation for the requested language
   vote_average: number;
   vote_count: number;
+  genre_ids?: number[];
 }
 
 export interface TmdbMovieListItem extends TmdbMediaBase {

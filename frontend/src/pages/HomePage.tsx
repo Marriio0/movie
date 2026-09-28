@@ -8,6 +8,7 @@ import {
 } from '@/features/catalog/catalog.hooks';
 import type { MediaSummary } from '@/features/catalog/catalog.types';
 import { HeroBillboard, HeroBillboardSkeleton } from '@/features/catalog/components/HeroBillboard';
+import { ContinueWatchingRail } from '@/features/catalog/components/ContinueWatchingRail';
 import { MediaRail } from '@/features/catalog/components/MediaRail';
 import { paths } from '@/shared/config/paths';
 import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
@@ -103,6 +104,9 @@ export function HomePage() {
       ) : (
         featuredMovie && <HeroBillboard media={featuredMovie} />
       )}
+
+      {/* Continue Watching Rail (Shown when user has watch history) */}
+      <ContinueWatchingRail />
 
       <div className="container-page space-y-12 py-(--section-y) sm:space-y-14">
         {/* Primary popular rails - exact names in English for tests and accessibility */}

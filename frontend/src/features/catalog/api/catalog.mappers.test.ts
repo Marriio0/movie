@@ -36,6 +36,7 @@ describe('toMediaSummary', () => {
       year: 2026,
       rating: 7.865,
       voteCount: 2881,
+      genreIds: [878, 28, 12],
     });
   });
 

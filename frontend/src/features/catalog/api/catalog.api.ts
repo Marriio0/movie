@@ -179,6 +179,19 @@ export const catalogApi = {
       },
     ),
 
+  /** GET /api/public/{movies|series}/{id}/similar → more like this / recommendations */
+  similar: async (mediaType: MediaType, id: number, signal?: AbortSignal): Promise<MediaList> => {
+    try {
+      return await getPublic<TmdbPage<TmdbMovieListItem | TmdbTvListItem>, MediaList>(
+        `/api/public/${segment(mediaType)}/${id}/similar`,
+        (page) => toMediaList(page, (raw) => toMediaSummary(raw, mediaType)),
+        { signal },
+      );
+    } catch {
+      return catalogApi.popular(mediaType, signal);
+    }
+  },
+
   /** GET /api/public/{movies|series}/{id}/watch-providers → legal offers per country. */
   watchProviders: (
     mediaType: MediaType,

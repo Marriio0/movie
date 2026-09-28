@@ -1,7 +1,8 @@
 import { Play, Tv } from 'lucide-react';
 import { useParams } from 'react-router';
-import { useTitleCredits, useTitleDetails } from '@/features/catalog/catalog.hooks';
+import { useSimilarTitles, useTitleCredits, useTitleDetails } from '@/features/catalog/catalog.hooks';
 import { CastList } from '@/features/catalog/components/CastList';
+import { MediaRail } from '@/features/catalog/components/MediaRail';
 import { OfflineNotice } from '@/features/catalog/components/OfflineNotice';
 import { TrailerButton } from '@/features/catalog/components/TrailerButton';
 import { WatchPlayer } from '@/features/catalog/components/WatchPlayer';
@@ -15,6 +16,7 @@ import {
 import { NotFoundView } from '@/shared/components/NotFoundView';
 import { paths } from '@/shared/config/paths';
 import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
+import { useLanguage } from '@/shared/i18n/language-context';
 import { parsePositiveInt } from '@/shared/lib/params';
 import type { MediaType } from '@/shared/types/media';
 import { buttonStyles } from '@/shared/ui/button-styles';
@@ -26,6 +28,8 @@ const LABEL: Record<MediaType, string> = { movie: 'Movie', tv: 'Series' };
 function TitleDetail({ mediaType, id }: { mediaType: MediaType; id: number }) {
   const details = useTitleDetails(mediaType, id);
   const credits = useTitleCredits(mediaType, id);
+  const similar = useSimilarTitles(mediaType, id);
+  const { language } = useLanguage();
   const offline = useWaitingForNetwork(details);
   useDocumentTitle(details.data?.title ?? LABEL[mediaType]);
 
@@ -86,6 +90,18 @@ function TitleDetail({ mediaType, id }: { mediaType: MediaType; id: number }) {
         <TitleFacts details={details.data} directors={credits.data?.directors} />
         <WhereToWatch mediaType={mediaType} id={id} />
         <CastList query={credits} />
+        {similar.data && similar.data.items.length > 0 && (
+          <MediaRail
+            title={
+              language === 'ar'
+                ? 'أعمال مشابهة قد تعجبك'
+                : language === 'fr'
+                  ? 'Titres similaires'
+                  : 'More Like This'
+            }
+            query={similar}
+          />
+        )}
       </div>
     </>
   );
