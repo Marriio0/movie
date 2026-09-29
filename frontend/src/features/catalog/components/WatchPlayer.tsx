@@ -460,7 +460,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
           </div>
 
           {/* Navigation View Tabs */}
-          <div className="flex items-center gap-1 rounded-lg border border-line bg-surface-2 p-1">
+          <div className="flex items-center gap-1 rounded-lg border border-line bg-surface-2 p-1 overflow-x-auto max-w-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <button
               type="button"
               onClick={() => {
@@ -468,7 +468,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 setDirectVideoUrl(null);
               }}
               className={cn(
-                'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition',
+                'flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition',
                 viewMode === 'torrentio'
                   ? 'bg-purple-600 text-white shadow-sm'
                   : 'text-fg-muted hover:text-fg',
@@ -485,7 +485,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 setDirectVideoUrl(null);
               }}
               className={cn(
-                'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition',
+                'flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition',
                 viewMode === 'stream'
                   ? 'bg-accent text-accent-fg shadow-sm'
                   : 'text-fg-muted hover:text-fg',
@@ -499,7 +499,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               type="button"
               onClick={() => handleSetViewMode('download')}
               className={cn(
-                'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition',
+                'flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition',
                 viewMode === 'download'
                   ? 'bg-emerald-600 text-white shadow-sm'
                   : 'text-fg-muted hover:text-fg',
@@ -537,7 +537,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
         {viewMode === 'stream' && (
           <div className="space-y-2">
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-              <div className="flex flex-wrap items-center gap-1.5">
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap">
                 {STREAMING_SERVERS.map((server) => {
                   const isSelected = selectedServerId === server.id && !directVideoUrl;
                   return (
@@ -549,7 +549,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                         setDirectVideoUrl(null);
                       }}
                       className={cn(
-                        'flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition',
+                        'flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition',
                         isSelected
                           ? 'bg-accent text-accent-fg shadow-sm'
                           : 'bg-surface-2 text-fg ring-1 ring-line hover:bg-surface-3',
@@ -567,7 +567,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                     setViewMode('torrentio');
                     setDirectVideoUrl(null);
                   }}
-                  className="flex items-center gap-1.5 rounded-md bg-emerald-950/60 px-2.5 py-1 text-xs font-semibold text-emerald-300 ring-1 ring-emerald-500/40 hover:bg-emerald-900/60 transition"
+                  className="flex shrink-0 items-center gap-1.5 rounded-md bg-emerald-950/60 px-2.5 py-1 text-xs font-semibold text-emerald-300 ring-1 ring-emerald-500/40 hover:bg-emerald-900/60 transition"
                   title="Premium Ad-Free Server"
                 >
                   <Sparkles className="size-3 text-emerald-400" />

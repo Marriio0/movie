@@ -58,20 +58,20 @@ export function Navbar() {
           </ul>
         </nav>
 
-        {/* Netflix-Style Instant Live Search - Visible on both Mobile & Desktop */}
-        <div className="mx-1 sm:mx-4 flex-1 max-w-[170px] sm:max-w-xs md:max-w-sm">
+        {/* Netflix-Style Instant Live Search - Desktop & Tablet */}
+        <div className="hidden sm:block mx-1 sm:mx-4 flex-1 max-w-xs md:max-w-sm">
           <InstantSearch />
         </div>
 
         <div className="ml-auto flex items-center gap-1">
-          {/* Accessible search link for screen readers & tests */}
+          {/* Accessible search link on desktop / visible icon on mobile */}
           <Link
             to={paths.search()}
             aria-label="Search"
             title="Search"
-            className="sr-only"
+            className="flex sm:hidden size-9 items-center justify-center rounded-lg text-fg-muted hover:text-fg hover:bg-surface-2 transition"
           >
-            <Search aria-hidden="true" />
+            <Search className="size-4" aria-hidden="true" />
           </Link>
 
           {isInstallable && (

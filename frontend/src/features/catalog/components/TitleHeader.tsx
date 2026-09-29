@@ -32,6 +32,7 @@ export function TitleHeader({ details, actions }: { details: MediaDetails; actio
     <header className="relative overflow-hidden">
       {details.backdropPath && <Backdrop path={details.backdropPath} />}
       <div className={details.backdropPath ? BODY_WITH_BACKDROP : BODY_PLAIN}>
+        {/* Desktop Poster */}
         <div className="hidden aspect-2/3 overflow-hidden rounded-lg bg-surface-3 shadow-pop ring-1 ring-line md:block">
           <TmdbImage
             path={details.posterPath}
@@ -43,9 +44,22 @@ export function TitleHeader({ details, actions }: { details: MediaDetails; actio
         </div>
 
         <div className="max-w-3xl">
-          <h1 className="font-display text-display-lg text-balance text-fg">{details.title}</h1>
+          {/* Mobile Poster (visible on mobile only) */}
+          <div className="w-24 sm:w-28 shrink-0 aspect-2/3 overflow-hidden rounded-xl bg-surface-3 shadow-xl ring-1 ring-white/15 md:hidden mb-4">
+            <TmdbImage
+              path={details.posterPath}
+              kind="poster"
+              alt=""
+              sizes="7rem"
+              priority
+            />
+          </div>
+
+          <h1 className="font-display text-2xl sm:text-3xl md:text-display-lg text-balance text-fg leading-tight">
+            {details.title}
+          </h1>
           {details.originalTitle !== details.title && (
-            <p className="mt-2 text-sm text-fg-muted">
+            <p className="mt-2 text-xs sm:text-sm text-fg-muted">
               Original title: <span lang={details.originalLanguage}>{details.originalTitle}</span>
             </p>
           )}

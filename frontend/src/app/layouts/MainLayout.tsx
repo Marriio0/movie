@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { Outlet } from 'react-router';
 import { Footer } from '../shell/Footer';
+import { MobileBottomNav } from '../shell/MobileBottomNav';
 import { Navbar } from '../shell/Navbar';
 import { SkipLink } from '../shell/SkipLink';
 import { MAIN_CONTENT_ID, useFocusMainOnNavigate } from '../shell/useFocusMainOnNavigate';
@@ -14,10 +15,12 @@ export function MainLayout() {
     <div className="flex min-h-dvh flex-col">
       <SkipLink />
       <Navbar />
-      <main id={MAIN_CONTENT_ID} ref={mainRef} tabIndex={-1} className="flex-1 pt-(--nav-h)">
+      <main id={MAIN_CONTENT_ID} ref={mainRef} tabIndex={-1} className="flex-1 pt-(--nav-h) pb-20 md:pb-0">
         <Outlet />
       </main>
       <Footer />
+      <MobileBottomNav />
     </div>
   );
 }
+

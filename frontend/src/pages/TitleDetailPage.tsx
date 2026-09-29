@@ -19,6 +19,7 @@ import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
 import { useLanguage } from '@/shared/i18n/language-context';
 import { parsePositiveInt } from '@/shared/lib/params';
 import type { MediaType } from '@/shared/types/media';
+import { cn } from '@/shared/lib/cn';
 import { buttonStyles } from '@/shared/ui/button-styles';
 import { ButtonLink } from '@/shared/ui/ButtonLink';
 import { ErrorState } from '@/shared/ui/ErrorState';
@@ -69,8 +70,14 @@ function TitleDetail({ mediaType, id }: { mediaType: MediaType; id: number }) {
       <TitleHeader
         details={details.data}
         actions={
-          <>
-            <a href="#watch-player" className={buttonStyles({ variant: 'primary', size: 'lg' })}>
+          <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+            <a
+              href="#watch-player"
+              className={cn(
+                buttonStyles({ variant: 'primary', size: 'lg' }),
+                'w-full sm:w-auto justify-center font-bold shadow-xl shadow-accent/25 hover:scale-105 active:scale-95 transition-transform',
+              )}
+            >
               <Play aria-hidden="true" className="fill-current" />
               Watch Now
             </a>
@@ -82,7 +89,7 @@ function TitleDetail({ mediaType, id }: { mediaType: MediaType; id: number }) {
               <Tv aria-hidden="true" />
               Where to watch
             </a>
-          </>
+          </div>
         }
       />
       <div className="container-page space-y-12 pb-(--section-y)">

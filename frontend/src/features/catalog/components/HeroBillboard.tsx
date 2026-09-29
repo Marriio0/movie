@@ -228,21 +228,21 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
           )}
 
           {/* Action Buttons: Watch Now, Watch Trailer, View Details */}
-          <div className="flex flex-wrap items-center gap-3 pt-2">
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-2">
             {/* Direct Play Link with animated pulse glow */}
             <ButtonLink
               to={paths.title(activeItem.mediaType, activeItem.id)}
               size="lg"
-              className="group relative shadow-xl shadow-accent/25 bg-accent text-accent-fg hover:bg-accent-hover font-bold transition-all hover:scale-105 active:scale-95"
+              className="group relative flex-1 sm:flex-initial justify-center shadow-xl shadow-accent/25 bg-accent text-accent-fg hover:bg-accent-hover font-bold transition-all hover:scale-105 active:scale-95 min-w-[140px]"
             >
               <span className="absolute -inset-0.5 rounded-lg bg-gradient-to-r from-accent to-purple-600 opacity-50 blur-xs transition group-hover:opacity-100 animate-pulse" />
-              <span className="relative flex items-center gap-2">
+              <span className="relative flex items-center justify-center gap-2">
                 <Play className="size-5 fill-current transition-transform duration-200 group-hover:scale-110" />
                 <span>{t('watchNow')}</span>
               </span>
             </ButtonLink>
 
-            {/* Watch Live Trailer Modal Button (Always accessible) */}
+            {/* Watch Live Trailer Modal Button */}
             <Button
               variant="secondary"
               size="lg"
@@ -250,17 +250,20 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
               className="bg-surface-2/90 backdrop-blur-md border border-line-strong hover:bg-surface-3 transition-colors text-fg font-medium gap-2 hover:border-accent"
             >
               <Film className="size-5 text-accent" />
-              <span>{t('watchTrailer')}</span>
+              <span className="hidden xs:inline sm:inline">{t('watchTrailer')}</span>
             </Button>
 
-            {/* Ambient Video Trailer Sound Toggle (Netflix style) */}
+            {/* Surprise Me / Random Hit Generator */}
+            <SurpriseModal items={list} />
+
+            {/* Ambient Video Trailer Sound Toggle */}
             {trailer?.youtubeKey && (
               <Button
                 type="button"
                 variant="secondary"
                 size="lg"
                 onClick={() => setIsMuted((prev) => !prev)}
-                className="bg-surface-2/90 backdrop-blur-md border border-line-strong hover:bg-surface-3 transition-colors text-fg font-medium gap-2 hover:border-accent"
+                className="hidden sm:inline-flex bg-surface-2/90 backdrop-blur-md border border-line-strong hover:bg-surface-3 transition-colors text-fg font-medium gap-2 hover:border-accent"
                 title={isMuted ? t('unmuteTrailer') : t('muteTrailer')}
               >
                 {isMuted ? (
@@ -277,15 +280,12 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
               </Button>
             )}
 
-            {/* Surprise Me / Random Hit Generator */}
-            <SurpriseModal items={list} />
-
             {/* View Details Link */}
             <ButtonLink
               to={paths.title(activeItem.mediaType, activeItem.id)}
               variant="ghost"
               size="lg"
-              className="text-fg-muted hover:text-fg hover:bg-surface-2/60 backdrop-blur-sm"
+              className="hidden md:inline-flex text-fg-muted hover:text-fg hover:bg-surface-2/60 backdrop-blur-sm"
             >
               <Info className="size-5" />
               <span>{t('viewDetails')}</span>
