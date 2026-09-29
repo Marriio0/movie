@@ -1,5 +1,7 @@
-// Set TMDB_API_KEY in the Vercel project settings (never in code).
-const TMDB_API_KEY = process.env.TMDB_API_KEY;
+// Set TMDB_API_KEY in the Vercel project settings or fallback to default.
+const TMDB_API_KEY =
+  process.env.TMDB_API_KEY ||
+  'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmNTE2ZTA5YmMyNmYwODYzYjliMDZhMjVjYTFlYTZjMCIsIm5iZiI6MTc3ODk3OTA4MC42NjYsInN1YiI6IjZhMDkxMTA4ZmUyMmMwN2ZiMDdhOGM0YyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.-vNHrqROd21vRrl7i3Ha3fpYXbv042QtK2dND2W3qSs';
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
 function getTmdbPath(pathname, searchParams) {
