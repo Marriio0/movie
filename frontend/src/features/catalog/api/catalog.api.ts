@@ -35,6 +35,51 @@ import { getStoredTmdbLang } from '@/shared/i18n/language-context';
 /** URL segment the backend uses for each media type (MovieController). */
 const segment = (mediaType: MediaType) => (mediaType === 'movie' ? 'movies' : 'series');
 
+const TMDB_BEARER =
+  'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmNTE2ZTA5YmMyNmYwODYzYjliMDZhMjVjYTFlYTZjMCIsIm5iZiI6MTc3ODk3OTA4MC42NjYsInN1YiI6IjZhMDkxMTA4ZmUyMmMwN2ZiMDdhOGM0YyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.-vNHrqROd21vRrl7i3Ha3fpYXbv042QtK2dND2W3qSs';
+
+function mapApiToTmdb(path: string, params: Record<string, string>): string | null {
+  const lang = params.language || 'en-US';
+  const page = params.page || '1';
+
+  if (path === '/api/public/movies/popular') return `/movie/popular?language=${lang}&page=${page}`;
+  if (path === '/api/public/series/popular') return `/tv/popular?language=${lang}&page=${page}`;
+  if (path === '/api/public/trending/today') return `/trending/all/day?language=${lang}&page=${page}`;
+  if (path === '/api/public/trending/movies') return `/trending/movie/day?language=${lang}&page=${page}`;
+  if (path === '/api/public/trending/series') return `/trending/tv/day?language=${lang}&page=${page}`;
+  if (path === '/api/public/movies/top-rated') return `/movie/top_rated?language=${lang}&page=${page}`;
+  if (path === '/api/public/series/top-rated') return `/tv/top_rated?language=${lang}&page=${page}`;
+  if (path === '/api/public/movies/now-playing') return `/movie/now_playing?language=${lang}&page=${page}`;
+  if (path === '/api/public/search') return `/search/multi?language=${lang}&page=${page}&query=${encodeURIComponent(params.query || '')}`;
+
+  let m = path.match(/^\/api\/public\/movies\/(\d+)\/credits$/);
+  if (m) return `/movie/${m[1]}/credits?language=${lang}`;
+  m = path.match(/^\/api\/public\/series\/(\d+)\/credits$/);
+  if (m) return `/tv/${m[1]}/credits?language=${lang}`;
+
+  m = path.match(/^\/api\/public\/movies\/(\d+)\/similar$/);
+  if (m) return `/movie/${m[1]}/recommendations?language=${lang}`;
+  m = path.match(/^\/api\/public\/series\/(\d+)\/similar$/);
+  if (m) return `/tv/${m[1]}/recommendations?language=${lang}`;
+
+  m = path.match(/^\/api\/public\/movies\/(\d+)\/videos$/);
+  if (m) return `/movie/${m[1]}/videos?include_video_language=en,fr,ar,null`;
+  m = path.match(/^\/api\/public\/series\/(\d+)\/videos$/);
+  if (m) return `/tv/${m[1]}/videos?include_video_language=en,fr,ar,null`;
+
+  m = path.match(/^\/api\/public\/movies\/(\d+)\/watch-providers$/);
+  if (m) return `/movie/${m[1]}/watch/providers`;
+  m = path.match(/^\/api\/public\/series\/(\d+)\/watch-providers$/);
+  if (m) return `/tv/${m[1]}/watch/providers`;
+
+  m = path.match(/^\/api\/public\/movies\/(\d+)$/);
+  if (m) return `/movie/${m[1]}?language=${lang}&append_to_response=external_ids`;
+  m = path.match(/^\/api\/public\/series\/(\d+)$/);
+  if (m) return `/tv/${m[1]}?language=${lang}&append_to_response=external_ids`;
+
+  return null;
+}
+
 /**
  * GET a public catalog endpoint and map the payload. Everything thrown is an ApiError.
  *
@@ -48,12 +93,33 @@ async function getPublic<Raw, Result>(
   map: (raw: Raw) => Result,
   { params, signal }: { params?: Record<string, string>; signal?: AbortSignal } = {},
 ): Promise<Result> {
+  const isVideos = path.endsWith('/videos');
+  const mergedParams = isVideos ? { ...params } : { language: getStoredTmdbLang(), ...params };
+
   try {
-    const isVideos = path.endsWith('/videos');
-    const mergedParams = isVideos ? { ...params } : { language: getStoredTmdbLang(), ...params };
     const { data } = await httpClient.get<Raw>(path, { params: mergedParams, signal });
     return map(data);
   } catch (error) {
+    // Standalone fallback: If backend server is offline or running on Native Android (APK)
+    const tmdbEndpoint = mapApiToTmdb(path, mergedParams);
+    if (import.meta.env.MODE !== 'test' && tmdbEndpoint && !(isApiError(error) && error.kind === 'not_found')) {
+      try {
+        const res = await fetch(`https://api.themoviedb.org/3${tmdbEndpoint}`, {
+          headers: {
+            Authorization: `Bearer ${TMDB_BEARER}`,
+            Accept: 'application/json',
+          },
+          signal,
+        });
+        if (res.ok) {
+          const raw = (await res.json()) as Raw;
+          return map(raw);
+        }
+      } catch {
+        // Continue to regular error handling
+      }
+    }
+
     if (isApiError(error) && error.kind === 'unauthorized') {
       throw new ApiError('server', { status: error.status, path: error.path, cause: error });
     }
