@@ -67,14 +67,44 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
     setBgVideoReady(false);
   }, [activeItem?.id]);
 
-  // Auto-advance billboard carousel every 6.5s with smooth animated progress bar
+  const touchStartXRef = useRef<number | null>(null);
+  const touchEndXRef = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.targetTouches.length > 0 && e.targetTouches[0]) {
+      touchStartXRef.current = e.targetTouches[0].clientX;
+    }
+    setIsPaused(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.targetTouches.length > 0 && e.targetTouches[0]) {
+      touchEndXRef.current = e.targetTouches[0].clientX;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsPaused(false);
+    if (touchStartXRef.current !== null && touchEndXRef.current !== null) {
+      const distance = touchStartXRef.current - touchEndXRef.current;
+      if (distance > 45) {
+        handleNext();
+      } else if (distance < -45) {
+        handlePrev();
+      }
+    }
+    touchStartXRef.current = null;
+    touchEndXRef.current = null;
+  };
+
+  // Auto-advance billboard carousel every 8s with smooth animated progress bar
   useEffect(() => {
     if (list.length <= 1 || isPaused || trailerOpen) {
       setProgress(0);
       return;
     }
 
-    const duration = 6500;
+    const duration = 8000;
     const intervalTime = 50;
     const increment = (intervalTime / duration) * 100;
 
@@ -119,7 +149,10 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
   return (
     <section
       aria-labelledby={headingId}
-      className="relative overflow-hidden bg-canvas min-h-[min(85vh,48rem)]"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      className="relative overflow-hidden bg-canvas min-h-[min(85vh,48rem)] select-none"
     >
       {/* Absolute Full-Bleed Background Container: Backdrop Poster + Live Ambient Video Trailer */}
       <div className="absolute inset-0 size-full overflow-hidden pointer-events-none select-none z-0">
@@ -293,9 +326,42 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
           </div>
         </div>
 
-        {/* Carousel controls & mini thumbnails (Netflix / Apple TV+ style) */}
+        {/* Mobile Story-style Segmented Progress Indicators (Instagram / Netflix Stories style) */}
         {list.length > 1 && (
-          <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-line/40 pt-5">
+          <div className="flex sm:hidden items-center gap-1.5 w-full pt-4 pb-1">
+            {list.slice(0, 8).map((item, idx) => {
+              const isActive = idx === currentIndex;
+              const isPast = idx < currentIndex;
+              return (
+                <button
+                  key={`mobile-indicator-${item.mediaType}-${item.id}`}
+                  type="button"
+                  onClick={() => handleSelectIndex(idx)}
+                  className="relative h-1 flex-1 rounded-full bg-white/20 overflow-hidden py-2 -my-2"
+                  aria-label={`Slide ${idx + 1}`}
+                >
+                  <div className="h-1 w-full rounded-full bg-white/20 overflow-hidden">
+                    <div
+                      className={cn(
+                        'h-full bg-accent transition-all duration-75',
+                        isActive
+                          ? 'shadow-sm shadow-accent'
+                          : isPast
+                            ? 'w-full bg-white/60'
+                            : 'w-0',
+                      )}
+                      style={isActive ? { width: `${progress}%` } : undefined}
+                    />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Desktop Carousel controls & mini thumbnails (Netflix / Apple TV+ style) */}
+        {list.length > 1 && (
+          <div className="mt-8 hidden sm:flex items-center justify-between gap-4 border-t border-line/40 pt-4">
             {/* Arrows */}
             <div className="flex items-center gap-2">
               <IconButton
