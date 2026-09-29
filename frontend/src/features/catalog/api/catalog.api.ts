@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import { ApiError, isApiError } from '@/shared/api/api-error';
 import { httpClient } from '@/shared/api/http-client';
 import { normalizeError } from '@/shared/api/normalize-error';
@@ -101,6 +102,27 @@ async function getPublic<Raw, Result>(
 ): Promise<Result> {
   const isVideos = path.endsWith('/videos');
   const mergedParams = isVideos ? { ...params } : { language: getStoredTmdbLang(), ...params };
+
+  if (Capacitor.isNativePlatform() && import.meta.env.MODE !== 'test') {
+    const tmdbEndpoint = mapApiToTmdb(path, mergedParams);
+    if (tmdbEndpoint) {
+      try {
+        const res = await fetch(`https://api.themoviedb.org/3${tmdbEndpoint}`, {
+          headers: {
+            Authorization: `Bearer ${TMDB_BEARER}`,
+            Accept: 'application/json',
+          },
+          signal,
+        });
+        if (res.ok) {
+          const raw = (await res.json()) as Raw;
+          return map(raw);
+        }
+      } catch {
+        // Fall back to regular flow
+      }
+    }
+  }
 
   try {
     const { data } = await httpClient.get<Raw>(path, { params: mergedParams, signal });

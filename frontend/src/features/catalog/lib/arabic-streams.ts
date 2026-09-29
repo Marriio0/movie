@@ -94,8 +94,8 @@ export function getArabicCleanStream(
   }
 
   if (vid) {
-    // Zero-cookie, modest branding, zero popups, playsinline clean embed
-    return `https://www.youtube-nocookie.com/embed/${vid}?autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&fs=1&controls=1`;
+    // Modest branding, zero popups, playsinline clean embed
+    return `https://www.youtube.com/embed/${vid}?autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&fs=1&controls=1`;
   }
 
   return null;
