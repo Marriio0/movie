@@ -30,6 +30,16 @@ function getTmdbPath(pathname: string, searchParams: URLSearchParams) {
     return { path: `/tv/top_rated?language=${lang}&page=${page}` };
   if (pathname === '/api/public/movies/now-playing')
     return { path: `/movie/now_playing?language=${lang}&page=${page}` };
+  if (pathname === '/api/public/arabic/moroccan')
+    return { path: `/discover/movie?with_origin_country=MA&language=${lang}&page=${page}&sort_by=popularity.desc` };
+  if (pathname === '/api/public/arabic/egyptian')
+    return { path: `/discover/movie?with_origin_country=EG&language=${lang}&page=${page}&sort_by=popularity.desc` };
+  if (pathname === '/api/public/arabic/classic')
+    return { path: `/discover/movie?with_origin_country=EG&primary_release_date.lte=2010-01-01&language=${lang}&page=${page}&sort_by=vote_count.desc` };
+  if (pathname === '/api/public/arabic/trending')
+    return { path: `/discover/movie?with_original_language=ar&language=${lang}&page=${page}&sort_by=popularity.desc` };
+  if (pathname === '/api/public/arabic/series')
+    return { path: `/discover/tv?with_original_language=ar&language=${lang}&page=${page}&sort_by=popularity.desc` };
   if (pathname === '/api/public/search') {
     const q = searchParams.get('query') || '';
     return { path: `/search/multi?language=${lang}&page=${page}&query=` + encodeURIComponent(q) };

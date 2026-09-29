@@ -1,4 +1,4 @@
-import { Download, Film, Home, Search, Tv } from 'lucide-react';
+import { Download, Film, Home, Search, Sparkles, Tv } from 'lucide-react';
 import { NavLink } from 'react-router';
 import { Capacitor } from '@capacitor/core';
 import { paths } from '@/shared/config/paths';
@@ -16,9 +16,10 @@ export function MobileBottomNav() {
 
   const navItems = [
     { to: paths.home, label: t('home') || 'Home', icon: Home, end: true },
-    { to: paths.search(), label: t('search') || 'Search', icon: Search },
+    { to: paths.arabic(), label: t('arabicCinema') || 'Arabic', icon: Sparkles },
     { to: paths.movies, label: t('movies') || 'Movies', icon: Film },
     { to: paths.series, label: t('series') || 'Series', icon: Tv },
+    { to: paths.search(), label: t('search') || 'Search', icon: Search },
   ];
 
   return (

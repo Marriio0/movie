@@ -19,6 +19,11 @@ export const catalogKeys = {
     [...catalogKeys.all, 'trailer', mediaType, id] as const,
   watchProviders: (mediaType: MediaType, id: number) =>
     [...catalogKeys.all, 'watch-providers', mediaType, id] as const,
+  arabicMoroccan: (page: number = 1) => [...catalogKeys.all, 'arabic-moroccan', page] as const,
+  arabicEgyptian: (page: number = 1) => [...catalogKeys.all, 'arabic-egyptian', page] as const,
+  arabicClassic: (page: number = 1) => [...catalogKeys.all, 'arabic-classic', page] as const,
+  arabicTrending: (page: number = 1) => [...catalogKeys.all, 'arabic-trending', page] as const,
+  arabicSeries: (page: number = 1) => [...catalogKeys.all, 'arabic-series', page] as const,
 };
 
 const MINUTE = 60_000;
@@ -119,3 +124,39 @@ export const similarQuery = (mediaType: MediaType, id: number) =>
     queryFn: ({ signal }) => catalogApi.similar(mediaType, id, signal),
     staleTime: 30 * MINUTE,
   });
+
+export const arabicMoroccanQuery = (page: number = 1) =>
+  queryOptions({
+    queryKey: catalogKeys.arabicMoroccan(page),
+    queryFn: ({ signal }) => catalogApi.arabicMoroccan(page, signal),
+    staleTime: 15 * MINUTE,
+  });
+
+export const arabicEgyptianQuery = (page: number = 1) =>
+  queryOptions({
+    queryKey: catalogKeys.arabicEgyptian(page),
+    queryFn: ({ signal }) => catalogApi.arabicEgyptian(page, signal),
+    staleTime: 15 * MINUTE,
+  });
+
+export const arabicClassicQuery = (page: number = 1) =>
+  queryOptions({
+    queryKey: catalogKeys.arabicClassic(page),
+    queryFn: ({ signal }) => catalogApi.arabicClassic(page, signal),
+    staleTime: 15 * MINUTE,
+  });
+
+export const arabicTrendingQuery = (page: number = 1) =>
+  queryOptions({
+    queryKey: catalogKeys.arabicTrending(page),
+    queryFn: ({ signal }) => catalogApi.arabicTrending(page, signal),
+    staleTime: 15 * MINUTE,
+  });
+
+export const arabicSeriesQuery = (page: number = 1) =>
+  queryOptions({
+    queryKey: catalogKeys.arabicSeries(page),
+    queryFn: ({ signal }) => catalogApi.arabicSeries(page, signal),
+    staleTime: 15 * MINUTE,
+  });
+

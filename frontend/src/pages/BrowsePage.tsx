@@ -8,6 +8,8 @@ import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
 import { useLanguage } from '@/shared/i18n/language-context';
 import { cn } from '@/shared/lib/cn';
 import type { MediaType } from '@/shared/types/media';
+import { Link } from 'react-router';
+import { paths } from '@/shared/config/paths';
 import { Button } from '@/shared/ui/Button';
 
 const COPY: Record<MediaType, { title: string; noun: string }> = {
@@ -142,6 +144,13 @@ function Browse({ mediaType }: { mediaType: MediaType }) {
             </button>
           );
         })}
+        <Link
+          to={paths.arabic()}
+          className="flex-none rounded-full px-4 py-1.5 text-xs font-bold transition-all duration-200 shadow-sm border border-amber-500/40 bg-amber-500/15 text-amber-400 hover:bg-amber-500/25 flex items-center gap-1.5"
+        >
+          <span>🇲🇦 🇪🇬</span>
+          <span>{language === 'ar' ? 'سينما عربية' : language === 'fr' ? 'Cinéma Arabe' : 'Arabic Cinema'}</span>
+        </Link>
       </div>
 
       <div className="mt-8 sm:mt-10">

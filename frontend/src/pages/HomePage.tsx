@@ -1,4 +1,8 @@
 import {
+  useArabicClassic,
+  useArabicEgyptian,
+  useArabicMoroccan,
+  useArabicTrending,
   useNowPlaying,
   usePopular,
   useTopRated,
@@ -31,6 +35,10 @@ export function HomePage() {
   const topRatedMovies = useTopRated('movie');
   const topRatedSeries = useTopRated('tv');
   const nowPlaying = useNowPlaying();
+  const arabicMoroccan = useArabicMoroccan();
+  const arabicEgyptian = useArabicEgyptian();
+  const arabicClassic = useArabicClassic();
+  const arabicTrending = useArabicTrending();
   const online = useOnlineStatus();
 
   // Combine top featured items with backdrop for the rotating hero billboard:
@@ -128,6 +136,29 @@ export function HomePage() {
               title={language === 'en' ? 'Trending today' : t('trendingToday')}
               query={trendingToday}
             />
+
+            {/* Arabic Cinema Hub Rails */}
+            <MediaRail
+              title={language === 'ar' ? '🇲🇦 سينما ومسلسلات مغربية' : language === 'fr' ? '🇲🇦 Cinéma Marocain' : '🇲🇦 Moroccan Hits'}
+              href={paths.arabic('moroccan')}
+              query={arabicMoroccan}
+            />
+            <MediaRail
+              title={language === 'ar' ? '🇪🇬 كلاسيكيات وسينما مصرية' : language === 'fr' ? '🇪🇬 Classiques Égyptiens' : '🇪🇬 Egyptian Classics & Hits'}
+              href={paths.arabic('egyptian')}
+              query={arabicEgyptian}
+            />
+            <MediaRail
+              title={language === 'ar' ? '✨ أقوى الأعمال العربية' : language === 'fr' ? '✨ Tendances Arabes' : '✨ Trending Arabic'}
+              href={paths.arabic('trending')}
+              query={arabicTrending}
+            />
+            <MediaRail
+              title={language === 'ar' ? '🎬 كلاسيكيات الزمن الجميل' : language === 'fr' ? '🎬 Grands Classiques' : '🎬 Golden Age Classics'}
+              href={paths.arabic('classic')}
+              query={arabicClassic}
+            />
+
             <MediaRail
               title={language === 'en' ? 'Trending movies' : t('popularMovies')}
               href={paths.movies}

@@ -31,6 +31,7 @@ import type {
 } from './tmdb.types';
 
 import { getStoredTmdbLang } from '@/shared/i18n/language-context';
+import { CURATED_MOROCCAN_TITLES } from '../data/moroccan-titles';
 
 /** URL segment the backend uses for each media type (MovieController). */
 const segment = (mediaType: MediaType) => (mediaType === 'movie' ? 'movies' : 'series');
@@ -50,6 +51,11 @@ function mapApiToTmdb(path: string, params: Record<string, string>): string | nu
   if (path === '/api/public/movies/top-rated') return `/movie/top_rated?language=${lang}&page=${page}`;
   if (path === '/api/public/series/top-rated') return `/tv/top_rated?language=${lang}&page=${page}`;
   if (path === '/api/public/movies/now-playing') return `/movie/now_playing?language=${lang}&page=${page}`;
+  if (path === '/api/public/arabic/moroccan') return `/discover/movie?with_origin_country=MA&language=${lang}&page=${page}&sort_by=popularity.desc`;
+  if (path === '/api/public/arabic/egyptian') return `/discover/movie?with_origin_country=EG&language=${lang}&page=${page}&sort_by=popularity.desc`;
+  if (path === '/api/public/arabic/classic') return `/discover/movie?with_origin_country=EG&primary_release_date.lte=2010-01-01&language=${lang}&page=${page}&sort_by=vote_count.desc`;
+  if (path === '/api/public/arabic/trending') return `/discover/movie?with_original_language=ar&language=${lang}&page=${page}&sort_by=popularity.desc`;
+  if (path === '/api/public/arabic/series') return `/discover/tv?with_original_language=ar&language=${lang}&page=${page}&sort_by=popularity.desc`;
   if (path === '/api/public/search') return `/search/multi?language=${lang}&page=${page}&query=${encodeURIComponent(params.query || '')}`;
 
   let m = path.match(/^\/api\/public\/movies\/(\d+)\/credits$/);
@@ -210,6 +216,84 @@ export const catalogApi = {
       );
     } catch {
       return catalogApi.popular('movie', signal);
+    }
+  },
+
+  /** GET /api/public/arabic/moroccan: Moroccan movies & series. */
+  arabicMoroccan: async (page: number = 1, signal?: AbortSignal): Promise<MediaList> => {
+    try {
+      const res = await getPublic<TmdbPage<TmdbMovieListItem>, MediaList>(
+        '/api/public/arabic/moroccan',
+        (p) => toMediaList(p, (raw) => toMediaSummary(raw, 'movie')),
+        { params: { page: String(page) }, signal },
+      );
+      if (page === 1) {
+        const existingIds = new Set(CURATED_MOROCCAN_TITLES.map((t) => t.id));
+        const filtered = res.items.filter((item) => !existingIds.has(item.id));
+        return {
+          ...res,
+          items: [...CURATED_MOROCCAN_TITLES, ...filtered],
+        };
+      }
+      return res;
+    } catch {
+      return {
+        items: CURATED_MOROCCAN_TITLES,
+        page: 1,
+        totalPages: 1,
+      };
+    }
+  },
+
+  /** GET /api/public/arabic/egyptian: Egyptian movies and blockbusters. */
+  arabicEgyptian: async (page: number = 1, signal?: AbortSignal): Promise<MediaList> => {
+    try {
+      return await getPublic<TmdbPage<TmdbMovieListItem>, MediaList>(
+        '/api/public/arabic/egyptian',
+        (p) => toMediaList(p, (raw) => toMediaSummary(raw, 'movie')),
+        { params: { page: String(page) }, signal },
+      );
+    } catch {
+      return catalogApi.popular('movie', signal);
+    }
+  },
+
+  /** GET /api/public/arabic/classic: Classic Egyptian masterpieces (Adel Imam, Youssef Chahine, El Keif, etc.). */
+  arabicClassic: async (page: number = 1, signal?: AbortSignal): Promise<MediaList> => {
+    try {
+      return await getPublic<TmdbPage<TmdbMovieListItem>, MediaList>(
+        '/api/public/arabic/classic',
+        (p) => toMediaList(p, (raw) => toMediaSummary(raw, 'movie')),
+        { params: { page: String(page) }, signal },
+      );
+    } catch {
+      return catalogApi.popular('movie', signal);
+    }
+  },
+
+  /** GET /api/public/arabic/trending: Top trending Arabic films. */
+  arabicTrending: async (page: number = 1, signal?: AbortSignal): Promise<MediaList> => {
+    try {
+      return await getPublic<TmdbPage<TmdbMovieListItem>, MediaList>(
+        '/api/public/arabic/trending',
+        (p) => toMediaList(p, (raw) => toMediaSummary(raw, 'movie')),
+        { params: { page: String(page) }, signal },
+      );
+    } catch {
+      return catalogApi.popular('movie', signal);
+    }
+  },
+
+  /** GET /api/public/arabic/series: Popular and classic Arabic TV series. */
+  arabicSeries: async (page: number = 1, signal?: AbortSignal): Promise<MediaList> => {
+    try {
+      return await getPublic<TmdbPage<TmdbTvListItem>, MediaList>(
+        '/api/public/arabic/series',
+        (p) => toMediaList(p, (raw) => toMediaSummary(raw, 'tv')),
+        { params: { page: String(page) }, signal },
+      );
+    } catch {
+      return catalogApi.popular('tv', signal);
     }
   },
 

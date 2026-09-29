@@ -58,6 +58,12 @@ export const TRANSLATIONS = {
     installApp: 'تثبيت التطبيق',
     muteTrailer: 'كتم الصوت',
     unmuteTrailer: 'تشغيل الصوت',
+    arabicCinema: 'سينما عربية',
+    moroccanCinema: '🇲🇦 سينما ومسلسلات مغربية',
+    egyptianClassics: '🇪🇬 كلاسيكيات وسينما مصرية',
+    trendingArabic: '✨ أقوى الأعمال العربية',
+    arabicSeries: '📺 مسلسلات عربية شهيرة',
+    allArabic: 'كل الأعمال العربية',
   },
   fr: {
     home: 'Accueil',
@@ -99,6 +105,12 @@ export const TRANSLATIONS = {
     installApp: 'Installer l’application',
     muteTrailer: 'Couper le son',
     unmuteTrailer: 'Activer le son',
+    arabicCinema: 'Cinéma Arabe',
+    moroccanCinema: '🇲🇦 Cinéma Marocain',
+    egyptianClassics: '🇪🇬 Classiques Égyptiens',
+    trendingArabic: '✨ Tendances Arabes',
+    arabicSeries: '📺 Séries Arabes',
+    allArabic: 'Tout le cinéma arabe',
   },
   en: {
     home: 'Home',
@@ -140,6 +152,12 @@ export const TRANSLATIONS = {
     installApp: 'Install App',
     muteTrailer: 'Mute audio',
     unmuteTrailer: 'Unmute audio',
+    arabicCinema: 'Arabic Cinema',
+    moroccanCinema: '🇲🇦 Moroccan Hits',
+    egyptianClassics: '🇪🇬 Egyptian Classics & Hits',
+    trendingArabic: '✨ Trending Arabic',
+    arabicSeries: '📺 Iconic Arabic Series',
+    allArabic: 'All Arabic Cinema',
   },
 } as const;
 

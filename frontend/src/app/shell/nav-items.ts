@@ -9,6 +9,7 @@ export interface NavItem {
 
 export const PRIMARY_NAV: readonly NavItem[] = [
   { to: paths.home, label: 'Home', end: true },
+  { to: paths.arabic(), label: 'Arabic Cinema' },
   { to: paths.movies, label: 'Movies' },
   { to: paths.series, label: 'Series' },
 ];

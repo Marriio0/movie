@@ -11,6 +11,7 @@ export const paths = {
   home: '/',
   movies: '/movies',
   series: '/series',
+  arabic: (category?: string) => withQuery('/arabic', 'category', category),
   title: (mediaType: MediaType, id: number) =>
     `/${mediaType === 'movie' ? 'movies' : 'series'}/${id}`,
   search: (query?: string) => withQuery('/search', 'q', query),

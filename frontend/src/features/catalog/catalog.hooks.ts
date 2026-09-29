@@ -15,6 +15,11 @@ import {
   trendingSeriesQuery,
   trendingTodayQuery,
   watchProvidersQuery,
+  arabicMoroccanQuery,
+  arabicEgyptianQuery,
+  arabicClassicQuery,
+  arabicTrendingQuery,
+  arabicSeriesQuery,
 } from './api/catalog.queries';
 
 export const MIN_SEARCH_LENGTH = 2;
@@ -26,6 +31,12 @@ export const useTrendingMovies = () => useQuery(trendingMoviesQuery());
 export const useTrendingSeries = () => useQuery(trendingSeriesQuery());
 export const useTopRated = (mediaType: MediaType) => useQuery(topRatedQuery(mediaType));
 export const useNowPlaying = () => useQuery(nowPlayingQuery());
+
+export const useArabicMoroccan = (page: number = 1) => useQuery(arabicMoroccanQuery(page));
+export const useArabicEgyptian = (page: number = 1) => useQuery(arabicEgyptianQuery(page));
+export const useArabicClassic = (page: number = 1) => useQuery(arabicClassicQuery(page));
+export const useArabicTrending = (page: number = 1) => useQuery(arabicTrendingQuery(page));
+export const useArabicSeries = (page: number = 1) => useQuery(arabicSeriesQuery(page));
 
 /** Runs only for queries of at least MIN_SEARCH_LENGTH characters; keeps old results while typing. */
 export function useTitleSearch(query: string) {

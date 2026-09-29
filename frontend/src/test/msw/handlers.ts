@@ -24,6 +24,11 @@ export const handlers = [
   http.get('/api/public/movies/top-rated', () => HttpResponse.json(fixtures.popularMovies)),
   http.get('/api/public/series/top-rated', () => HttpResponse.json(fixtures.popularSeries)),
   http.get('/api/public/movies/now-playing', () => HttpResponse.json(fixtures.popularMovies)),
+  http.get('/api/public/arabic/moroccan', () => HttpResponse.json(fixtures.popularMovies)),
+  http.get('/api/public/arabic/egyptian', () => HttpResponse.json(fixtures.popularMovies)),
+  http.get('/api/public/arabic/classic', () => HttpResponse.json(fixtures.popularMovies)),
+  http.get('/api/public/arabic/trending', () => HttpResponse.json(fixtures.popularMovies)),
+  http.get('/api/public/arabic/series', () => HttpResponse.json(fixtures.popularSeries)),
 
   http.get('/api/public/search', ({ request }) => {
     const query = new URL(request.url).searchParams.get('query')?.toLowerCase();

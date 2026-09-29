@@ -54,6 +54,13 @@ export const createRoutes = (): RouteObject[] => [
                 },
               },
               {
+                path: 'arabic',
+                lazy: {
+                  Component: () =>
+                    import('@/pages/ArabicBrowsePage').then((m) => m.ArabicBrowsePage),
+                },
+              },
+              {
                 path: 'movies/:id',
                 lazy: {
                   Component: () => import('@/pages/TitleDetailPage').then((m) => m.MovieDetailPage),
