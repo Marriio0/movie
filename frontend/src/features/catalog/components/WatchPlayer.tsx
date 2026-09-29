@@ -74,8 +74,8 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
     }
   };
 
-  // Server selection (default Server 1: Videasy Fast HD)
-  const [selectedServerId, setSelectedServerId] = useState<string>('videasy');
+  // Server selection (default Server 1: VidLink Fast HD)
+  const [selectedServerId, setSelectedServerId] = useState<string>('vidlink');
 
   // Interactive Subtitle language preference (defaults to English 'en' or saved user preference)
   const [selectedSubLang, setSelectedSubLang] = useState<string>(() => {
@@ -773,7 +773,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
                   allowFullScreen
                   loading="lazy"
-                  referrerPolicy="origin"
+                  referrerPolicy="no-referrer-when-downgrade"
                   className="size-full border-0"
                 />
               )}
