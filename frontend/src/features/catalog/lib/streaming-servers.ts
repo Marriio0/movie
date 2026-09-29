@@ -1,4 +1,5 @@
 import type { MediaType } from '@/shared/types/media';
+import { getArabicCleanStream } from './arabic-streams';
 
 export interface StreamingServer {
   id: string;
@@ -22,12 +23,17 @@ export const STREAMING_SERVERS: StreamingServer[] = [
     id: 'vidlink',
     name: 'Server 1 (VidLink Fast HD)',
     badge: '★ Recommended',
-    description: 'Fast CDN with instant Arabic & multilingual subtitles, 4K/1080p and zero ads.',
+    description: 'Fast direct CDN with instant playback, Arabic & multilingual subtitles, and zero ads.',
     supportsSubtitles: true,
-    getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'en' }) =>
-      mediaType === 'movie'
+    getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'en' }) => {
+      const cleanUrl = getArabicCleanStream(tmdbId, season, episode);
+      if (cleanUrl) {
+        return cleanUrl;
+      }
+      return mediaType === 'movie'
         ? `https://vidlink.pro/movie/${tmdbId}?primaryColor=6366f1&secondaryColor=a855f7&iconColor=ffffff&title=true&poster=true&sub_lang=${subLang}`
-        : `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}?primaryColor=6366f1&secondaryColor=a855f7&iconColor=ffffff&title=true&poster=true&sub_lang=${subLang}`,
+        : `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}?primaryColor=6366f1&secondaryColor=a855f7&iconColor=ffffff&title=true&poster=true&sub_lang=${subLang}`;
+    },
   },
   {
     id: 'vidsrcsu',
