@@ -769,7 +769,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
                   allowFullScreen
                   loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
+                  referrerPolicy="no-referrer"
                   className="size-full border-0"
                 />
               )}

@@ -53,16 +53,28 @@ jobs:
           cd frontend
           npx cap sync android
 
-      - name: Build Android Debug APK
+      - name: Generate Release Keystore
+        run: |
+          keytool -genkeypair -v \
+            -keystore frontend/android/app/netfarjo.keystore \
+            -alias netfarjo \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass netfarjopass \
+            -keypass netfarjopass \
+            -dname "CN=Netfarjo Cinema, OU=Entertainment, O=Netfarjo, L=Casablanca, ST=Casablanca, C=MA"
+
+      - name: Build Android Signed Release APK
         run: |
           cd frontend/android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleRelease --no-daemon
 
       - name: Copy & Rename APK
         run: |
           mkdir -p output
-          cp frontend/android/app/build/outputs/apk/debug/app-debug.apk output/Netfarjo-v1.0.apk
+          cp frontend/android/app/build/outputs/apk/release/app-release.apk output/Netfarjo-v1.0.apk
           ls -lh output/Netfarjo-v1.0.apk
 
       - name: Upload APK Artifact
