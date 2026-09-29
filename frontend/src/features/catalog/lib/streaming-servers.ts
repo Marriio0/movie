@@ -24,22 +24,10 @@ export const STREAMING_SERVERS: StreamingServer[] = [
     badge: '★ Recommended',
     description: 'Fast CDN with instant Arabic & multilingual subtitles, 4K/1080p and zero ads.',
     supportsSubtitles: true,
-    getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'en', subFile }) => {
-      const subLabel =
-        subLang === 'ar'
-          ? 'Arabic'
-          : subLang === 'fr'
-            ? 'French'
-            : subLang === 'en'
-              ? 'English'
-              : subLang.toUpperCase();
-      const subParam = subFile
-        ? `&sub_file=${encodeURIComponent(subFile)}&sub_label=${encodeURIComponent(subLabel)}`
-        : '';
-      return mediaType === 'movie'
-        ? `https://vidlink.pro/movie/${tmdbId}?primaryColor=6366f1&secondaryColor=a855f7&iconColor=ffffff&title=true&poster=true&sub_lang=${subLang}${subParam}`
-        : `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}?primaryColor=6366f1&secondaryColor=a855f7&iconColor=ffffff&title=true&poster=true&sub_lang=${subLang}${subParam}`;
-    },
+    getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'en' }) =>
+      mediaType === 'movie'
+        ? `https://vidlink.pro/movie/${tmdbId}?primaryColor=6366f1&secondaryColor=a855f7&iconColor=ffffff&title=true&poster=true&sub_lang=${subLang}`
+        : `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}?primaryColor=6366f1&secondaryColor=a855f7&iconColor=ffffff&title=true&poster=true&sub_lang=${subLang}`,
   },
   {
     id: 'vidsrcsu',
@@ -53,15 +41,15 @@ export const STREAMING_SERVERS: StreamingServer[] = [
         : `https://vidsrc.su/embed/tv/${tmdbId}/${season}/${episode}`,
   },
   {
-    id: 'vidsrcpm',
-    name: 'Server 3 (VidSrc PM)',
-    badge: 'HTML5 Mirror',
-    description: 'Modern Vidstack HTML5 player with multi-language subtitle tracks.',
+    id: 'superembed',
+    name: 'Server 3 (SuperEmbed VIP)',
+    badge: 'Multi-Source & Subs',
+    description: 'High reliability multi-source player with VIP streams and built-in subtitles.',
     supportsSubtitles: true,
-    getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'en' }) =>
+    getUrl: ({ mediaType, tmdbId, season, episode }) =>
       mediaType === 'movie'
-        ? `https://vidsrc.pm/embed/movie?tmdb=${tmdbId}&ds_lang=${subLang}`
-        : `https://vidsrc.pm/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}&ds_lang=${subLang}`,
+        ? `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`
+        : `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`,
   },
   {
     id: 'autoembed',

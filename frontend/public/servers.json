@@ -18,13 +18,13 @@
     "tvTemplate": "https://vidsrc.su/embed/tv/{tmdbId}/{season}/{episode}"
   },
   {
-    "id": "vidsrcpm",
-    "name": "Server 3 (VidSrc PM)",
-    "badge": "HTML5 Mirror",
-    "description": "Modern Vidstack HTML5 player with multi-language subtitle tracks.",
+    "id": "superembed",
+    "name": "Server 3 (SuperEmbed VIP)",
+    "badge": "Multi-Source & Subs",
+    "description": "High reliability multi-source player with VIP streams and built-in subtitles.",
     "supportsSubtitles": true,
-    "movieTemplate": "https://vidsrc.pm/embed/movie?tmdb={tmdbId}&ds_lang={subLang}",
-    "tvTemplate": "https://vidsrc.pm/embed/tv?tmdb={tmdbId}&season={season}&episode={episode}&ds_lang={subLang}"
+    "movieTemplate": "https://multiembed.mov/?video_id={tmdbId}&tmdb=1",
+    "tvTemplate": "https://multiembed.mov/?video_id={tmdbId}&tmdb=1&s={season}&e={episode}"
   },
   {
     "id": "autoembed",

@@ -315,10 +315,9 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
   };
 
 
-  // Compute active embed player URL with subtitle preference and live sub_file injection
+  // Compute active embed player URL with subtitle preference
   const currentEmbedUrl = useMemo(() => {
     if (!activeServer) return '';
-    const activeSubFile = currentLangSub?.url || bestArabicSub?.url;
     return activeServer.getUrl({
       mediaType: details.mediaType,
       tmdbId: details.id,
@@ -326,7 +325,6 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
       season: currentSeason,
       episode: currentEpisode,
       subLang: selectedSubLang,
-      subFile: activeSubFile,
     });
   }, [
     activeServer,
@@ -336,8 +334,6 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
     currentSeason,
     currentEpisode,
     selectedSubLang,
-    currentLangSub?.url,
-    bestArabicSub?.url,
   ]);
 
   // Quick switch to next server if current is buffering
