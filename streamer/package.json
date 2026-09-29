@@ -1,0 +1,13 @@
+{
+  "name": "netfarjo-streamer",
+  "version": "1.0.0",
+  "description": "Local Torrent-to-HTTP Streaming Microservice for Netfarjo",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "torrent-stream": "^1.2.1"
+  }
+}

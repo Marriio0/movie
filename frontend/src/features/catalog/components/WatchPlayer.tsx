@@ -15,6 +15,7 @@ import {
   Sparkles,
   Subtitles,
   Tv,
+  X,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
@@ -409,10 +410,17 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
     document.body.removeChild(a);
   };
 
-  const handleWatchVideoNow = (directUrl?: string | null) => {
-    if (directUrl) {
-      setDirectVideoUrl(directUrl);
-      handleSetViewMode('torrentio');
+  const handleWatchVideoNow = (directUrl?: string | null, infoHash?: string | null) => {
+    const streamerBase = env.streamerUrl || 'https://vincent-warrant-glen-nevertheless.trycloudflare.com';
+    const resolvedUrl =
+      directUrl ||
+      (infoHash
+        ? `${streamerBase}/stream?hash=${infoHash}&dn=${encodeURIComponent(details.title)}`
+        : null);
+
+    if (resolvedUrl) {
+      setDirectVideoUrl(resolvedUrl);
+      handleSetViewMode('stream');
     } else {
       handleSetViewMode('stream');
     }
@@ -737,15 +745,26 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               )}
             >
               {directVideoUrl ? (
-                <video
-                  key={directVideoUrl}
-                  src={directVideoUrl}
-                  controls
-                  autoPlay
-                  className="size-full"
-                >
-                  Your browser does not support HTML5 video streaming.
-                </video>
+                <div className="relative size-full">
+                  <video
+                    key={directVideoUrl}
+                    src={directVideoUrl}
+                    controls
+                    autoPlay
+                    className="size-full bg-black"
+                  >
+                    Your browser does not support HTML5 video streaming.
+                  </video>
+                  <button
+                    type="button"
+                    onClick={() => setDirectVideoUrl(null)}
+                    className="absolute right-3 top-3 z-20 flex items-center gap-1.5 rounded-lg bg-black/80 px-3 py-1.5 text-xs font-semibold text-white shadow-lg backdrop-blur-md ring-1 ring-white/20 transition hover:bg-black"
+                    title="Back to embed servers"
+                  >
+                    <X className="size-3.5" />
+                    <span>Back to Servers (Server 1)</span>
+                  </button>
+                </div>
               ) : (
                 <iframe
                   key={`${selectedServerId}-${currentSeason}-${currentEpisode}-${reloadKey}`}
@@ -1033,7 +1052,12 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                           type="button"
                           size="sm"
                           variant="secondary"
-                          onClick={() => handleWatchVideoNow(downloadOptions.fhd?.stream.url)}
+                          onClick={() =>
+                            handleWatchVideoNow(
+                              downloadOptions.fhd?.stream.url,
+                              downloadOptions.fhd?.stream.infoHash,
+                            )
+                          }
                           className="flex h-7 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
                           title="Watch directly in player"
                         >
@@ -1111,7 +1135,12 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                           type="button"
                           size="sm"
                           variant="secondary"
-                          onClick={() => handleWatchVideoNow(downloadOptions.hd?.stream.url)}
+                          onClick={() =>
+                            handleWatchVideoNow(
+                              downloadOptions.hd?.stream.url,
+                              downloadOptions.hd?.stream.infoHash,
+                            )
+                          }
                           className="flex h-7 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
                           title="Watch directly in player"
                         >
@@ -1191,7 +1220,12 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                           type="button"
                           size="sm"
                           variant="secondary"
-                          onClick={() => handleWatchVideoNow(downloadOptions.uhd?.stream.url)}
+                          onClick={() =>
+                            handleWatchVideoNow(
+                              downloadOptions.uhd?.stream.url,
+                              downloadOptions.uhd?.stream.infoHash,
+                            )
+                          }
                           className="flex h-7 flex-1 items-center justify-center gap-1 rounded bg-surface-3 px-1 text-[11px] font-medium text-fg ring-1 ring-line hover:bg-surface-1 transition"
                           title="Watch directly in player"
                         >
@@ -1598,7 +1632,7 @@ Direct download links are not available for this title. You can watch it directl
                             <>
                               <Button
                                 size="sm"
-                                onClick={() => handleWatchVideoNow(s.stream.url)}
+                                onClick={() => handleWatchVideoNow(s.stream.url, s.stream.infoHash)}
                                 className="h-8 gap-1.5 bg-purple-600 px-3 text-xs font-bold text-white shadow-sm hover:bg-purple-700"
                                 title="Play directly in browser"
                               >
@@ -1621,7 +1655,7 @@ Direct download links are not available for this title. You can watch it directl
                             <>
                               <Button
                                 size="sm"
-                                onClick={() => handleWatchVideoNow()}
+                                onClick={() => handleWatchVideoNow(s.stream.url, s.stream.infoHash)}
                                 className="h-8 gap-1.5 bg-purple-600 px-3 text-xs font-bold text-white shadow-sm hover:bg-purple-700"
                                 title="Play in site player"
                               >

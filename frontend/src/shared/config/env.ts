@@ -8,6 +8,8 @@ export interface AppEnv {
   apiBaseUrl: string;
   /** Optional default Torrentio configuration (e.g. realdebrid=... or torbox=...). */
   torrentioDefaultConfig: string;
+  /** Public HTTPS URL of the Torrent-to-HTTP streaming service. */
+  streamerUrl: string;
 }
 
 export function parseApiBaseUrl(raw: string | undefined): string {
@@ -36,4 +38,7 @@ export function parseApiBaseUrl(raw: string | undefined): string {
 export const env: AppEnv = {
   apiBaseUrl: parseApiBaseUrl(import.meta.env.VITE_API_BASE_URL),
   torrentioDefaultConfig: (import.meta.env.VITE_TORRENTIO_DEFAULT_CONFIG as string | undefined)?.trim() ?? '',
+  streamerUrl:
+    (import.meta.env.VITE_STREAMER_URL as string | undefined)?.trim() ||
+    'https://vincent-warrant-glen-nevertheless.trycloudflare.com',
 };

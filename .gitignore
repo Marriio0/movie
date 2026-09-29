@@ -39,3 +39,7 @@ build/
 .env
 .env.*
 !.env.example
+
+### Streamer microservice ###
+streamer/node_modules/
+streamer/.cache/
