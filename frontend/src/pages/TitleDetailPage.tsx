@@ -6,6 +6,8 @@ import { MediaRail } from '@/features/catalog/components/MediaRail';
 import { OfflineNotice } from '@/features/catalog/components/OfflineNotice';
 import { TrailerButton } from '@/features/catalog/components/TrailerButton';
 import { WatchPlayer } from '@/features/catalog/components/WatchPlayer';
+import { CinemaLockedPlayer } from '@/features/catalog/components/CinemaLockedPlayer';
+import { useActivation } from '@/features/catalog/lib/useActivation';
 import { WHERE_TO_WATCH_ID, WhereToWatch } from '@/features/catalog/components/WhereToWatch';
 import { useWaitingForNetwork } from '@/features/catalog/components/query-state';
 import {
@@ -31,6 +33,7 @@ function TitleDetail({ mediaType, id }: { mediaType: MediaType; id: number }) {
   const credits = useTitleCredits(mediaType, id);
   const similar = useSimilarTitles(mediaType, id);
   const { language } = useLanguage();
+  const { isUnlocked } = useActivation();
   const offline = useWaitingForNetwork(details);
   useDocumentTitle(details.data?.title ?? LABEL[mediaType]);
 
@@ -93,7 +96,11 @@ function TitleDetail({ mediaType, id }: { mediaType: MediaType; id: number }) {
         }
       />
       <div className="container-page space-y-12 pb-(--section-y)">
-        <WatchPlayer details={details.data} />
+        {isUnlocked ? (
+          <WatchPlayer details={details.data} />
+        ) : (
+          <CinemaLockedPlayer details={details.data} />
+        )}
         <TitleFacts details={details.data} directors={credits.data?.directors} />
         <WhereToWatch mediaType={mediaType} id={id} />
         <CastList query={credits} />

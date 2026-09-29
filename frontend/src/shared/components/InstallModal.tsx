@@ -50,14 +50,33 @@ export function InstallModal({
           </IconButton>
         </div>
 
+        {/* Direct Android APK Download Banner */}
+        <a
+          href="https://github.com/Marriio0/movie/releases/download/v1.0.0-apk/Netfarjo-v1.0.apk"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-between gap-3 rounded-xl border border-emerald-500/40 bg-emerald-950/40 p-3.5 hover:bg-emerald-900/40 transition shadow-sm"
+        >
+          <div className="flex items-center gap-2.5">
+            <Download className="size-5 text-emerald-400 shrink-0" />
+            <div>
+              <p className="text-xs font-bold text-fg">تحميل تطبيق أندرويد (ملف APK مباشر)</p>
+              <p className="text-[11px] text-fg-muted">تثبيت مباشر على الهاتف أو التلفاز (Netfarjo-v1.0.apk)</p>
+            </div>
+          </div>
+          <span className="rounded-lg bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 text-xs font-bold text-white shadow-sm shrink-0 transition">
+            تحميل .APK
+          </span>
+        </a>
+
         {/* Quick Native Install Button if browser supports it */}
         {canPromptNative && onInstallNative && (
-          <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/30 p-3.5 flex items-center justify-between gap-3">
+          <div className="rounded-xl border border-blue-500/30 bg-blue-950/30 p-3.5 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <Download className="size-5 text-emerald-400 shrink-0" />
+              <Download className="size-5 text-blue-400 shrink-0" />
               <div>
-                <p className="text-xs font-bold text-fg">تثبيت فوري بنقرة واحدة</p>
-                <p className="text-[11px] text-fg-muted">متصفحك يدعم التثبيت المباشر الآن</p>
+                <p className="text-xs font-bold text-fg">تثبيت فوري عبر المتصفح (PWA)</p>
+                <p className="text-[11px] text-fg-muted">متصفحك يدعم التثبيت المباشر الآن بنقرة واحدة</p>
               </div>
             </div>
             <Button
@@ -66,7 +85,7 @@ export function InstallModal({
                 await onInstallNative();
                 onClose();
               }}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-8 px-4 shrink-0 shadow-sm"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-8 px-4 shrink-0 shadow-sm"
             >
               تثبيت الآن
             </Button>

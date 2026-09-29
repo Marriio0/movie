@@ -197,6 +197,6 @@ describe('WatchPlayer', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getAllByText(/Install/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/هواتف آيفون وآيباد/i)).toBeInTheDocument();
-    expect(screen.getByText(/أندرويد/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/أندرويد/i).length).toBeGreaterThanOrEqual(1);
   });
 });
