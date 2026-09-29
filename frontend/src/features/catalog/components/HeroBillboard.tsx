@@ -198,36 +198,57 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-2 h-36 bg-gradient-to-t from-canvas via-canvas/80 to-transparent" />
         {/* Top header navigation shade */}
         <div className="pointer-events-none absolute inset-x-0 top-0 z-2 h-28 bg-gradient-to-b from-canvas/90 via-canvas/40 to-transparent" />
+
+        {/* Layer 5: Netflix-style Floating Audio & Maturity/Quality Badge (Bottom-Right) */}
+        <div className="absolute bottom-6 right-4 sm:right-8 z-20 flex items-center gap-2 pointer-events-auto">
+          {trailer?.youtubeKey && (
+            <button
+              type="button"
+              onClick={() => setIsMuted((prev) => !prev)}
+              className="flex size-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md border border-white/20 shadow-lg hover:bg-black/80 hover:scale-110 active:scale-95 transition-all"
+              title={isMuted ? t('unmuteTrailer') : t('muteTrailer')}
+            >
+              {isMuted ? (
+                <VolumeX className="size-4 text-white/80" />
+              ) : (
+                <Volume2 className="size-4 text-accent animate-pulse" />
+              )}
+            </button>
+          )}
+          <span className="rounded bg-black/60 px-2 py-1 text-[11px] font-bold tracking-wider text-white/90 backdrop-blur-md border border-white/15 shadow-sm uppercase">
+            16+ · 4K HD
+          </span>
+        </div>
       </div>
 
       {/* Billboard Hero Body */}
       <div className={HERO_BODY}>
-        <div className="max-w-2xl space-y-4">
+        <div className="max-w-2xl space-y-3.5 sm:space-y-4">
           {/* Authentic Streaming-style Top 10 / Trending Badge */}
-          <div className="flex items-center gap-2.5">
-            <span className="inline-flex items-center justify-center rounded bg-red-600 px-2 py-0.5 text-[11px] font-black tracking-wider text-white shadow-sm uppercase">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center justify-center rounded-md bg-red-600 px-2 py-0.5 text-[11px] font-black tracking-widest text-white shadow-md uppercase">
               {currentIndex < 10 ? 'TOP 10' : 'TRENDING'}
             </span>
-            <span className="text-sm font-bold tracking-tight text-fg drop-shadow-sm">
+            <span className="text-xs sm:text-sm font-bold tracking-tight text-fg drop-shadow-md">
               {language === 'ar'
                 ? `المرتبة #${currentIndex + 1} في ${activeItem.mediaType === 'movie' ? t('movies') : t('series')} اليوم`
                 : language === 'fr'
-                  ? `N° ${currentIndex + 1} des ${activeItem.mediaType === 'movie' ? t('movies') : t('series')} aujourd'hui`
-                  : `#${currentIndex + 1} in ${activeItem.mediaType === 'movie' ? t('movies') : t('series')} Today`}
+                  ? `N° ${currentIndex + 1} aujourd'hui`
+                  : `#${currentIndex + 1} in ${activeItem.mediaType === 'movie' ? 'Movies' : 'Series'} Today`}
             </span>
           </div>
 
           {/* Title */}
           <h2
             id={headingId}
-            className="font-display text-display-md sm:text-display-lg leading-tight tracking-tight text-balance text-fg drop-shadow-md transition-all duration-500 animate-in fade-in slide-in-from-bottom-2"
+            className="font-display text-3xl sm:text-4xl md:text-display-lg leading-tight tracking-tight text-balance text-fg drop-shadow-xl transition-all duration-500 animate-in fade-in slide-in-from-bottom-2"
           >
             {activeItem.title}
           </h2>
 
           {/* Clean Metadata row */}
-          <div className="flex flex-wrap items-center gap-3 text-sm text-fg-muted font-medium">
-            <span className="font-semibold text-fg">
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 text-xs sm:text-sm text-fg-muted font-medium">
+            <span className="font-bold text-fg">
               {activeItem.mediaType === 'movie' ? t('movieSingular') : t('seriesSingular')}
             </span>
             {activeItem.year && (
@@ -239,14 +260,14 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
             {activeItem.rating !== null && (
               <>
                 <span className="text-fg-subtle">•</span>
-                <span className="inline-flex items-center gap-1 font-semibold text-amber-500 dark:text-amber-400">
+                <span className="inline-flex items-center gap-1 font-bold text-amber-400">
                   <span>★</span> {activeItem.rating.toFixed(1)}
                 </span>
               </>
             )}
             <span className="text-fg-subtle">•</span>
-            <span className="rounded border border-line px-1.5 py-0.5 text-[11px] font-bold text-fg-muted uppercase">
-              HD
+            <span className="rounded bg-surface-2/80 border border-line px-1.5 py-0.5 text-[10px] font-extrabold text-fg-muted uppercase tracking-wider">
+              4K ULTRA HD
             </span>
           </div>
 
@@ -254,7 +275,7 @@ export function HeroBillboard({ media, items }: HeroBillboardProps) {
           {activeItem.overview && (
             <p
               lang={TMDB_CONTENT_LANG}
-              className="line-clamp-3 text-sm sm:text-base leading-relaxed text-pretty text-fg-muted drop-shadow-sm max-w-xl"
+              className="line-clamp-2 sm:line-clamp-3 text-xs sm:text-sm md:text-base leading-relaxed text-pretty text-fg-muted drop-shadow-md max-w-xl"
             >
               {activeItem.overview}
             </p>
