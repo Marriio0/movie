@@ -1,9 +1,6 @@
 {
   "name": "movie-app",
   "private": true,
-  "workspaces": [
-    "frontend"
-  ],
   "scripts": {
     "build": "npm --prefix frontend run build"
   }
