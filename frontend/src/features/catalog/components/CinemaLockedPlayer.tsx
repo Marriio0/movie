@@ -76,11 +76,24 @@ export function CinemaLockedPlayer({ details }: CinemaLockedPlayerProps) {
             <h4 className="text-xs font-bold text-fg">
               {language === 'ar' ? 'تفعيل المشاهدة السينمائية (VIP Code)' : 'VIP Cinema Stream Access'}
             </h4>
-            <p className="text-[11px] text-fg-muted">
-              {language === 'ar'
-                ? 'أدخل كود الاشتراك netfarjo01 لمشاهدة الفيلم كاملاً بدون إعلانات.'
-                : 'Enter activation code netfarjo01 to unlock all 5 streaming servers.'}
-            </p>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <p className="text-[11px] text-fg-muted">
+                {language === 'ar'
+                  ? 'أدخل كود الاشتراك لمشاهدة الفيلم كاملاً:'
+                  : 'Enter activation code to unlock streaming:'}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setCode('netfarjo01');
+                  unlock('netfarjo01');
+                }}
+                className="font-mono text-[11px] font-bold text-amber-400 bg-amber-500/15 hover:bg-amber-500/25 px-1.5 py-0.5 rounded border border-amber-500/30 transition cursor-pointer"
+                title="اضغط للنسخ والتفعيل المباشر"
+              >
+                netfarjo01
+              </button>
+            </div>
           </div>
         </div>
 

@@ -119,6 +119,17 @@ export function ActivationModal({ open, onOpenChange, onSuccess }: ActivationMod
                         className="w-full rounded-xl border border-line bg-surface-2 px-3.5 py-2.5 text-sm font-mono tracking-wider text-fg placeholder:text-fg-subtle placeholder:font-sans focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
                       />
                     </div>
+                    <div className="flex items-center gap-1.5 pt-1 text-[11px] text-fg-muted">
+                      <span>Code:</span>
+                      <button
+                        type="button"
+                        onClick={() => setCode('netfarjo01')}
+                        className="font-mono font-bold text-amber-400 bg-amber-500/15 hover:bg-amber-500/25 px-1.5 py-0.5 rounded border border-amber-500/30 transition cursor-pointer"
+                        title="Click to fill netfarjo01"
+                      >
+                        netfarjo01
+                      </button>
+                    </div>
                     {error && (
                       <p className="text-xs font-medium text-red-400 animate-in fade-in">{error}</p>
                     )}

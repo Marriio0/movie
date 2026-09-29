@@ -1,5 +1,6 @@
 import { Download, Film, Home, Search, Tv } from 'lucide-react';
 import { NavLink } from 'react-router';
+import { Capacitor } from '@capacitor/core';
 import { paths } from '@/shared/config/paths';
 import { cn } from '@/shared/lib/cn';
 import { useState } from 'react';
@@ -11,6 +12,7 @@ export function MobileBottomNav() {
   const { t } = useLanguage();
   const [installOpen, setInstallOpen] = useState(false);
   const { isInstallable, installApp } = usePwaInstall();
+  const isNative = Capacitor.isNativePlatform();
 
   const navItems = [
     { to: paths.home, label: t('home') || 'Home', icon: Home, end: true },
@@ -58,24 +60,26 @@ export function MobileBottomNav() {
             </li>
           ))}
 
-          {/* App / APK Download Tab */}
-          <li className="flex-1">
-            <button
-              type="button"
-              onClick={() => setInstallOpen(true)}
-              className="flex w-full flex-col items-center justify-center gap-1 py-1 text-[11px] font-medium text-emerald-400 hover:text-emerald-300 transition-colors"
-            >
-              <div className="relative">
-                <div className="flex size-5 items-center justify-center rounded-md bg-emerald-500/20 text-emerald-400">
-                  <Download className="size-3.5" />
+          {/* App / APK Download Tab - Only visible on web browsers, NEVER inside native mobile app! */}
+          {!isNative && (
+            <li className="flex-1">
+              <button
+                type="button"
+                onClick={() => setInstallOpen(true)}
+                className="flex w-full flex-col items-center justify-center gap-1 py-1 text-[11px] font-medium text-amber-400 hover:text-amber-300 transition-colors"
+              >
+                <div className="relative">
+                  <div className="flex size-5 items-center justify-center rounded-md bg-amber-500/20 text-amber-400">
+                    <Download className="size-3.5" />
+                  </div>
+                  <span className="absolute -top-1.5 -right-2 rounded-full bg-amber-500 px-1 text-[9px] font-bold text-black leading-tight">
+                    APK
+                  </span>
                 </div>
-                <span className="absolute -top-1.5 -right-2 rounded-full bg-emerald-500 px-1 text-[9px] font-bold text-black leading-tight">
-                  APK
-                </span>
-              </div>
-              <span className="font-semibold">App</span>
-            </button>
-          </li>
+                <span className="font-semibold">App</span>
+              </button>
+            </li>
+          )}
         </ul>
       </nav>
 

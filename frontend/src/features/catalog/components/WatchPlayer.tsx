@@ -12,11 +12,13 @@ import {
   Server,
   Settings,
   SkipForward,
+  Smartphone,
   Sparkles,
   Subtitles,
   Tv,
   X,
 } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import type { MediaDetails } from '../catalog.types';
@@ -50,6 +52,7 @@ type ViewMode = 'stream' | 'torrentio' | 'download';
 
 export function WatchPlayer({ details }: WatchPlayerProps) {
   const isSeries = details.mediaType === 'tv';
+  const isNative = Capacitor.isNativePlatform();
   const { isInstallable, isInstalled, installApp } = usePwaInstall();
 
   // Active view mode: default to stream for instant direct streaming
@@ -950,34 +953,49 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
               </div>
             )}
 
-            {/* Install App on Device Banner (PWA) */}
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-surface-2 p-3 text-xs" dir="rtl">
-              <div className="flex items-center gap-2.5">
-                <Download className="size-4 shrink-0 text-emerald-400" />
-                <div>
-                  <p className="font-semibold text-fg">
-                    Install <bdi className="font-bold text-accent">Netfarjo</bdi> on your device
-                  </p>
-                  <p className="text-fg-muted">
-                    Install as a native app on your phone or computer to stream and download movies directly.
-                  </p>
+            {/* Direct Yacine TV style Android APK Download Banner (Web only, never inside native app) */}
+            {!isNative && (
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-950/30 via-surface-2 to-surface-2 p-3 text-xs shadow-sm" dir="rtl">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex size-9 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400 shrink-0">
+                    <Smartphone className="size-4" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <p className="font-bold text-fg">
+                        تطبيق <bdi className="text-amber-400">Netfarjo</bdi> للأندرويد
+                      </p>
+                      <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-300">
+                        APK v1.0
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-fg-muted">
+                      مشاهدة سريعة بدون تقطيع وبأعلى جودة
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <a
+                    href="https://github.com/Marriio0/movie/releases/download/v1.0.0-apk/Netfarjo-v1.0.apk"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 px-3.5 py-1.5 text-xs font-bold text-black shadow-sm transition"
+                  >
+                    <Download className="size-3.5" />
+                    <span>تحميل APK مباشر</span>
+                  </a>
+                  {!isInstalled && (
+                    <button
+                      type="button"
+                      onClick={handleInstallClick}
+                      className="hidden sm:flex items-center gap-1 rounded-lg border border-line bg-surface-1 hover:bg-surface-3 px-2.5 py-1.5 text-xs text-fg-muted hover:text-fg transition"
+                    >
+                      <span>تثبيت PWA</span>
+                    </button>
+                  )}
                 </div>
               </div>
-              {isInstalled ? (
-                <span className="rounded bg-emerald-500/20 px-2.5 py-1 text-xs font-semibold text-emerald-400">
-                  ✓ App installed
-                </span>
-              ) : (
-                <Button
-                  size="sm"
-                  onClick={handleInstallClick}
-                  className="h-8 bg-emerald-600 px-3.5 text-xs font-bold text-white hover:bg-emerald-700 shadow-sm transition"
-                >
-                  <Download className="size-3.5 mr-1" />
-                  <span>Install Now</span>
-                </Button>
-              )}
-            </div>
+            )}
 
             {/* Clean one-line note */}
             <div className="flex items-center gap-2 rounded-lg border border-line bg-surface-2 px-3 py-2 text-xs" dir="rtl">

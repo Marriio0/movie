@@ -184,19 +184,15 @@ describe('WatchPlayer', () => {
     expect(localStorage.getItem('marquee:preferred-subtitle-lang')).toBe('fr');
   });
 
-  it('opens installation guide modal when install button is clicked in Download Center', async () => {
+  it('displays Yacine TV style direct APK download banner on Web in Download Center', async () => {
     const user = userEvent.setup();
     renderWatchPlayer(mockMovie);
 
     const downloadTabs = screen.getAllByRole('button', { name: /Download/i });
     await user.click(downloadTabs[0]!);
 
-    const installBtn = screen.getByRole('button', { name: /Install Now/i });
-    await user.click(installBtn);
-
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getAllByText(/Install/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText(/هواتف آيفون وآيباد/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/أندرويد/i).length).toBeGreaterThanOrEqual(1);
+    const apkLink = screen.getByRole('link', { name: /تحميل APK مباشر/i });
+    expect(apkLink).toBeInTheDocument();
+    expect(apkLink).toHaveAttribute('href', expect.stringContaining('.apk'));
   });
 });
