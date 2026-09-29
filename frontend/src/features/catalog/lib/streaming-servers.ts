@@ -72,7 +72,7 @@ export const STREAMING_SERVERS: StreamingServer[] = [
     getUrl: ({ mediaType, tmdbId, season, episode }) =>
       mediaType === 'movie'
         ? `https://autoembed.co/movie/tmdb/${tmdbId}`
-        : `https://autoembed.co/tv/tmdb/${tmdbId}/${season}/${episode}`,
+        : `https://autoembed.co/tv/tmdb/${tmdbId}-${season}-${episode}`,
   },
   {
     id: 'vidsrcto',
