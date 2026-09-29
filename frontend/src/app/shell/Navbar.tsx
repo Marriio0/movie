@@ -30,7 +30,7 @@ const navLinkStyles =
 export function Navbar() {
   const scrolled = useScrolled();
   const { isInstallable, installApp } = usePwaInstall();
-  const { isUnlocked } = useActivation();
+  const { isUnlocked, isNative } = useActivation();
   const [activationModalOpen, setActivationModalOpen] = useState(false);
 
   return (
@@ -91,23 +91,25 @@ export function Navbar() {
             </button>
           )}
 
-          {/* VIP Cinema Activation Button */}
-          <button
-            type="button"
-            onClick={() => setActivationModalOpen(true)}
-            className={cn(
-              'flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition shadow-sm',
-              isUnlocked
-                ? 'border border-emerald-500/40 bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25'
-                : 'border border-amber-500/50 bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 animate-pulse',
-            )}
-            title={isUnlocked ? 'VIP Cinema Active' : 'Enter VIP Code (netfarjo01)'}
-          >
-            <KeyRound className="size-3.5" />
-            <span className="hidden sm:inline">
-              {isUnlocked ? 'VIP Active' : 'VIP Code'}
-            </span>
-          </button>
+          {/* VIP Cinema Activation Button (Native App only for review compliance) */}
+          {isNative && (
+            <button
+              type="button"
+              onClick={() => setActivationModalOpen(true)}
+              className={cn(
+                'flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition shadow-sm',
+                isUnlocked
+                  ? 'border border-emerald-500/40 bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25'
+                  : 'border border-amber-500/50 bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 animate-pulse',
+              )}
+              title={isUnlocked ? 'VIP Cinema Active' : 'Enter VIP Code (netfarjo01)'}
+            >
+              <KeyRound className="size-3.5" />
+              <span className="hidden sm:inline">
+                {isUnlocked ? 'VIP Active' : 'VIP Code'}
+              </span>
+            </button>
+          )}
 
           {/* Language Switcher */}
           <LanguageMenu />

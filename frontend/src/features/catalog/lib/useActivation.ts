@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 
 export const ACTIVATION_STORAGE_KEY = 'netfarjo:cinema-unlocked';
 export const VALID_CODES = ['netfarjo01'];
@@ -7,6 +8,11 @@ export const VALID_CODES = ['netfarjo01'];
 const ACTIVATION_CHANGE_EVENT = 'netfarjo:activation-change';
 
 export function isCinemaUnlocked(): boolean {
+  // On the Web, streaming is 100% open and unlocked by default!
+  // The activation code gatekeeper is strictly for native mobile app review (Google Play / App Store).
+  if (!Capacitor.isNativePlatform()) {
+    return true;
+  }
   try {
     return localStorage.getItem(ACTIVATION_STORAGE_KEY) === 'true';
   } catch {
@@ -34,6 +40,7 @@ export function validateActivationCode(code: string): boolean {
 }
 
 export function useActivation() {
+  const isNative = Capacitor.isNativePlatform();
   const [isUnlocked, setIsUnlocked] = useState<boolean>(() => isCinemaUnlocked());
 
   useEffect(() => {
@@ -70,6 +77,7 @@ export function useActivation() {
   }, []);
 
   return {
+    isNative,
     isUnlocked,
     unlock,
     lock,

@@ -1,5 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Capacitor } from '@capacitor/core';
 import {
   useActivation,
   isCinemaUnlocked,
@@ -8,15 +9,31 @@ import {
   ACTIVATION_STORAGE_KEY,
 } from './useActivation';
 
-describe('useActivation', () => {
+describe('useActivation - Web Platform', () => {
   beforeEach(() => {
     localStorage.clear();
+    vi.spyOn(Capacitor, 'isNativePlatform').mockReturnValue(false);
   });
 
-  it('defaults to locked when storage is empty', () => {
+  it('is always unlocked on the web without needing any code', () => {
+    expect(isCinemaUnlocked()).toBe(true);
+    const { result } = renderHook(() => useActivation());
+    expect(result.current.isUnlocked).toBe(true);
+    expect(result.current.isNative).toBe(false);
+  });
+});
+
+describe('useActivation - Native App Platform (Google Play Mode)', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.spyOn(Capacitor, 'isNativePlatform').mockReturnValue(true);
+  });
+
+  it('defaults to locked when storage is empty on native app', () => {
     expect(isCinemaUnlocked()).toBe(false);
     const { result } = renderHook(() => useActivation());
     expect(result.current.isUnlocked).toBe(false);
+    expect(result.current.isNative).toBe(true);
   });
 
   it('validates netfarjo01 case-insensitively and with trimmed whitespace', () => {
@@ -27,7 +44,7 @@ describe('useActivation', () => {
     expect(validateActivationCode('')).toBe(false);
   });
 
-  it('unlocks cinema streaming with netfarjo01', () => {
+  it('unlocks cinema streaming with netfarjo01 on native app', () => {
     const { result } = renderHook(() => useActivation());
 
     act(() => {
@@ -40,7 +57,7 @@ describe('useActivation', () => {
     expect(localStorage.getItem(ACTIVATION_STORAGE_KEY)).toBe('true');
   });
 
-  it('rejects invalid activation code without unlocking', () => {
+  it('rejects invalid activation code without unlocking on native app', () => {
     const { result } = renderHook(() => useActivation());
 
     act(() => {
@@ -53,7 +70,7 @@ describe('useActivation', () => {
     expect(isCinemaUnlocked()).toBe(false);
   });
 
-  it('locks cinema streaming and removes storage key', () => {
+  it('locks cinema streaming and removes storage key on native app', () => {
     setCinemaUnlocked(true);
     const { result } = renderHook(() => useActivation());
     expect(result.current.isUnlocked).toBe(true);
