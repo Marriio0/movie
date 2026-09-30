@@ -18,6 +18,7 @@ export const ARABIC_CLEAN_STREAMS: Record<number, CleanStreamEntry> = {
   300402: { videoId: 'MSQHciQtYYQ' },
   // القسم 8 (Classe 8)
   389148: { videoId: 'Hsv3OQg9IzE' },
+  575246: { videoId: 'Hsv3OQg9IzE' },
   // البحث عن زوج امرأتي
   504543: { videoId: 'Z1StIGZqsnY' },
   // يا خيل الله (Horses of God)
@@ -30,18 +31,24 @@ export const ARABIC_CLEAN_STREAMS: Record<number, CleanStreamEntry> = {
   61686: { videoId: '5oTl8Ae3V4g' },
   // زيرو (Zero)
   120288: { videoId: 'LZXpv2ZD5Tc' },
+  306293: { videoId: 'LZXpv2ZD5Tc' },
   // باب الحديد (Cairo Station)
   47324: { videoId: 'ma9sDu-aLZw' },
   // فيلم الكيف
   326943: { videoId: 'TASVT3bo4qc' },
+  199634: { videoId: 'TASVT3bo4qc' },
   // مدرسة المشاغبين
   326938: { videoId: 'kUGlsDCiC7A' },
+  57004: { videoId: 'kUGlsDCiC7A' },
   // شاهد ما شفش حاجة
   326940: { videoId: 'vQyDRVKFoJk' },
+  52169: { videoId: 'vQyDRVKFoJk' },
   // الواد سيد الشغال
   326941: { videoId: 'M86-JJwg14U' },
+  972242: { videoId: 'M86-JJwg14U' },
   // سلام يا صاحبي
   23158: { videoId: 'b3sT4HNH2aY' },
+  320997: { videoId: 'b3sT4HNH2aY' },
   // الرسالة (The Message)
   26842: { videoId: 'uV_p05wEw38' },
   // كبور والحبيب
@@ -91,6 +98,12 @@ export const ARABIC_CLEAN_STREAMS: Record<number, CleanStreamEntry> = {
   },
   // البرنس
   102237: {
+    videoId: 'dEY6AxD44YM',
+    episodes: {
+      1: 'dEY6AxD44YM',
+    },
+  },
+  102041: {
     videoId: 'dEY6AxD44YM',
     episodes: {
       1: 'dEY6AxD44YM',

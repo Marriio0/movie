@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { MediaDetails } from '../catalog.types';
 import {
   STREAMING_SERVERS,
@@ -142,9 +142,98 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
     });
   }, [details, isSeries, currentSeason, currentEpisode]);
 
-  // Theater / Cinema mode
+  // Theater / Cinema mode & Mobile Landscape Fullscreen
   const [isTheater, setIsTheater] = useState(false);
   const [isWidePlayer, setIsWidePlayer] = useState(false);
+  const [isLandscapeFullscreen, setIsLandscapeFullscreen] = useState(false);
+  const playerContainerRef = useRef<HTMLDivElement>(null);
+
+  const toggleLandscapeFullscreen = async () => {
+    try {
+      const container = playerContainerRef.current;
+      if (!container) return;
+
+      if (!isLandscapeFullscreen && !document.fullscreenElement) {
+        if (container.requestFullscreen) {
+          try {
+            await container.requestFullscreen();
+          } catch {
+            // Ignore
+          }
+        } else if ((container as unknown as { webkitRequestFullscreen?: () => Promise<void> }).webkitRequestFullscreen) {
+          try {
+            await (container as unknown as { webkitRequestFullscreen: () => Promise<void> }).webkitRequestFullscreen();
+          } catch {
+            // Ignore
+          }
+        }
+
+        if (screen.orientation && 'lock' in screen.orientation) {
+          try {
+            await (screen.orientation as unknown as { lock: (mode: string) => Promise<void> }).lock('landscape');
+          } catch {
+            // Ignore orientation lock restrictions
+          }
+        }
+
+        setIsLandscapeFullscreen(true);
+        setIsWidePlayer(true);
+      } else {
+        if (document.fullscreenElement) {
+          try {
+            await document.exitFullscreen();
+          } catch {
+            // Ignore
+          }
+        } else if ((document as unknown as { webkitExitFullscreen?: () => Promise<void> }).webkitExitFullscreen) {
+          try {
+            await (document as unknown as { webkitExitFullscreen: () => Promise<void> }).webkitExitFullscreen();
+          } catch {
+            // Ignore
+          }
+        }
+
+        if (screen.orientation && 'unlock' in screen.orientation) {
+          try {
+            screen.orientation.unlock();
+          } catch {
+            // Ignore
+          }
+        }
+
+        setIsLandscapeFullscreen(false);
+      }
+    } catch {
+      setIsLandscapeFullscreen((prev) => !prev);
+    }
+  };
+
+  useEffect(() => {
+    const handleFsChange = () => {
+      const isFs = Boolean(
+        document.fullscreenElement ||
+          (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement,
+      );
+      if (!isFs && isLandscapeFullscreen) {
+        setIsLandscapeFullscreen(false);
+        if (screen.orientation && 'unlock' in screen.orientation) {
+          try {
+            screen.orientation.unlock();
+          } catch {
+            // Ignore
+          }
+        }
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFsChange);
+    document.addEventListener('webkitfullscreenchange', handleFsChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFsChange);
+      document.removeEventListener('webkitfullscreenchange', handleFsChange);
+    };
+  }, [isLandscapeFullscreen]);
 
   // Reload key to force iframe remount if stream gets stuck
   const [reloadKey, setReloadKey] = useState(0);
@@ -581,6 +670,14 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
             </IconButton>
 
             <IconButton
+              label={isLandscapeFullscreen ? 'Exit Landscape' : 'Rotate Phone (Landscape Fullscreen)'}
+              onClick={toggleLandscapeFullscreen}
+              className="text-amber-400 hover:text-amber-300"
+            >
+              <Smartphone className={cn('size-3.5 transition-transform duration-300', isLandscapeFullscreen ? 'rotate-0' : 'rotate-90')} />
+            </IconButton>
+
+            <IconButton
               label={isTheater ? 'Exit Cinema Mode' : 'Cinema Mode'}
               onClick={() => setIsTheater(!isTheater)}
               className="text-fg-muted hover:text-fg"
@@ -677,21 +774,38 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 </div>
               </div>
 
-              {/* Directly next to subtitle: Enlarge Video / Cinema Wide Toggle */}
-              <button
-                type="button"
-                onClick={() => setIsWidePlayer(!isWidePlayer)}
-                className={cn(
-                  'flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-bold transition shadow-xs',
-                  isWidePlayer
-                    ? 'bg-accent text-accent-fg ring-1 ring-accent'
-                    : 'bg-surface-2 text-fg ring-1 ring-line hover:bg-surface-3 hover:text-accent',
-                )}
-                title="Expand video player to cinema wide view"
-              >
-                {isWidePlayer ? <Minimize2 className="size-3.5" /> : <Maximize2 className="size-3.5" />}
-                <span>{isWidePlayer ? 'Standard View' : 'Cinema Wide'}</span>
-              </button>
+              {/* Rotate Phone Fullscreen & Cinema Wide Toggles */}
+              <div className="flex flex-wrap items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={toggleLandscapeFullscreen}
+                  className={cn(
+                    'flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-bold transition shadow-xs',
+                    isLandscapeFullscreen
+                      ? 'bg-amber-500 text-black ring-1 ring-amber-400'
+                      : 'bg-surface-2 text-fg ring-1 ring-line hover:bg-surface-3 hover:text-amber-400',
+                  )}
+                  title="تدوير الهاتف بالعرض ملء الشاشة مثل نتفليكس (Rotate Landscape Fullscreen)"
+                >
+                  <Smartphone className={cn('size-3.5 transition-transform duration-300 text-amber-400', isLandscapeFullscreen ? 'rotate-0' : 'rotate-90')} />
+                  <span>{isLandscapeFullscreen ? 'Standard' : '📱⤾ تدوير الشاشة (Wide)'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsWidePlayer(!isWidePlayer)}
+                  className={cn(
+                    'flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-bold transition shadow-xs',
+                    isWidePlayer
+                      ? 'bg-accent text-accent-fg ring-1 ring-accent'
+                      : 'bg-surface-2 text-fg ring-1 ring-line hover:bg-surface-3 hover:text-accent',
+                  )}
+                  title="Expand video player to cinema wide view"
+                >
+                  {isWidePlayer ? <Minimize2 className="size-3.5" /> : <Maximize2 className="size-3.5" />}
+                  <span>{isWidePlayer ? 'Standard View' : 'Cinema Wide'}</span>
+                </button>
+              </div>
             </div>
 
             {/* Quick tip about pop-ups */}
@@ -799,13 +913,38 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
           <div className="space-y-2">
             {/* Cinema Video Container */}
             <div
+              ref={playerContainerRef}
               className={cn(
-                'relative w-full transform-gpu overflow-hidden rounded-xl bg-black shadow-2xl ring-1 ring-white/10 contain-paint transition-all duration-300',
-                isWidePlayer
-                  ? 'h-[70vh] sm:h-[80vh] md:h-[90vh] w-full max-w-full'
-                  : 'aspect-video w-full min-h-[320px] sm:min-h-[480px] md:min-h-[560px]',
+                'relative w-full transform-gpu overflow-hidden bg-black shadow-2xl contain-paint transition-all duration-300',
+                isLandscapeFullscreen
+                  ? 'fixed inset-0 z-99999 h-screen w-screen rounded-none'
+                  : isWidePlayer
+                    ? 'h-[70vh] sm:h-[80vh] md:h-[90vh] w-full max-w-full rounded-xl ring-1 ring-white/10'
+                    : 'aspect-video w-full min-h-[320px] sm:min-h-[480px] md:min-h-[560px] rounded-xl ring-1 ring-white/10',
               )}
             >
+              {isLandscapeFullscreen && (
+                <button
+                  type="button"
+                  onClick={toggleLandscapeFullscreen}
+                  className="absolute right-4 top-4 z-50 flex items-center gap-1.5 rounded-lg bg-black/85 px-3 py-1.5 text-xs font-bold text-white shadow-2xl backdrop-blur-md ring-1 ring-white/20 transition hover:bg-black active:scale-95"
+                  title="خروج من العرض العريض (Exit Landscape)"
+                >
+                  <Minimize2 className="size-4 text-amber-400" />
+                  <span>Exit (خروج)</span>
+                </button>
+              )}
+              {!isLandscapeFullscreen && (
+                <button
+                  type="button"
+                  onClick={toggleLandscapeFullscreen}
+                  className="absolute right-3 top-3 z-20 flex sm:hidden items-center gap-1 rounded-md bg-black/75 px-2 py-1 text-[11px] font-bold text-white shadow-lg backdrop-blur-md ring-1 ring-white/20 transition hover:bg-black active:scale-95"
+                  title="تدوير الشاشة عريض (Landscape Fullscreen)"
+                >
+                  <Smartphone className="size-3 rotate-90 text-amber-400" />
+                  <span>Wide ⤾</span>
+                </button>
+              )}
               {directVideoUrl ? (
                 <div className="relative size-full">
                   <video
@@ -853,6 +992,15 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                 <span className="rounded bg-emerald-500/20 px-2 py-0.5 font-medium text-emerald-400">
                   🟢 {currentSubLangObj.nativeName} {currentLangSub ? 'synced' : 'embedded'}
                 </span>
+                <button
+                  type="button"
+                  onClick={toggleLandscapeFullscreen}
+                  className="flex sm:hidden items-center gap-1 rounded bg-amber-500/20 px-2 py-0.5 text-[11px] font-bold text-amber-400 hover:bg-amber-500/30"
+                  title="تدوير الشاشة عريض (Rotate Landscape)"
+                >
+                  <Smartphone className="size-3 rotate-90" />
+                  <span>⤾ تدوير</span>
+                </button>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
