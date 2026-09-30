@@ -77,8 +77,8 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
     }
   };
 
-  // Server selection (default Server 1: Videasy Fast HD)
-  const [selectedServerId, setSelectedServerId] = useState<string>('videasy');
+  // Server selection (default Server 1: VidSrc Fast HD)
+  const [selectedServerId, setSelectedServerId] = useState<string>('vidsrcsu');
 
   // Interactive Subtitle language preference (defaults to Arabic 'ar' or saved user preference)
   const [selectedSubLang, setSelectedSubLang] = useState<string>(() => {
@@ -774,7 +774,6 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
                   allowFullScreen
                   loading="lazy"
-                  referrerPolicy={currentEmbedUrl.includes('youtube') ? undefined : 'no-referrer'}
                   className="size-full border-0"
                 />
               )}

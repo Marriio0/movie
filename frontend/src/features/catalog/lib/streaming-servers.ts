@@ -21,10 +21,10 @@ export interface StreamingServer {
 
 export const STREAMING_SERVERS: StreamingServer[] = [
   {
-    id: 'videasy',
-    name: 'Server 1 (Videasy Fast HD)',
+    id: 'vidsrcsu',
+    name: 'Server 1 (VidSrc Fast HD)',
     badge: '★ Recommended',
-    description: 'Fast direct CDN with instant playback, Arabic & multilingual subtitles, and zero ads.',
+    description: 'Fast direct CDN with instant 1080p playback, multi-language subtitles, and zero ads.',
     supportsSubtitles: true,
     getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'ar', title }) => {
       const cleanUrl = getArabicCleanStream(tmdbId, season, episode, title);
@@ -32,25 +32,25 @@ export const STREAMING_SERVERS: StreamingServer[] = [
         return cleanUrl;
       }
       return mediaType === 'movie'
-        ? `https://player.videasy.net/movie/${tmdbId}?color=eab308&sub_lang=${subLang}`
-        : `https://player.videasy.net/tv/${tmdbId}/${season}/${episode}?color=eab308&sub_lang=${subLang}`;
+        ? `https://vidsrc.su/embed/movie/${tmdbId}?sub_lang=${subLang}`
+        : `https://vidsrc.su/embed/tv/${tmdbId}/${season}/${episode}?sub_lang=${subLang}`;
     },
   },
   {
-    id: 'vidsrcsu',
-    name: 'Server 2 (VidSrc SU)',
-    badge: 'Fast HD',
-    description: 'Ultra fast 1080p stream mirror with high speed and zero buffering.',
+    id: 'vidsrcme',
+    name: 'Server 2 (VidSrc VIP)',
+    badge: 'Multi-Subs VIP',
+    description: 'Official VidSrc player with instant multi-language subtitle tracks.',
     supportsSubtitles: true,
-    getUrl: ({ mediaType, tmdbId, season, episode }) =>
+    getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'ar' }) =>
       mediaType === 'movie'
-        ? `https://vidsrc.su/embed/movie/${tmdbId}`
-        : `https://vidsrc.su/embed/tv/${tmdbId}/${season}/${episode}`,
+        ? `https://vidsrc.me/embed/movie?tmdb=${tmdbId}&ds_lang=${subLang}`
+        : `https://vidsrc.me/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}&ds_lang=${subLang}`,
   },
   {
     id: 'vidsrcpm',
     name: 'Server 3 (VidSrc PM)',
-    badge: 'Multi-Subs VIP',
+    badge: 'HTML5 Mirror',
     description: 'Modern HTML5 player with multi-language subtitle tracks.',
     supportsSubtitles: true,
     getUrl: ({ mediaType, tmdbId, season, episode, subLang = 'ar' }) =>
