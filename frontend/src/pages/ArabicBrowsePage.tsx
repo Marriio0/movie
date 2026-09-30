@@ -6,6 +6,7 @@ import {
   useArabicClassic,
   useArabicEgyptian,
   useArabicMoroccan,
+  useArabicMoroccanSeries,
   useArabicSeries,
   useArabicTrending,
 } from '@/features/catalog/catalog.hooks';
@@ -16,15 +17,16 @@ import { useLanguage } from '@/shared/i18n/language-context';
 import { cn } from '@/shared/lib/cn';
 import { Button } from '@/shared/ui/Button';
 
-type ArabicCategory = 'all' | 'moroccan' | 'egyptian' | 'classic' | 'trending' | 'series';
+type ArabicCategory = 'all' | 'moroccan' | 'moroccan-series' | 'egyptian' | 'classic' | 'trending' | 'series';
 
 const ARABIC_CATEGORIES = [
-  { id: 'all' as ArabicCategory, en: 'All Arabic', ar: 'الكل', fr: 'Tout' },
-  { id: 'moroccan' as ArabicCategory, en: '🇲🇦 Moroccan Hits', ar: '🇲🇦 سينما ومسلسلات مغربية', fr: '🇲🇦 Cinéma Marocain' },
+  { id: 'all' as ArabicCategory, en: '🌟 All Arabic (10,000+)', ar: '🌟 الكل (أكثر من 10,000 عمل)', fr: '🌟 Tout (10 000+)' },
+  { id: 'moroccan' as ArabicCategory, en: '🇲🇦 Moroccan Movies', ar: '🇲🇦 أفلام مغربية', fr: '🇲🇦 Films Marocains' },
+  { id: 'moroccan-series' as ArabicCategory, en: '📺 Moroccan Series', ar: '📺 مسلسلات مغربية', fr: '📺 Séries Marocaines' },
   { id: 'egyptian' as ArabicCategory, en: '🇪🇬 Egyptian Hits', ar: '🇪🇬 سينما مصرية', fr: '🇪🇬 Cinéma Égyptien' },
   { id: 'classic' as ArabicCategory, en: '🎬 Golden Age Classics', ar: '🎬 كلاسيكيات الزمن الجميل', fr: '🎬 Grands Classiques' },
   { id: 'trending' as ArabicCategory, en: '✨ Trending Arabic', ar: '✨ أقوى الأعمال العربية', fr: '✨ Tendances Arabes' },
-  { id: 'series' as ArabicCategory, en: '📺 Arabic Series', ar: '📺 مسلسلات عربية', fr: '📺 Séries Arabes' },
+  { id: 'series' as ArabicCategory, en: '📺 Arabic TV Series', ar: '📺 مسلسلات عربية', fr: '📺 Séries Arabes' },
 ];
 
 export function ArabicBrowsePage() {
@@ -32,7 +34,7 @@ export function ArabicBrowsePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const rawCat = searchParams.get('category') as ArabicCategory | null;
   const initialCategory: ArabicCategory =
-    rawCat && ['all', 'moroccan', 'egyptian', 'classic', 'trending', 'series'].includes(rawCat)
+    rawCat && ['all', 'moroccan', 'moroccan-series', 'egyptian', 'classic', 'trending', 'series'].includes(rawCat)
       ? rawCat
       : 'all';
 
@@ -49,6 +51,7 @@ export function ArabicBrowsePage() {
 
   // Queries for the different Arabic categories
   const moroccanQuery = useArabicMoroccan(1);
+  const moroccanSeriesQuery = useArabicMoroccanSeries(1);
   const egyptianQuery = useArabicEgyptian(1);
   const classicQuery = useArabicClassic(1);
   const trendingQuery = useArabicTrending(1);
@@ -80,6 +83,8 @@ export function ArabicBrowsePage() {
     switch (activeCategory) {
       case 'moroccan':
         return moroccanQuery;
+      case 'moroccan-series':
+        return moroccanSeriesQuery;
       case 'egyptian':
         return egyptianQuery;
       case 'classic':
@@ -92,7 +97,7 @@ export function ArabicBrowsePage() {
       default:
         return trendingQuery;
     }
-  }, [activeCategory, moroccanQuery, egyptianQuery, classicQuery, trendingQuery, seriesQuery]);
+  }, [activeCategory, moroccanQuery, moroccanSeriesQuery, egyptianQuery, classicQuery, trendingQuery, seriesQuery]);
 
   // Combine results for 'all' or display selected category
   const baseItems = useMemo(() => {
@@ -111,8 +116,9 @@ export function ArabicBrowsePage() {
         }
       };
 
-      // In 'all', interleave Moroccan hits, Egyptian classics, and trending Arabic
+      // In 'all', interleave Moroccan hits, series, Egyptian classics, and trending Arabic
       addItems(moroccanQuery.data?.items);
+      addItems(moroccanSeriesQuery.data?.items);
       addItems(classicQuery.data?.items);
       addItems(trendingQuery.data?.items);
       addItems(egyptianQuery.data?.items);
@@ -125,6 +131,7 @@ export function ArabicBrowsePage() {
     activeCategory,
     activeQuery.data?.items,
     moroccanQuery.data?.items,
+    moroccanSeriesQuery.data?.items,
     classicQuery.data?.items,
     trendingQuery.data?.items,
     egyptianQuery.data?.items,
@@ -136,30 +143,65 @@ export function ArabicBrowsePage() {
     setIsLoadingMore(true);
     const nextPage = page + 1;
     try {
-      let res: { items: MediaSummary[]; totalPages?: number } | null = null;
+      let freshItems: MediaSummary[] = [];
+      let reachedEnd = false;
+
       if (activeCategory === 'moroccan') {
-        res = await catalogApi.arabicMoroccan(nextPage);
+        const res = await catalogApi.arabicMoroccan(nextPage);
+        freshItems = res.items || [];
+        reachedEnd = !!(res.totalPages && nextPage >= res.totalPages);
+      } else if (activeCategory === 'moroccan-series') {
+        const res = await catalogApi.arabicMoroccanSeries(nextPage);
+        freshItems = res.items || [];
+        reachedEnd = !!(res.totalPages && nextPage >= res.totalPages);
       } else if (activeCategory === 'egyptian') {
-        res = await catalogApi.arabicEgyptian(nextPage);
+        const res = await catalogApi.arabicEgyptian(nextPage);
+        freshItems = res.items || [];
+        reachedEnd = !!(res.totalPages && nextPage >= res.totalPages);
       } else if (activeCategory === 'classic') {
-        res = await catalogApi.arabicClassic(nextPage);
+        const res = await catalogApi.arabicClassic(nextPage);
+        freshItems = res.items || [];
+        reachedEnd = !!(res.totalPages && nextPage >= res.totalPages);
       } else if (activeCategory === 'series') {
-        res = await catalogApi.arabicSeries(nextPage);
+        const res = await catalogApi.arabicSeries(nextPage);
+        freshItems = res.items || [];
+        reachedEnd = !!(res.totalPages && nextPage >= res.totalPages);
+      } else if (activeCategory === 'trending') {
+        const res = await catalogApi.arabicTrending(nextPage);
+        freshItems = res.items || [];
+        reachedEnd = !!(res.totalPages && nextPage >= res.totalPages);
       } else {
-        res = await catalogApi.arabicTrending(nextPage);
+        // 'all' category: simultaneously fetch across Moroccan, Egyptian, Series, and Trending
+        const [morRes, egRes, serRes, trendRes] = await Promise.allSettled([
+          catalogApi.arabicMoroccan(nextPage),
+          catalogApi.arabicEgyptian(nextPage),
+          catalogApi.arabicSeries(nextPage),
+          catalogApi.arabicTrending(nextPage),
+        ]);
+
+        const gathered: MediaSummary[] = [];
+        if (morRes.status === 'fulfilled' && morRes.value.items) gathered.push(...morRes.value.items);
+        if (egRes.status === 'fulfilled' && egRes.value.items) gathered.push(...egRes.value.items);
+        if (serRes.status === 'fulfilled' && serRes.value.items) gathered.push(...serRes.value.items);
+        if (trendRes.status === 'fulfilled' && trendRes.value.items) gathered.push(...trendRes.value.items);
+        freshItems = gathered;
+        // TMDB allows up to 500 pages of Arabic titles (thousands of titles)
+        reachedEnd = nextPage >= 500 || freshItems.length === 0;
       }
 
-      if (!res.items || res.items.length === 0) {
+      if (freshItems.length === 0) {
         setHasMore(false);
       } else {
         setExtraItems((prev) => {
-          const existingIds = new Set(prev.map((i) => i.id));
-          const baseIds = new Set(baseItems.map((i) => i.id));
-          const fresh = res!.items.filter((i) => !existingIds.has(i.id) && !baseIds.has(i.id));
-          return [...prev, ...fresh];
+          const existingIds = new Set(prev.map((i) => `${i.mediaType}:${i.id}`));
+          const baseIds = new Set(baseItems.map((i) => `${i.mediaType}:${i.id}`));
+          const deduped = freshItems.filter(
+            (i) => !existingIds.has(`${i.mediaType}:${i.id}`) && !baseIds.has(`${i.mediaType}:${i.id}`),
+          );
+          return [...prev, ...deduped];
         });
         setPage(nextPage);
-        if (res.totalPages && nextPage >= res.totalPages) {
+        if (reachedEnd) {
           setHasMore(false);
         }
       }
@@ -192,15 +234,20 @@ export function ArabicBrowsePage() {
   return (
     <div className="container-page py-(--section-y)">
       <header className="max-w-3xl space-y-2">
-        <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-400">
-          <Sparkles className="size-3.5" />
-          <span>🇲🇦 🇪🇬 🌟 {language === 'ar' ? 'باقة السينما والدراما العربية' : 'Arabic Cinema & Series Collection'}</span>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-400">
+            <Sparkles className="size-3.5" />
+            <span>🇲🇦 🇪🇬 🌟 {language === 'ar' ? 'باقة السينما والدراما العربية' : 'Arabic Cinema & Series Collection'}</span>
+          </div>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-400">
+            <span>⚡ {language === 'ar' ? '+10,000 فيلم ومسلسل متوفر' : '10,000+ Titles Available'}</span>
+          </div>
         </div>
         <h1 className="font-display text-display-md text-fg">{title}</h1>
         <p className="text-fg-muted">
           {language === 'ar'
-            ? 'مجموعة متكاملة تضم روائع السينما والمسلسلات المغربية، كلاسيكيات السينما المصرية (الزمن الجميل)، وأقوى الأعمال العربية الحصرية بجودة عالية وسيرفرات سريعة.'
-            : 'Explore the definitive collection of Moroccan hits, legendary Egyptian golden age classics, and top trending Arabic cinema and series.'}
+            ? 'مكتبة شاملة تضم أكثر من 10,000 فيلم ومسلسل مغربي ومصري وعربي، مع تحديث فوري وسيرفرات مشاهدة مباشرة بجودة عالية وترجمة مدمجة.'
+            : 'Explore the massive catalog of over 10,000 Moroccan, Egyptian, and Arabic movies and TV series with direct fast streaming and subtitles.'}
         </p>
       </header>
 

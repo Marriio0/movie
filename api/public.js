@@ -28,6 +28,8 @@ function getTmdbPath(pathname, searchParams) {
     return { path: `/movie/now_playing?language=${lang}&page=${page}` };
   if (pathname === '/api/public/arabic/moroccan')
     return { path: `/discover/movie?with_origin_country=MA&language=${lang}&page=${page}&sort_by=popularity.desc` };
+  if (pathname === '/api/public/arabic/moroccan-series')
+    return { path: `/discover/tv?with_origin_country=MA&language=${lang}&page=${page}&sort_by=popularity.desc` };
   if (pathname === '/api/public/arabic/egyptian')
     return { path: `/discover/movie?with_origin_country=EG&language=${lang}&page=${page}&sort_by=popularity.desc` };
   if (pathname === '/api/public/arabic/classic')

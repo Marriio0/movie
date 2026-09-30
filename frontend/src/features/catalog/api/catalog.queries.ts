@@ -20,6 +20,8 @@ export const catalogKeys = {
   watchProviders: (mediaType: MediaType, id: number) =>
     [...catalogKeys.all, 'watch-providers', mediaType, id] as const,
   arabicMoroccan: (page: number = 1) => [...catalogKeys.all, 'arabic-moroccan', page] as const,
+  arabicMoroccanSeries: (page: number = 1) =>
+    [...catalogKeys.all, 'arabic-moroccan-series', page] as const,
   arabicEgyptian: (page: number = 1) => [...catalogKeys.all, 'arabic-egyptian', page] as const,
   arabicClassic: (page: number = 1) => [...catalogKeys.all, 'arabic-classic', page] as const,
   arabicTrending: (page: number = 1) => [...catalogKeys.all, 'arabic-trending', page] as const,
@@ -129,6 +131,13 @@ export const arabicMoroccanQuery = (page: number = 1) =>
   queryOptions({
     queryKey: catalogKeys.arabicMoroccan(page),
     queryFn: ({ signal }) => catalogApi.arabicMoroccan(page, signal),
+    staleTime: 15 * MINUTE,
+  });
+
+export const arabicMoroccanSeriesQuery = (page: number = 1) =>
+  queryOptions({
+    queryKey: catalogKeys.arabicMoroccanSeries(page),
+    queryFn: ({ signal }) => catalogApi.arabicMoroccanSeries(page, signal),
     staleTime: 15 * MINUTE,
   });
 

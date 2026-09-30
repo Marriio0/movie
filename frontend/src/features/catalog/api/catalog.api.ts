@@ -54,6 +54,7 @@ function mapApiToTmdb(path: string, params: Record<string, string>): string | nu
   if (path === '/api/public/series/top-rated') return `/tv/top_rated?language=${lang}&page=${page}`;
   if (path === '/api/public/movies/now-playing') return `/movie/now_playing?language=${lang}&page=${page}`;
   if (path === '/api/public/arabic/moroccan') return `/discover/movie?with_origin_country=MA&language=${lang}&page=${page}&sort_by=popularity.desc`;
+  if (path === '/api/public/arabic/moroccan-series') return `/discover/tv?with_origin_country=MA&language=${lang}&page=${page}&sort_by=popularity.desc`;
   if (path === '/api/public/arabic/egyptian') return `/discover/movie?with_origin_country=EG&language=${lang}&page=${page}&sort_by=popularity.desc`;
   if (path === '/api/public/arabic/classic') return `/discover/movie?with_origin_country=EG&primary_release_date.lte=2010-01-01&language=${lang}&page=${page}&sort_by=vote_count.desc`;
   if (path === '/api/public/arabic/trending') return `/discover/movie?with_original_language=ar&language=${lang}&page=${page}&sort_by=popularity.desc`;
@@ -242,7 +243,7 @@ export const catalogApi = {
     }
   },
 
-  /** GET /api/public/arabic/moroccan: Moroccan movies & series. */
+  /** GET /api/public/arabic/moroccan: Moroccan movies. */
   arabicMoroccan: async (page: number = 1, signal?: AbortSignal): Promise<MediaList> => {
     try {
       const res = await getPublic<TmdbPage<TmdbMovieListItem>, MediaList>(
@@ -265,6 +266,19 @@ export const catalogApi = {
         page: 1,
         totalPages: 1,
       };
+    }
+  },
+
+  /** GET /api/public/arabic/moroccan-series: Moroccan TV Series (Ramadan, comedy, drama). */
+  arabicMoroccanSeries: async (page: number = 1, signal?: AbortSignal): Promise<MediaList> => {
+    try {
+      return await getPublic<TmdbPage<TmdbTvListItem>, MediaList>(
+        '/api/public/arabic/moroccan-series',
+        (p) => toMediaList(p, (raw) => toMediaSummary(raw, 'tv')),
+        { params: { page: String(page) }, signal },
+      );
+    } catch {
+      return catalogApi.arabicMoroccan(page, signal);
     }
   },
 

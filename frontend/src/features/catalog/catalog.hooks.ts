@@ -16,6 +16,7 @@ import {
   trendingTodayQuery,
   watchProvidersQuery,
   arabicMoroccanQuery,
+  arabicMoroccanSeriesQuery,
   arabicEgyptianQuery,
   arabicClassicQuery,
   arabicTrendingQuery,
@@ -33,6 +34,8 @@ export const useTopRated = (mediaType: MediaType) => useQuery(topRatedQuery(medi
 export const useNowPlaying = () => useQuery(nowPlayingQuery());
 
 export const useArabicMoroccan = (page: number = 1) => useQuery(arabicMoroccanQuery(page));
+export const useArabicMoroccanSeries = (page: number = 1) =>
+  useQuery(arabicMoroccanSeriesQuery(page));
 export const useArabicEgyptian = (page: number = 1) => useQuery(arabicEgyptianQuery(page));
 export const useArabicClassic = (page: number = 1) => useQuery(arabicClassicQuery(page));
 export const useArabicTrending = (page: number = 1) => useQuery(arabicTrendingQuery(page));

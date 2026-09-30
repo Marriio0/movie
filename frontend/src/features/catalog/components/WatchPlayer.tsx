@@ -945,29 +945,26 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                   <span>Wide ⤾</span>
                 </button>
               )}
-              {directVideoUrl || (currentEmbedUrl && /\.(mp4|m3u8|webm)(\?.*)?$/i.test(currentEmbedUrl)) ? (
+              {directVideoUrl ? (
                 <div className="relative size-full">
                   <video
-                    key={directVideoUrl || currentEmbedUrl}
-                    src={directVideoUrl || currentEmbedUrl}
+                    key={directVideoUrl}
+                    src={directVideoUrl}
                     controls
                     autoPlay
-                    playsInline
-                    className="size-full bg-black object-contain"
+                    className="size-full bg-black"
                   >
                     Your browser does not support HTML5 video streaming.
                   </video>
-                  {directVideoUrl && (
-                    <button
-                      type="button"
-                      onClick={() => setDirectVideoUrl(null)}
-                      className="absolute right-3 top-3 z-20 flex items-center gap-1.5 rounded-lg bg-black/80 px-3 py-1.5 text-xs font-semibold text-white shadow-lg backdrop-blur-md ring-1 ring-white/20 transition hover:bg-black"
-                      title="Back to embed servers"
-                    >
-                      <X className="size-3.5" />
-                      <span>Back to Servers (Server 1)</span>
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => setDirectVideoUrl(null)}
+                    className="absolute right-3 top-3 z-20 flex items-center gap-1.5 rounded-lg bg-black/80 px-3 py-1.5 text-xs font-semibold text-white shadow-lg backdrop-blur-md ring-1 ring-white/20 transition hover:bg-black"
+                    title="Back to embed servers"
+                  >
+                    <X className="size-3.5" />
+                    <span>Back to Servers (Server 1)</span>
+                  </button>
                 </div>
               ) : (
                 <iframe
