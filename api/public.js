@@ -123,18 +123,44 @@ export default async function handler(req, res) {
             },
           },
         );
-        const html = await ytRes.text();
-        const match = html.match(/"videoId":"([a-zA-Z0-9_-]{11})"/g);
-        const videoId = match ? match[0].match(/"videoId":"([a-zA-Z0-9_-]{11})"/)[1] : null;
+        let videoId = null;
+        let embedUrl = null;
 
-        if (!videoId) {
+        if (match && match.length > 0) {
+          const m = match[0].match(/"videoId":"([a-zA-Z0-9_-]{11})"/);
+          if (m && m[1]) {
+            videoId = m[1];
+            embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&fs=1&controls=1`;
+          }
+        }
+
+        // Fallback to Dailymotion if not found on YouTube
+        if (!embedUrl) {
+          try {
+            const dmRes = await fetch(
+              `https://api.dailymotion.com/videos?search=${encodeURIComponent(q)}&limit=1&fields=id`,
+              { headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)' } },
+            );
+            if (dmRes.ok) {
+              const dmData = await dmRes.json();
+              if (dmData.list && dmData.list.length > 0 && dmData.list[0].id) {
+                const dmId = dmData.list[0].id;
+                embedUrl = `https://www.dailymotion.com/embed/video/${dmId}?autoplay=1`;
+              }
+            }
+          } catch {
+            // Ignore fallback error
+          }
+        }
+
+        if (!embedUrl) {
           return res.status(404).json({ error: 'Stream not found' });
         }
 
         const result = {
           success: true,
           videoId,
-          embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&fs=1&controls=1`,
+          embedUrl,
         };
         streamCache.set(cacheKey, result);
         return res.status(200).json(result);

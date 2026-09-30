@@ -142,11 +142,31 @@ const TITLE_PATTERNS: Array<{
   { pattern: /دار النسا|dar nsa|dar nessa/i, videoId: 'cIYKlbeivlU' },
   { pattern: /جعفر العمدة|gaafar/i, videoId: 'yBZTfBuKvAM' },
   { pattern: /البرنس|el prince/i, videoId: 'dEY6AxD44YM' },
-  { pattern: /الأسطورة|الاسطورة|ostora/i, videoId: 'KjTw5pkUpr8' },
+  { pattern: /الأسطورة|الاسطورة|el ostora/i, videoId: 'KjTw5pkUpr8' },
 ];
 
-export function buildEmbedUrl(videoId: string): string {
-  return `https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&fs=1&controls=1`;
+export function buildEmbedUrl(videoIdOrUrl: string): string {
+  if (videoIdOrUrl.startsWith('http://') || videoIdOrUrl.startsWith('https://')) {
+    return videoIdOrUrl;
+  }
+  return `https://www.youtube-nocookie.com/embed/${videoIdOrUrl}?autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&fs=1&controls=1`;
+}
+
+/**
+ * Checks if a title belongs to the Arabic or Moroccan cinema catalog.
+ */
+export function isArabicTitle(media: {
+  originalLanguage?: string;
+  title?: string;
+  originalTitle?: string;
+  id?: number;
+}): boolean {
+  if (media.originalLanguage === 'ar') return true;
+  const arabicRegex = /[\u0600-\u06FF]/;
+  if (media.title && arabicRegex.test(media.title)) return true;
+  if (media.originalTitle && arabicRegex.test(media.originalTitle)) return true;
+  if (media.id && ARABIC_CLEAN_STREAMS[media.id]) return true;
+  return false;
 }
 
 /**
@@ -170,9 +190,15 @@ export function getArabicCleanStream(
     if (vid) return buildEmbedUrl(vid);
   }
 
-  // 2. Check by title matching
+  // 2. Check by title matching (strictly when Arabic text is present to avoid false positives)
   if (title) {
-    const matched = TITLE_PATTERNS.find((tp) => tp.pattern.test(title));
+    const hasArabicLetters = /[\u0600-\u06FF]/.test(title);
+    const matched = TITLE_PATTERNS.find((tp) => {
+      if (!hasArabicLetters && !/casanegra|ali zaoua|much loved|blue caftan|marock/i.test(title)) {
+        return false;
+      }
+      return tp.pattern.test(title);
+    });
     if (matched) {
       let vid = matched.videoId;
       if (matched.episodes && matched.episodes[episode]) {

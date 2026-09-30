@@ -79,10 +79,10 @@ describe('WatchPlayer', () => {
     expect(screen.getByRole('button', { name: /Servers \(1-5\)/i })).toBeInTheDocument();
 
     // Default stream mode shows servers and video player iframe immediately
-    expect(screen.getByRole('button', { name: /Server 1 \(VidSrc Fast HD\)/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Server 2 \(VidSrc VIP\)/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Server 1 \(VidLink Fast HD\)/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Server 2 \(AutoEmbed VIP\)/i })).toBeInTheDocument();
     const iframe = screen.getByTitle(/Watch Dune: Part Two/i);
-    expect(iframe).toHaveAttribute('src', expect.stringContaining('vidsrc.su/embed/movie/693134'));
+    expect(iframe).toHaveAttribute('src', expect.stringContaining('vidlink.pro/movie/693134'));
   });
 
   it('renders Torrentio view when switching to torrentio tab', async () => {
@@ -100,13 +100,13 @@ describe('WatchPlayer', () => {
     localStorage.setItem('marquee:preferred-view-mode', 'stream');
     renderWatchPlayer(mockMovie);
 
-    const vidsrcBtn = screen.getByRole('button', { name: /Server 2 \(VidSrc VIP\)/i });
-    await user.click(vidsrcBtn);
+    const server2Btn = screen.getByRole('button', { name: /Server 2 \(AutoEmbed VIP\)/i });
+    await user.click(server2Btn);
 
     const iframe = screen.getByTitle(/Watch Dune: Part Two/i);
     expect(iframe).toHaveAttribute(
       'src',
-      expect.stringContaining('vidsrc.me/embed/movie?tmdb=693134'),
+      expect.stringContaining('autoembed.co/movie/tmdb/693134'),
     );
     expect(iframe).not.toHaveAttribute('sandbox');
   });
@@ -124,20 +124,16 @@ describe('WatchPlayer', () => {
     expect(screen.getByRole('heading', { name: /Watch S1 : E2/i })).toBeInTheDocument();
 
     const iframe = screen.getByTitle(/Watch Game of Thrones/i);
-    expect(iframe).toHaveAttribute('src', expect.stringContaining('vidsrc.su/embed/tv/1399/1/2'));
+    expect(iframe).toHaveAttribute('src', expect.stringContaining('vidlink.pro/tv/1399/1/2'));
   });
 
   it('configures default Arabic subtitles in player and displays CC indicator', async () => {
-    const user = userEvent.setup();
     localStorage.setItem('marquee:preferred-view-mode', 'stream');
     renderWatchPlayer(mockMovie);
 
-    const vidsrcVipBtn = screen.getByRole('button', { name: /Server 2 \(VidSrc VIP\)/i });
-    await user.click(vidsrcVipBtn);
-
     expect(screen.getByTitle(/Watch Dune: Part Two/i)).toHaveAttribute(
       'src',
-      expect.stringContaining('ds_lang=ar'),
+      expect.stringContaining('sub_lang=ar'),
     );
     expect(screen.getByText(/Subtitles \(CC\) Available/i)).toBeInTheDocument();
   });

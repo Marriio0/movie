@@ -119,14 +119,35 @@ function tmdbDevPlugin(): Plugin {
             const html = await ytRes.text();
             const match = html.match(/"videoId":"([a-zA-Z0-9_-]{11})"/g);
             let videoId: string | null = null;
+            let embedUrl: string | null = null;
+
             if (match && match.length > 0) {
               const m = match[0].match(/"videoId":"([a-zA-Z0-9_-]{11})"/);
               if (m && m[1]) {
                 videoId = m[1];
+                embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&fs=1&controls=1`;
               }
             }
 
-            if (!videoId) {
+            if (!embedUrl) {
+              try {
+                const dmRes = await fetch(
+                  `https://api.dailymotion.com/videos?search=${encodeURIComponent(q)}&limit=1&fields=id`,
+                  { headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)' } },
+                );
+                if (dmRes.ok) {
+                  const dmData = (await dmRes.json()) as { list?: Array<{ id: string }> };
+                  if (dmData.list && dmData.list.length > 0 && dmData.list[0]?.id) {
+                    const dmId = dmData.list[0].id;
+                    embedUrl = `https://www.dailymotion.com/embed/video/${dmId}?autoplay=1`;
+                  }
+                }
+              } catch {
+                // Ignore fallback error
+              }
+            }
+
+            if (!embedUrl) {
               res.statusCode = 404;
               res.setHeader('Content-Type', 'application/json');
               return res.end(JSON.stringify({ error: 'Stream not found' }));
@@ -135,7 +156,7 @@ function tmdbDevPlugin(): Plugin {
             const result = {
               success: true,
               videoId,
-              embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&fs=1&controls=1`,
+              embedUrl,
             };
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');

@@ -22,7 +22,16 @@ import { Capacitor } from '@capacitor/core';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import type { MediaDetails } from '../catalog.types';
-import { STREAMING_SERVERS, type StreamingServer } from '../lib/streaming-servers';
+import {
+  STREAMING_SERVERS,
+  ARABIC_STREAM_SERVER,
+  type StreamingServer,
+} from '../lib/streaming-servers';
+import {
+  getArabicCleanStream,
+  fetchDynamicArabicStream,
+  isArabicTitle,
+} from '../lib/arabic-streams';
 import {
   fetchLiveSubtitles,
   downloadSubtitleBlob,
@@ -77,8 +86,10 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
     }
   };
 
-  // Server selection (default Server 1: VidSrc Fast HD)
-  const [selectedServerId, setSelectedServerId] = useState<string>('vidsrcsu');
+  // Server selection (default Server 1: VidLink Fast HD with subtitles, or Arabic server for Arabic cinema)
+  const [selectedServerId, setSelectedServerId] = useState<string>(() => {
+    return isArabicTitle(details) ? 'arabic' : 'vidlink';
+  });
 
   // Interactive Subtitle language preference (defaults to Arabic 'ar' or saved user preference)
   const [selectedSubLang, setSelectedSubLang] = useState<string>(() => {
@@ -242,9 +253,22 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
     return 24; // Default safe fallback range
   }, [isSeries, details.seasons, currentSeason]);
 
+  const isArabic = useMemo(() => {
+    return isArabicTitle(details);
+  }, [details]);
+
+  const availableServers = useMemo(() => {
+    if (isArabic) {
+      return [ARABIC_STREAM_SERVER, ...STREAMING_SERVERS];
+    }
+    return STREAMING_SERVERS;
+  }, [isArabic]);
+
   const activeServer: StreamingServer | undefined = useMemo(() => {
-    return STREAMING_SERVERS.find((s) => s.id === selectedServerId);
-  }, [selectedServerId]);
+    return (
+      availableServers.find((s) => s.id === selectedServerId) || availableServers[0]
+    );
+  }, [availableServers, selectedServerId]);
 
   // Live Subtitles query via Stremio OpenSubtitles v3 addon
   const subtitlesQuery = useQuery({
@@ -317,9 +341,39 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
     setIsDownloadingSub(false);
   };
 
+  // Dynamic Arabic stream query to automatically search YouTube / Dailymotion if not statically mapped
+  const arabicDynamicQuery = useQuery({
+    queryKey: [
+      'arabic-stream',
+      details.title,
+      details.mediaType,
+      currentSeason,
+      currentEpisode,
+    ],
+    queryFn: ({ signal }) =>
+      fetchDynamicArabicStream({
+        title: details.title,
+        season: currentSeason,
+        episode: currentEpisode,
+        mediaType: details.mediaType,
+        signal,
+      }),
+    enabled: isArabic || selectedServerId === 'arabic',
+    staleTime: 60 * 60 * 1000,
+  });
 
   // Compute active embed player URL with subtitle preference
   const currentEmbedUrl = useMemo(() => {
+    if (selectedServerId === 'arabic') {
+      const staticStream = getArabicCleanStream(
+        details.id,
+        currentSeason,
+        currentEpisode,
+        details.title,
+      );
+      if (staticStream) return staticStream;
+      if (arabicDynamicQuery.data) return arabicDynamicQuery.data;
+    }
     if (!activeServer) return '';
     return activeServer.getUrl({
       mediaType: details.mediaType,
@@ -331,6 +385,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
       subLang: selectedSubLang,
     });
   }, [
+    selectedServerId,
     activeServer,
     details.mediaType,
     details.id,
@@ -339,13 +394,14 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
     currentSeason,
     currentEpisode,
     selectedSubLang,
+    arabicDynamicQuery.data,
   ]);
 
   // Quick switch to next server if current is buffering
   const handleNextServer = () => {
-    const currentIndex = STREAMING_SERVERS.findIndex((s) => s.id === selectedServerId);
-    const nextIndex = (currentIndex + 1) % STREAMING_SERVERS.length;
-    const nextServer = STREAMING_SERVERS[nextIndex] ?? STREAMING_SERVERS[0]!;
+    const currentIndex = availableServers.findIndex((s) => s.id === selectedServerId);
+    const nextIndex = (currentIndex + 1) % availableServers.length;
+    const nextServer = availableServers[nextIndex] ?? availableServers[0]!;
     setSelectedServerId(nextServer.id);
     setDirectVideoUrl(null);
   };
@@ -539,8 +595,9 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
           <div className="space-y-2">
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap">
-                {STREAMING_SERVERS.map((server) => {
+                {availableServers.map((server) => {
                   const isSelected = selectedServerId === server.id && !directVideoUrl;
+                  const isArabicServer = server.id === 'arabic';
                   return (
                     <button
                       key={server.id}
@@ -552,8 +609,12 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
                       className={cn(
                         'flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition',
                         isSelected
-                          ? 'bg-accent text-accent-fg shadow-sm'
-                          : 'bg-surface-2 text-fg ring-1 ring-line hover:bg-surface-3',
+                          ? isArabicServer
+                            ? 'bg-amber-500 text-black font-bold shadow-md ring-1 ring-amber-400'
+                            : 'bg-accent text-accent-fg shadow-sm'
+                          : isArabicServer
+                            ? 'bg-amber-950/40 text-amber-300 ring-1 ring-amber-500/40 hover:bg-amber-900/50'
+                            : 'bg-surface-2 text-fg ring-1 ring-line hover:bg-surface-3',
                       )}
                     >
                       <Server className="size-3" />
