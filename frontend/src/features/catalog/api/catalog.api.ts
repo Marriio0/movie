@@ -33,6 +33,7 @@ import type {
 
 import { getStoredTmdbLang } from '@/shared/i18n/language-context';
 import { CURATED_MOROCCAN_TITLES } from '../data/moroccan-titles';
+import { CURATED_EGYPTIAN_TITLES } from '../data/egyptian-titles';
 
 /** URL segment the backend uses for each media type (MovieController). */
 const segment = (mediaType: MediaType) => (mediaType === 'movie' ? 'movies' : 'series');
@@ -270,26 +271,52 @@ export const catalogApi = {
   /** GET /api/public/arabic/egyptian: Egyptian movies and blockbusters. */
   arabicEgyptian: async (page: number = 1, signal?: AbortSignal): Promise<MediaList> => {
     try {
-      return await getPublic<TmdbPage<TmdbMovieListItem>, MediaList>(
+      const res = await getPublic<TmdbPage<TmdbMovieListItem>, MediaList>(
         '/api/public/arabic/egyptian',
         (p) => toMediaList(p, (raw) => toMediaSummary(raw, 'movie')),
         { params: { page: String(page) }, signal },
       );
+      if (page === 1) {
+        const existingIds = new Set(CURATED_EGYPTIAN_TITLES.map((t) => t.id));
+        const filtered = res.items.filter((item) => !existingIds.has(item.id));
+        return {
+          ...res,
+          items: [...CURATED_EGYPTIAN_TITLES, ...filtered],
+        };
+      }
+      return res;
     } catch {
-      return catalogApi.popular('movie', signal);
+      return {
+        items: CURATED_EGYPTIAN_TITLES,
+        page: 1,
+        totalPages: 1,
+      };
     }
   },
 
   /** GET /api/public/arabic/classic: Classic Egyptian masterpieces (Adel Imam, Youssef Chahine, El Keif, etc.). */
   arabicClassic: async (page: number = 1, signal?: AbortSignal): Promise<MediaList> => {
     try {
-      return await getPublic<TmdbPage<TmdbMovieListItem>, MediaList>(
+      const res = await getPublic<TmdbPage<TmdbMovieListItem>, MediaList>(
         '/api/public/arabic/classic',
         (p) => toMediaList(p, (raw) => toMediaSummary(raw, 'movie')),
         { params: { page: String(page) }, signal },
       );
+      if (page === 1) {
+        const existingIds = new Set(CURATED_EGYPTIAN_TITLES.map((t) => t.id));
+        const filtered = res.items.filter((item) => !existingIds.has(item.id));
+        return {
+          ...res,
+          items: [...CURATED_EGYPTIAN_TITLES, ...filtered],
+        };
+      }
+      return res;
     } catch {
-      return catalogApi.popular('movie', signal);
+      return {
+        items: CURATED_EGYPTIAN_TITLES,
+        page: 1,
+        totalPages: 1,
+      };
     }
   },
 

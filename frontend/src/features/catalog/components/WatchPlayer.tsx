@@ -77,15 +77,15 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
     }
   };
 
-  // Server selection (default Server 1: VidLink Fast HD)
-  const [selectedServerId, setSelectedServerId] = useState<string>('vidlink');
+  // Server selection (default Server 1: Videasy Fast HD)
+  const [selectedServerId, setSelectedServerId] = useState<string>('videasy');
 
-  // Interactive Subtitle language preference (defaults to English 'en' or saved user preference)
+  // Interactive Subtitle language preference (defaults to Arabic 'ar' or saved user preference)
   const [selectedSubLang, setSelectedSubLang] = useState<string>(() => {
     try {
-      return localStorage.getItem(PREFERRED_SUB_LANG_KEY) || 'en';
+      return localStorage.getItem(PREFERRED_SUB_LANG_KEY) || 'ar';
     } catch {
-      return 'en';
+      return 'ar';
     }
   });
 
@@ -324,6 +324,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
     return activeServer.getUrl({
       mediaType: details.mediaType,
       tmdbId: details.id,
+      title: details.title,
       imdbId: details.imdbId,
       season: currentSeason,
       episode: currentEpisode,
@@ -333,6 +334,7 @@ export function WatchPlayer({ details }: WatchPlayerProps) {
     activeServer,
     details.mediaType,
     details.id,
+    details.title,
     details.imdbId,
     currentSeason,
     currentEpisode,

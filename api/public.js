@@ -80,6 +80,8 @@ function getTmdbPath(pathname, searchParams) {
   return null;
 }
 
+const streamCache = new Map();
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -91,6 +93,56 @@ export default async function handler(req, res) {
 
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    if (url.pathname === '/api/public/arabic/stream') {
+      const title = url.searchParams.get('title') || '';
+      const season = url.searchParams.get('season') || '1';
+      const episode = url.searchParams.get('episode') || '1';
+      const type = url.searchParams.get('type') || 'movie';
+
+      if (!title) {
+        return res.status(400).json({ error: 'Title is required' });
+      }
+
+      const cacheKey = `${type}-${title}-${season}-${episode}`;
+      if (streamCache.has(cacheKey)) {
+        return res.status(200).json(streamCache.get(cacheKey));
+      }
+
+      try {
+        const q =
+          type === 'tv'
+            ? `مسلسل ${title} الحلقة ${episode}`
+            : `فيلم ${title} كامل`;
+        const ytRes = await fetch(
+          `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`,
+          {
+            headers: {
+              'User-Agent':
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+              'Accept-Language': 'ar,en;q=0.9',
+            },
+          },
+        );
+        const html = await ytRes.text();
+        const match = html.match(/"videoId":"([a-zA-Z0-9_-]{11})"/g);
+        const videoId = match ? match[0].match(/"videoId":"([a-zA-Z0-9_-]{11})"/)[1] : null;
+
+        if (!videoId) {
+          return res.status(404).json({ error: 'Stream not found' });
+        }
+
+        const result = {
+          success: true,
+          videoId,
+          embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&fs=1&controls=1`,
+        };
+        streamCache.set(cacheKey, result);
+        return res.status(200).json(result);
+      } catch (err) {
+        return res.status(500).json({ error: String(err) });
+      }
+    }
+
     const mapping = getTmdbPath(url.pathname, url.searchParams);
 
     if (!mapping) {

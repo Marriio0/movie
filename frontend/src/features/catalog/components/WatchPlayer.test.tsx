@@ -79,10 +79,10 @@ describe('WatchPlayer', () => {
     expect(screen.getByRole('button', { name: /Servers \(1-5\)/i })).toBeInTheDocument();
 
     // Default stream mode shows servers and video player iframe immediately
-    expect(screen.getByRole('button', { name: /Server 1 \(VidLink Fast HD\)/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Server 1 \(Videasy Fast HD\)/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Server 2 \(VidSrc SU\)/i })).toBeInTheDocument();
     const iframe = screen.getByTitle(/Watch Dune: Part Two/i);
-    expect(iframe).toHaveAttribute('src', expect.stringContaining('vidlink.pro/movie/693134'));
+    expect(iframe).toHaveAttribute('src', expect.stringContaining('player.videasy.net/movie/693134'));
   });
 
   it('renders Torrentio view when switching to torrentio tab', async () => {
@@ -124,16 +124,16 @@ describe('WatchPlayer', () => {
     expect(screen.getByRole('heading', { name: /Watch S1 : E2/i })).toBeInTheDocument();
 
     const iframe = screen.getByTitle(/Watch Game of Thrones/i);
-    expect(iframe).toHaveAttribute('src', expect.stringContaining('vidlink.pro/tv/1399/1/2'));
+    expect(iframe).toHaveAttribute('src', expect.stringContaining('player.videasy.net/tv/1399/1/2'));
   });
 
-  it('configures default English subtitles in player and displays CC indicator', () => {
+  it('configures default Arabic subtitles in player and displays CC indicator', () => {
     localStorage.setItem('marquee:preferred-view-mode', 'stream');
     renderWatchPlayer(mockMovie);
 
     expect(screen.getByTitle(/Watch Dune: Part Two/i)).toHaveAttribute(
       'src',
-      expect.stringContaining('sub_lang=en'),
+      expect.stringContaining('sub_lang=ar'),
     );
     expect(screen.getByText(/Subtitles \(CC\) Available/i)).toBeInTheDocument();
   });
